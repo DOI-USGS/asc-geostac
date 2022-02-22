@@ -8,7 +8,7 @@ import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import Typography from '@mui/material/Typography';
 import AppBar from '@mui/material/AppBar';
 import Container from '@mui/material/Container';
-import GeoTiffViewer from "../../js/geoTIffViewer";
+import GeoTiffViewer from "../../js/geoTiffViewer";
 
 const css = {
   shown: {
