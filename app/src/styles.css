@@ -276,20 +276,13 @@ summary {
 }
 
 #geoTiff-Container {
-  width: 300px;
+  width: 400px;
   text-align: center;
   margin: 0 auto;
-  display: none; 
-  background: lightgray;
-  color: black;
+  display: none;
 }
 
 #geoTiff-Asset-name {
   text-align: center;
   flex-grow: 1;
-}
-
-#geoTiffClose {
-  text-align: center;
-  background: darkgray;
 }

@@ -52,7 +52,7 @@ export default class GeoTiffViewer {
 				console.log(base64data);
 			}
 
-			const geoTiffDiv = document.getElementbyID(this._imgDiv)  
+			const geoTiffDiv = document.getElementById(this._imgDiv)  
 			geoTiffDiv.innerHTML = ''; 
 
 			const imageObjectURL = URL.createObjectURL(imageBlob);
@@ -60,7 +60,7 @@ export default class GeoTiffViewer {
 
 			img.src = imageObjectURL;
 
-			document.getElementbyID(this._imgDiv).appendChild(img);
+			document.getElementById(this._imgDiv).appendChild(img);
 			
 		})
 
@@ -77,16 +77,21 @@ export default class GeoTiffViewer {
 	 * */
 	toggleViewer()
 	{
-		var div = document.getElementbyID("");
-		if (div.style.display == "none")
+		const geoTiffContainerDiv = document.getElementById("geoTiff-Container") 
+		
+		if(geoTiffContainerDiv != null )
 		{
-			x.style.diplay = "block";
+			if (geoTiffContainerDiv.style.display == "none")
+			{
+				geoTiffContainerDiv.style.display = "block";
 
+			}
+			else
+			{
+				geoTiffContainerDiv.style.display = "none"; 
+			}
 		}
-		else
-		{
-			x.style.diplay = "none"; 
-		}
+		
 	}
 
 
