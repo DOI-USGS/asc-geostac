@@ -8,8 +8,7 @@ import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import Typography from '@mui/material/Typography';
 import AppBar from '@mui/material/AppBar';
 import Container from '@mui/material/Container';
-import GeoTiffViewer from "./geoTiffViewer";
-//import GeoTiffViewer from "../../js/geoTIffViewer";
+import GeoTiffViewer from "../../js/geoTiffViewer";
 
 const css = {
   shown: {
@@ -73,7 +72,7 @@ export default function App() {
       <div id="geoTiff-Container">
         <Container>
           <AppBar position="relative">
-            <Container>
+            <Container sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}>
               <Typography 
                 variant="h6"
                 id="geoTiff-Asset-name"
@@ -84,9 +83,9 @@ export default function App() {
                 >
                   Displayed GeoTiff
                 </Typography>
-                <button onClick={geoTiffViewer.toggleViewer()} 
-                id="geoTiffClose">
-                  CLOSE
+                <button onClick={geoTiffViewer.toggleViewer} 
+                  id="geoTiffClose">
+                    CLOSE
                 </button>
             </Container>
           </AppBar>
