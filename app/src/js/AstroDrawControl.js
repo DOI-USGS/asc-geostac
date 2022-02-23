@@ -167,13 +167,18 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
    * @param {String} coords - The drawn shape’s coordinates.
    */
   shapesToFootprint: function(coords) {
-    console.log("in shpaes to footprints, val is: ",coords);
-    let strArr = coords
-      .slice(coords.indexOf("((") + 2, coords.indexOf("))"))
-      .split(",");
+    let qstr = "";
+    for (let i=0; i< coords.length; i++){
+
+      qstr += coords[i]['x'] + " " + coords[i]['y']
+      if (i < coords.length -1)
+        qstr +=","
+    }
+
+    let strArr = qstr.split(",");
     let bboxCoordArr = [];
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < strArr.length -1; i++) {
       if (i != 1) {
         let temp = strArr[i].split(" ");
         bboxCoordArr.push([parseFloat(temp[0]), parseFloat(temp[1])]);
@@ -230,10 +235,8 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
     }
 
     if (L.DomUtil.get("areaCheckBox").checked == true) {
-      console.log(this.wkt.components[0]);  
-      
-      let bboxValue = this.shapesToFootprint(this.wkt.components[0]);
-      filterOptions.push(bboxValue);
+      let drawnArea = this.shapesToFootprint(this.wkt.components[0]);
+      filterOptions.push(drawnArea);
     }
 
     let queryString = "";
