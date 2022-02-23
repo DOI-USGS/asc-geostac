@@ -60,7 +60,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
         }
       }
     }
-
     this.queryTextBox = L.DomUtil.get("query-textarea");
     this.queryAuto = L.DomUtil.get("query-auto-checkbox");
     this.queryAutoWkt = L.DomUtil.get("query-auto-wkt-checkbox");
@@ -168,6 +167,7 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
    * @param {String} coords - The drawn shape’s coordinates.
    */
   shapesToFootprint: function(coords) {
+    console.log("in shpaes to footprints, val is: ",coords);
     let strArr = coords
       .slice(coords.indexOf("((") + 2, coords.indexOf("))"))
       .split(",");
@@ -230,7 +230,9 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
     }
 
     if (L.DomUtil.get("areaCheckBox").checked == true) {
-      let bboxValue = this.shapesToFootprint(this.wktTextBox.value);
+      console.log(this.wkt.components[0]);  
+      
+      let bboxValue = this.shapesToFootprint(this.wkt.components[0]);
       filterOptions.push(bboxValue);
     }
 
@@ -249,6 +251,7 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
       this._map._geoLayers[i].clearLayers();
     }
     this._map.loadFootprintLayer(this._map._target, queryString);
+    document.getElementById("query-textarea").innerText = queryString;
   },
 
   /**
