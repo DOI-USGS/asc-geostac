@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import AppBar from '@mui/material/AppBar';
 import Container from '@mui/material/Container';
 import GeoTiffViewer from "../../js/geoTiffViewer";
+import FootprintResults from "../presentational/FootprintResults.jsx";
 
 const css = {
   shown: {
@@ -66,6 +67,7 @@ export default function App() {
         </div>
           <div style={sortBarStyle}>
             <SearchAndFilterInput target={targetPlanet}/>
+            <FootprintResults/>
           </div>
       </div>
 

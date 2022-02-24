@@ -1,6 +1,8 @@
 var _maxNumberPages = 0;
 var _currentPage = 1;
 var _numberMatched = 0;
+var _features = [];
+
 
 function callAPI() {
   return fetch(
@@ -42,6 +44,23 @@ function getItemCollection(name, queryString) {
     });
   });
 }
+
+/**
+ * @function setFeatures
+ * @description Sets the value of the max number of pages possible
+ */
+ function setFeatures(features) {
+  _features = features
+}
+
+/**
+ * @function getFeatures
+ * @description Gets the value of the max number of pages possible
+ */
+function getFeatures() {
+  return _features;
+}
+
 
 /**
  * @function setNumberMatched
@@ -97,4 +116,4 @@ function getCurrentPage() {
 }
 
 
-export { getItemCollection, getMaxNumberPages, setCurrentPage, getCurrentPage, setNumberMatched, getNumberMatched, setMaxNumberPages };
+export { getItemCollection, getFeatures, setFeatures, getMaxNumberPages, setCurrentPage, getCurrentPage, setNumberMatched, getNumberMatched, setMaxNumberPages };
