@@ -80,12 +80,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
     );
     L.DomEvent.on(L.DomUtil.get("clearButton"), "click", this.clearMap, this);
 
-    this.valueSlider = L.DomUtil.get("valueSlider")
-    L.DomEvent.on(this.valueSlider, "click", this.applyLimit, this);
-
-    this.pagination = L.DomUtil.get("pagination")
-    L.DomEvent.on(this.pagination, "click", this.applyPage, this);
-
     map.on("draw:created", this.shapesToWKT, this);
 
     // map.on("projChange", this.reprojectFeature, this);
@@ -119,43 +113,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
     for(let i = 0; i < this._map._geoLayers.length; i++){
       this._map._geoLayers[i].clearLayers();
     }
-  },
-
-
-  applyLimit: function() {
-    this._map._footprintControl.remove();
-
-    for(let i = 0; i < this._map._geoLayers.length; i++){
-      this._map._geoLayers[i].clearLayers();
-    }
-    let currentPage = getCurrentPage();
-
-    let sliderElement = L.DomUtil.get("valueSlider");
-    let limitVal = sliderElement.lastChild.firstChild.value;
-
-    let queryString = "?page=" + currentPage;
-    queryString += "&limit=" + limitVal;
-
-    this._map.loadFootprintLayer(this._map._target, queryString);
-  },
-
-
-
-  applyPage: function() {
-    this._map._footprintControl.remove();
-
-    for(let i = 0; i < this._map._geoLayers.length; i++){
-      this._map._geoLayers[i].clearLayers();
-    }
-    let currentPage = getCurrentPage();
-
-    let sliderElement = L.DomUtil.get("valueSlider");
-    let limitVal = sliderElement.lastChild.firstChild.value;
-
-    let queryString = "?page=" + currentPage;
-    queryString += "&limit=" + limitVal;
-
-    this._map.loadFootprintLayer(this._map._target, queryString);
   },
 
 
@@ -239,6 +196,13 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
       filterOptions.push(drawnArea);
     }
 
+    let currentPage = getCurrentPage();
+    filterOptions.push("page=" + currentPage);
+
+    let sliderElement = L.DomUtil.get("valueSlider");
+    let limitVal = sliderElement.lastChild.firstChild.value;
+    filterOptions.push("limit=" + limitVal);
+
     let queryString = "";
 
     for (let i = 0; i < filterOptions.length; i++) {
@@ -254,7 +218,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
       this._map._geoLayers[i].clearLayers();
     }
     this._map.loadFootprintLayer(this._map._target, queryString);
-    document.getElementById("query-textarea").innerText = queryString;
   },
 
   /**

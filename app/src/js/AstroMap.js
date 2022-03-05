@@ -104,13 +104,13 @@ export default L.Map.AstroMap = L.Map.extend({
     this.on("baselayerchange", function(e) {
       this.setCurrentLayer(e["layer"]);
     });
-    
+
     // Resize Observer
     const mapDivEl = document.getElementById(mapDiv);
     const resizeObserver = new ResizeObserver(() => {
       this.invalidateSize();
     });
-    
+
     resizeObserver.observe(mapDivEl);
   },
 
@@ -148,7 +148,7 @@ export default L.Map.AstroMap = L.Map.extend({
           }
         }
         this._footprintControl = L.control
-          .layers(null, this._footprintCollection)
+          .layers(null, this._footprintCollection, {collapsed: false})
           .addTo(this);
       }
       setNumberMatched(matched);

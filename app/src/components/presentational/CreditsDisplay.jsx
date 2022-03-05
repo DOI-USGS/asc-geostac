@@ -4,7 +4,7 @@ import Link from "@mui/material/Link";
 import Divider from "@mui/material/Divider";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import SvgIcon from "@mui/material/SvgIcon";
-import CartoCosmosIcon from "../../assets/img/cartocosmos-logo.svg";
+import GeoSTACIcon from "../../assets/img/geostaclogo.svg";
 
 
 export default function CreditsDisplay() {
@@ -31,7 +31,7 @@ export default function CreditsDisplay() {
           color="inherit"
           style={{ fontWeight: 600 }}
           variant="caption"
-          href="https://docs.google.com/document/d/1Wy5rwjEU7qACsI3jc-JdGEjh8jkq_v5DyQelfNOkjO4/edit?usp=sharing"
+          href=""
         >
           User Manual
         </Link>
@@ -39,28 +39,27 @@ export default function CreditsDisplay() {
       <Divider orientation="vertical" />
       <div className="credit-item">
         <Typography style={{ fontSize: 12 }} variant="caption">
-          Made by{" "}
           <Link
             target="_blank"
             rel="noopener"
             variant="caption"
             color="inherit"
             style={{ fontWeight: 600 }}
-            href="https://cefns.nau.edu/capstone/projects/CS/2020/CartoCosmos-S20/"
+            href="https://www.ceias.nau.edu/capstone/projects/CS/2022/GeoSTAC/"
           >
-            CartoCosmos{" "}
+            GeoSTAC Project Website
           </Link>
         </Typography>
         <SvgIcon
-          viewBox="0 0 1000 1000"
+          viewBox="0 0 375 375"
           style={{
             color: "#343a40",
             top: 3,
-            width: 13,
+            width: 20,
             height: 13,
             position: "relative"
           }}
-          component={CartoCosmosIcon}
+          component={GeoSTACIcon}
         />
       </div>
       <Divider orientation="vertical" />
@@ -68,20 +67,7 @@ export default function CreditsDisplay() {
         <Link
           target="_blank"
           rel="noopener"
-          color="inherit"
-          variant="caption"
-          style={{ fontWeight: 600 }}
-          href="https://cartocosmos-test.readthedocs.io/en/latest/"
-        >
-          Jupyter Notebooks
-        </Link>
-      </div>
-      <Divider orientation="vertical" />
-      <div className="credit-item">
-        <Link
-          target="_blank"
-          rel="noopener"
-          href="https://github.com/CartoCosmos/CartoCosmos/"
+          href="https://github.com/GeoSTAC/CartoCosmos-with-STAC"
         >
           <GitHubIcon
             style={{
