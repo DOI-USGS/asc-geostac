@@ -1,11 +1,19 @@
 import React, {useEffect} from "react";
-// CSS
-import { alpha } from "@mui/material/styles";
-// Lists
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
+import Checkbox from '@mui/material/Checkbox';
 
+// result action links
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
+
+// icons
+import PreviewIcon from '@mui/icons-material/Preview';
+import LaunchIcon from '@mui/icons-material/Launch';
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
+import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+
+// object with results
 import { getFeatures } from "../../js/ApiJsonCollection";
+import { autocompleteClasses } from "@mui/material";
 
 
 /**
@@ -16,44 +24,14 @@ let css = {
     backgroundColor: "#f8f9fa",
     overflow: "hidden",
     display: "flex",
-    alignItems: "flex-start"
-  },
-  container: {
-    padding: "1rem",
-    height: "100vh",
-    width: 225,
-    display: "flex",
+    alignItems: "flex-start",
     flexDirection: "column",
-    margin: "auto",
-    padding: 0
-  },
-  textbox: {
-    backgroundColor: "#e9ecef",
-    "&:focus": {
-      borderColor: "#1971c2"
-    }
-  },
-  button: {
-    width: "auto",
-    color: "#fff",
-    backgroundColor: "#1971c2",
-    "&:hover": {
-      backgroundColor: alpha("#1971c2", 0.7)
-    }
-  },
-  buttonRemove: {
-    width: "auto",
-    color: "#fff",
-    backgroundColor: "#64748B",
-    "&:hover": {
-      backgroundColor: alpha("#64748B", 0.7)
-    }
-  },
-  title: {
-    padding: "0.2rem",
-    color: "#343a40",
-    fontSize: 18,
-    fontWeight: 600
+    width: 275, 
+    maxHeight: "100vh",
+    wordWrap: "break-word",
+    flexShrink: 1,
+    padding: 0,
+    borderLeft: "2px solid lightgray"
   }
 };
 
@@ -78,18 +56,65 @@ export default function FootprintResults(props) {
 
   return (
     <div style={css.root}>
-        <div style={css.container}>
-          <div className="panelSection panelHeader">
-            Footprint Results
-          </div>
-          <List>
-            {features.map((feature) => (
-              <div className="panelSection" key={feature.id}>
-                <ListItem>{feature.id}</ListItem>
+
+      <div className="resultHeader">
+        <span id="panelSectionTitle">
+        Footprint Results
+        </span>
+        <span className="resultHeaderCheck">
+          <Checkbox defaultChecked onChange={props.changeLayout}
+            icon={<CloseFullscreenIcon/>} checkedIcon={<OpenInFullIcon/>}
+            sx={{
+              color: "#64748B",
+              '&.Mui-checked': {
+                color: "#64748B",
+              },
+            }}
+          />
+        </span>
+      </div>
+      <div className="resultsList">
+        {features.map((feature) => (
+          <div className="resultContainer" key={feature.id}>
+            <div className="resultImgDiv">
+              <img className="resultImg" src={feature.assets.thumbnail.href}/>
+            </div>
+            <div className="resultData">
+              <div className="resultSub">
+                <strong>Collection:</strong>&nbsp;{feature.collection}
               </div>
-            ))}
-          </List>
-        </div>
+              <div className="resultSub">
+                <strong>ID:</strong>&nbsp;{feature.id}
+              </div>
+              <div className="resultSub">
+                <strong>Date:</strong>&nbsp;{feature.properties.datetime}
+              </div>
+            </div>
+            <div className="resultLinks">
+              <Stack direction="row" spacing={1}>
+                <Chip
+                  label="Metadata"
+                  icon={<PreviewIcon/>}
+                  size="small"
+                  component="a"
+                  href="#"
+                  variant="outlined"
+                  clickable
+                />
+                <Chip
+                  label="STAC Browser"
+                  icon={<LaunchIcon/>}
+                  size="small"
+                  component="a"
+                  href="#"
+                  variant="outlined"
+                  clickable
+                />
+              </Stack>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

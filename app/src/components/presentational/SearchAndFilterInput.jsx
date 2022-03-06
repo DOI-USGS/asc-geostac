@@ -35,12 +35,13 @@ let css = {
     backgroundColor: "#f8f9fa",
     overflow: "hidden",
     display: "flex",
-    alignItems: "flex-start"
+    alignItems: "flex-start",
+    flexShrink: 0,
   },
   container: {
     padding: "1rem",
-    height: "100vh",
-    width: 225,
+    maxHeight: "100vh",
+    width: 275,
     display: "flex",
     flexDirection: "column",
     margin: "auto",
@@ -100,9 +101,9 @@ export default function SearchAndFilterInput(props) {
   const [dateCheckVal, setDateCheckVal] = React.useState(false);
   const [dateFromVal, setDateFromVal] = React.useState(null);
   const [dateToVal, setDateToVal] = React.useState(null);
-  const [maxPages, setMaxPages] = React.useState(0);
-  const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(0);
-  const [limitVal, setLimitVal] = React.useState(0);
+  const [maxPages, setMaxPages] = React.useState(10);
+  const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(10);
+  const [limitVal, setLimitVal] = React.useState(10);
 
   // Clear all values
   const handleClear = (event) => {
@@ -168,6 +169,7 @@ export default function SearchAndFilterInput(props) {
     setLimitVal(value);
     setTimeout(() => {
       setMaxPages(getMaxNumberPages);
+      props.footprintNavClick();
     }, 1000);
   }
 
@@ -177,12 +179,16 @@ export default function SearchAndFilterInput(props) {
       setMaxNumberFootprints(getNumberMatched);
       setLimitVal(10);
       setMaxPages(getMaxNumberPages);
+      props.footprintNavClick();
     }, 1000);
   }, [props.target]);
 
   // Pagination
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
+    setTimeout(() => {
+      props.footprintNavClick();
+    }, 1000)
   };
 
 

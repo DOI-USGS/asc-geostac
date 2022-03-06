@@ -228,21 +228,20 @@ Controls the CSS for projection buttons when there is no available projection
 }
 
 .panelSection {
-  border-bottom-style: solid;
-  border-bottom-width: 1px;
-  border-bottom-color: rgba(0, 0, 0, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   padding: 10px;
 }
 
 .panelHeader {
   font-family: sans-serif;
   font-weight: bold;
+  padding: 10px;
+  display: block;
 }
 
 .panelSectionHeader {
   display: inline;
   font-family: sans-serif;
-  width: auto;
 }
 
 .panelItem {
@@ -266,6 +265,68 @@ Controls the CSS for projection buttons when there is no available projection
 .panelSortAscCheck {
   float: right;
   margin-right: -10px;
+}
+
+.resultHeader {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: baseline;
+  font-family: sans-serif;
+  font-weight: bold;
+  padding: 10px;
+  width: 275px;
+}
+
+.resultHeaderCheck {
+  justify-content: flex-end;
+  margin-top: -10px;
+  margin-bottom: -10px;
+  margin-right: 10px;
+}
+
+.resultsList {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  width: 275px;
+  flex-shrink: 1;
+  height: auto;
+  overflow-y: scroll;
+}
+
+.resultContainer {
+  display: grid;
+  grid-template: "ra rb"
+                 "rc rc"
+                 / 20% 80%;
+  border-bottom: 3px double rgba(0, 0, 0, 0.4);
+  padding: 10px;
+}
+
+.resultSub {
+  font-family: Roboto, Arial, Helvetica, sans-serif;
+  font-size: small;
+  padding-bottom: 2px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  margin-bottom: 3px;
+
+  word-wrap: break-word;
+}
+
+.resultImgDiv {
+  grid-area: ra;
+}
+
+.resultData {
+  grid-area: rb;
+}
+
+.resultLinks {
+  grid-area: rc;
+}
+
+.resultImg {
+  max-width: 32px;
+  max-height: 96px;
 }
 
 summary {
