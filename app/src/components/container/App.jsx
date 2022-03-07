@@ -56,15 +56,11 @@ export default function App() {
   const [footprintData, setFootprintData] = React.useState([]);
 
   const showHideSort = () => {
-    console.log(showSidePanel + " -> ")
-    console.log("Show/Hide");
     setShowSidePanel(!showSidePanel);
     setSidePanelVisStyle(showSidePanel ? css.shown : css.hidden);
-    console.log(" -> " + showSidePanel);
   }
 
   const handlePanelLayout = (event) => {
-    console.log("Expand/Collapse");
     setExpandResults(expandResults => !expandResults);
     setResultsExpandStyle(expandResults ? css.expanded : css.stacked);
   }
@@ -79,7 +75,7 @@ export default function App() {
 
   const handleFootprintClick = () => {
     setFootprintData(getFeatures);
-    console.log(footprintData);
+    //console.log(footprintData);
   };
 
   return (

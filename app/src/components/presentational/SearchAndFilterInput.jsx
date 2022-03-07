@@ -21,8 +21,11 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+// No. of Footprints, pagination
 import Slider from '@mui/material/Slider';
 import Pagination from '@mui/material/Pagination';
+import Chip from '@mui/material/Chip';
+import FlagIcon from '@mui/icons-material/Flag';
 
 import { getMaxNumberPages, setCurrentPage, getCurrentPage, getNumberMatched, setLimit } from "../../js/ApiJsonCollection";
 
@@ -74,6 +77,13 @@ let css = {
     color: "#343a40",
     fontSize: 18,
     fontWeight: 600
+  },
+  chipHidden: {
+    visibility: "hidden"
+  },
+  chipShown: {
+    visibility: "visible",
+    textAlign: "center"
   }
 };
 
@@ -105,14 +115,19 @@ export default function SearchAndFilterInput(props) {
   const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(10);
   const [limitVal, setLimitVal] = React.useState(10);
 
-  const handleApply = (event) => {
+  const [applyChipVisStyle, setApplyChipVisStyle] = React.useState(css.chipHidden);
+  const [gotoPage, setGotopage] = React.useState("Apply to go to page 2");
+
+  const handleApply = () => {
     setTimeout(() => {
       setMaxPages(getMaxNumberPages);
+      props.footprintNavClick();
     }, 1000);
+    setApplyChipVisStyle(css.chipHidden);
   }
 
   // Clear all values
-  const handleClear = (event) => {
+  const handleClear = () => {
     setSortVal('');
     setSortAscCheckVal(false);
     setAreaCheckVal(false);
@@ -124,6 +139,8 @@ export default function SearchAndFilterInput(props) {
     setLimitVal(10);
     setMaxPages(getMaxNumberPages);
     setMaxNumberFootprints(getNumberMatched);
+
+    setApplyChipVisStyle(css.chipShown);
     //// Uncomment to close details on clear
     // keywordDetails.current.open = false;
     // dateDetails.current.open = false;
@@ -174,7 +191,8 @@ export default function SearchAndFilterInput(props) {
   const handleLimitChange = (event, value) => {
     setLimitVal(value);
     setLimit(value);
-    props.footprintNavClick();
+    setGotopage("Apply to show " + value + " footprints");
+    setApplyChipVisStyle(css.chipShown);
   }
 
   // resets pagination and limit when switching targets
@@ -185,16 +203,15 @@ export default function SearchAndFilterInput(props) {
       setLimit(10);
       setMaxPages(getMaxNumberPages);
       props.footprintNavClick();
-    }, 1000);
+    }, 2000);
   }, [props.target]);
 
 
   // Pagination
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
-    setTimeout(() => {
-      props.footprintNavClick();
-    }, 1000)
+    setGotopage("Apply to go to page " + value);
+    setApplyChipVisStyle(css.chipShown);
   };
 
 
@@ -334,31 +351,41 @@ export default function SearchAndFilterInput(props) {
                 </LocalizationProvider>
               </div>
             </details>
+          </div>
+          <div className="panelSectionHeader">
+            <div className="panelItem">
+              <div className="panelSectionTitle">Number of Displayed Footprints</div>
+                <Slider
+                  id="valueSlider"
+                  size="small"
+                  valueLabelDisplay="auto"
+                  onChange={handleLimitChange}
+                  value={limitVal}
+                  max={maxNumberFootprints}
+                  defaultValue={10}
+                />
             </div>
-            <div className="panelSectionHeader">
-              <div className="panelItem">
-                <div className="panelSectionTitle">Number of Displayed Footprints</div>
-                  <Slider
-                    id="valueSlider"
-                    size="small"
-                    valueLabelDisplay="auto"
-                    onChange={handleLimitChange}
-                    value={limitVal}
-                    max={maxNumberFootprints}
-                    defaultValue={10}
-                  />
-              </div>
+          </div>
+          <div className="panelSectionHeader">
+            <div className="panelItem">
+                <Pagination
+                  id="pagination"
+                  count={maxPages}
+                  size="small"
+                  onChange={handlePageChange}
+                />
             </div>
-            <div className="panelSectionHeader">
-              <div className="panelItem">
-                  <Pagination
-                    id="pagination"
-                    count={maxPages}
-                    size="small"
-                    onChange={handlePageChange}
-                  />
-              </div>
-            </div>
+          </div>
+          <div style={applyChipVisStyle}>
+            <Chip 
+              id="applyChip"
+              label={gotoPage}
+              icon={<FlagIcon/>}
+              onClick={handleApply}
+              variant="outlined"
+              clickable
+            />
+          </div>
         </div>
     </div>
   );
