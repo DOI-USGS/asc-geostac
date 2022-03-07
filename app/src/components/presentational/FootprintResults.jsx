@@ -47,6 +47,11 @@ export default function FootprintResults(props) {
 
   const [features, setFeatures] = React.useState([]);
 
+  const showMetadata = value => () => {
+    // launch metadata popup here
+    console.log(value);
+  }
+
   useEffect(() => {
     setTimeout(() => {
       setFeatures(getFeatures);
@@ -96,8 +101,7 @@ export default function FootprintResults(props) {
                   label="Metadata"
                   icon={<PreviewIcon/>}
                   size="small"
-                  component="a"
-                  href="#"
+                  onClick={showMetadata(feature)}
                   variant="outlined"
                   clickable
                 />
