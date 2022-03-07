@@ -26,8 +26,13 @@ import {getCurrentPage} from "./ApiJsonCollection";
  */
 export default L.Control.AstroDrawControl = L.Control.Draw.extend({
   options: {
-    draw: { circle: false, marker: false, circlemarker: false },
-    edit: false
+    draw: { 
+      circle: false, 
+      marker: false, 
+      circlemarker: false, 
+      polyline: false, 
+      polygon:false },
+      edit: false
   },
 
   /**
