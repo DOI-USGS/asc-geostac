@@ -118,6 +118,11 @@ export default function SearchAndFilterInput(props) {
   const [applyChipVisStyle, setApplyChipVisStyle] = React.useState(css.chipHidden);
   const [gotoPage, setGotopage] = React.useState("Apply to go to page 2");
 
+  const setApplyChip = (value) => {
+    setGotopage(value);
+    setApplyChipVisStyle(css.chipShown);
+  }
+
   const handleApply = () => {
     setTimeout(() => {
       setMaxPages(getMaxNumberPages);
@@ -139,8 +144,7 @@ export default function SearchAndFilterInput(props) {
     setLimitVal(10);
     setMaxPages(getMaxNumberPages);
     setMaxNumberFootprints(getNumberMatched);
-
-    setApplyChipVisStyle(css.chipShown);
+    setApplyChip("Apply to show Footprints");
     //// Uncomment to close details on clear
     // keywordDetails.current.open = false;
     // dateDetails.current.open = false;
@@ -157,13 +161,19 @@ export default function SearchAndFilterInput(props) {
   // Polygon
   const handleAreaCheckChange = (event) => {
     setAreaCheckVal(event.target.checked);
+    if (event.target.checked === true) {
+      setApplyChip("Apply to filter footprints");
+    }
   }
 
   // Keyword
   const handleKeywordCheckChange = (event) => {
     setKeywordCheckVal(event.target.checked);
-    if (event.target.checked === true && keywordDetails.current.open === false) {
-      keywordDetails.current.open = true;
+    if (event.target.checked === true) {
+      setApplyChip("Apply to filter footprints");
+      if (keywordDetails.current.open === false) {
+        keywordDetails.current.open = true;
+      }
     }
   }
   const handleKeywordChange = (event) => {
@@ -174,8 +184,11 @@ export default function SearchAndFilterInput(props) {
   // Date
   const handleDateCheckChange = (event) => {
     setDateCheckVal(event.target.checked);
-    if (event.target.checked === true && dateDetails.current.open === false) {
-      dateDetails.current.open = true;
+    if (event.target.checked === true) {
+      setApplyChip("Apply to filter footprints");
+      if (dateDetails.current.open === false) {
+        dateDetails.current.open = true;
+      }
     }
   }
   const handleDateFromChange = (event) => {
@@ -191,8 +204,7 @@ export default function SearchAndFilterInput(props) {
   const handleLimitChange = (event, value) => {
     setLimitVal(value);
     setLimit(value);
-    setGotopage("Apply to show " + value + " footprints");
-    setApplyChipVisStyle(css.chipShown);
+    setApplyChip("Apply to show " + value + " footprints");
   }
 
   // resets pagination and limit when switching targets
@@ -210,8 +222,7 @@ export default function SearchAndFilterInput(props) {
   // Pagination
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
-    setGotopage("Apply to go to page " + value);
-    setApplyChipVisStyle(css.chipShown);
+    setApplyChip("Apply to go to page " + value);
   };
 
 
