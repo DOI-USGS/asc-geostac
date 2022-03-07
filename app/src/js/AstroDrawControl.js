@@ -60,7 +60,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
         }
       }
     }
-
     this.queryTextBox = L.DomUtil.get("query-textarea");
     this.queryAuto = L.DomUtil.get("query-auto-checkbox");
     this.queryAutoWkt = L.DomUtil.get("query-auto-wkt-checkbox");
@@ -80,12 +79,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
       this
     );
     L.DomEvent.on(L.DomUtil.get("clearButton"), "click", this.clearMap, this);
-
-    this.valueSlider = L.DomUtil.get("valueSlider")
-    L.DomEvent.on(this.valueSlider, "click", this.applyLimit, this);
-
-    this.pagination = L.DomUtil.get("pagination")
-    L.DomEvent.on(this.pagination, "click", this.applyPage, this);
 
     map.on("draw:created", this.shapesToWKT, this);
 
@@ -123,43 +116,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
   },
 
 
-  applyLimit: function() {
-    this._map._footprintControl.remove();
-
-    for(let i = 0; i < this._map._geoLayers.length; i++){
-      this._map._geoLayers[i].clearLayers();
-    }
-    let currentPage = getCurrentPage();
-
-    let sliderElement = L.DomUtil.get("valueSlider");
-    let limitVal = sliderElement.lastChild.firstChild.value;
-
-    let queryString = "?page=" + currentPage;
-    queryString += "&limit=" + limitVal;
-
-    this._map.loadFootprintLayer(this._map._target, queryString);
-  },
-
-
-
-  applyPage: function() {
-    this._map._footprintControl.remove();
-
-    for(let i = 0; i < this._map._geoLayers.length; i++){
-      this._map._geoLayers[i].clearLayers();
-    }
-    let currentPage = getCurrentPage();
-
-    let sliderElement = L.DomUtil.get("valueSlider");
-    let limitVal = sliderElement.lastChild.firstChild.value;
-
-    let queryString = "?page=" + currentPage;
-    queryString += "&limit=" + limitVal;
-
-    this._map.loadFootprintLayer(this._map._target, queryString);
-  },
-
-
   /**
    * @function shapesToFootprint
    * @description Is called when a user draws a shape using the on map drawing features.
@@ -168,12 +124,18 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
    * @param {String} coords - The drawn shape’s coordinates.
    */
   shapesToFootprint: function(coords) {
-    let strArr = coords
-      .slice(coords.indexOf("((") + 2, coords.indexOf("))"))
-      .split(",");
+    let qstr = "";
+    for (let i=0; i< coords.length; i++){
+
+      qstr += coords[i]['x'] + " " + coords[i]['y']
+      if (i < coords.length -1)
+        qstr +=","
+    }
+
+    let strArr = qstr.split(",");
     let bboxCoordArr = [];
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < strArr.length -1; i++) {
       if (i != 1) {
         let temp = strArr[i].split(" ");
         bboxCoordArr.push([parseFloat(temp[0]), parseFloat(temp[1])]);
@@ -230,9 +192,16 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
     }
 
     if (L.DomUtil.get("areaCheckBox").checked == true) {
-      let bboxValue = this.shapesToFootprint(this.wktTextBox.value);
-      filterOptions.push(bboxValue);
+      let drawnArea = this.shapesToFootprint(this.wkt.components[0]);
+      filterOptions.push(drawnArea);
     }
+
+    let currentPage = getCurrentPage();
+    filterOptions.push("page=" + currentPage);
+
+    let sliderElement = L.DomUtil.get("valueSlider");
+    let limitVal = sliderElement.lastChild.firstChild.value;
+    filterOptions.push("limit=" + limitVal);
 
     let queryString = "";
 

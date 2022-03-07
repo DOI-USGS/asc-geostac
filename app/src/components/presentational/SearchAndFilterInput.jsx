@@ -24,7 +24,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Slider from '@mui/material/Slider';
 import Pagination from '@mui/material/Pagination';
 
-import { getMaxNumberPages, setCurrentPage, getCurrentPage, getNumberMatched } from "../../js/ApiJsonCollection";
+import { getMaxNumberPages, setCurrentPage, getCurrentPage, getNumberMatched, setLimit } from "../../js/ApiJsonCollection";
 
 
 /**
@@ -105,6 +105,12 @@ export default function SearchAndFilterInput(props) {
   const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(10);
   const [limitVal, setLimitVal] = React.useState(10);
 
+  const handleApply = (event) => {
+    setTimeout(() => {
+      setMaxPages(getMaxNumberPages);
+    }, 1000);
+  }
+
   // Clear all values
   const handleClear = (event) => {
     setSortVal('');
@@ -167,10 +173,8 @@ export default function SearchAndFilterInput(props) {
   // limit
   const handleLimitChange = (event, value) => {
     setLimitVal(value);
-    setTimeout(() => {
-      setMaxPages(getMaxNumberPages);
-      props.footprintNavClick();
-    }, 1000);
+    setLimit(value);
+    props.footprintNavClick();
   }
 
   // resets pagination and limit when switching targets
@@ -178,10 +182,12 @@ export default function SearchAndFilterInput(props) {
     setTimeout(() => {
       setMaxNumberFootprints(getNumberMatched);
       setLimitVal(10);
+      setLimit(10);
       setMaxPages(getMaxNumberPages);
       props.footprintNavClick();
     }, 1000);
   }, [props.target]);
+
 
   // Pagination
   const handlePageChange = (event, value) => {
@@ -214,7 +220,7 @@ export default function SearchAndFilterInput(props) {
           </div>
           <div className="panelSection">
             <ButtonGroup>
-              <Button id="applyButton" variant="contained" startIcon={<FilterAltIcon />} sx={css.button}>
+              <Button id="applyButton" variant="contained" startIcon={<FilterAltIcon />} onClick={handleApply} sx={css.button}>
                 Apply
               </Button>
               <Button id="clearButton" variant="contained" endIcon={<DeleteForeverIcon />} onClick={handleClear} sx={css.buttonRemove}>
@@ -345,7 +351,6 @@ export default function SearchAndFilterInput(props) {
             </div>
             <div className="panelSectionHeader">
               <div className="panelItem">
-                <div className="panelSectionTitle">Showing {limitVal} of {maxNumberFootprints} Footprints</div>
                   <Pagination
                     id="pagination"
                     count={maxPages}

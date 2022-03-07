@@ -2,7 +2,7 @@ var _maxNumberPages = 0;
 var _currentPage = 1;
 var _numberMatched = 0;
 var _features = [];
-
+var _limitVal = 10;
 
 function callAPI() {
   return fetch(
@@ -10,7 +10,7 @@ function callAPI() {
   ).then(response => response.json());
 }
 
-function getItemCollection(name, queryString) {
+export function getItemCollection(name, queryString) {
   var urlArray = [];
   return callAPI().then(result => {
     for (let i = 0; i < result.collections.length; i++) {
@@ -34,6 +34,11 @@ function getItemCollection(name, queryString) {
     let promiseArray = [];
     for (let i = 0; i < urlArray.length; i++) {
       promiseArray.push(fetch(urlArray[i]));
+      let urlResults = "";
+      for(let i = 0; i < urlArray.length; i++){
+        urlResults += urlArray[i] + " ";
+      }
+      document.getElementById("query-textarea").innerText = urlResults;
     }
     return Promise.all(promiseArray).then(function(responses) {
       return Promise.all(
@@ -49,7 +54,7 @@ function getItemCollection(name, queryString) {
  * @function setFeatures
  * @description Sets the value of the max number of pages possible
  */
- function setFeatures(features) {
+export function setFeatures(features) {
   _features = features
 }
 
@@ -57,7 +62,7 @@ function getItemCollection(name, queryString) {
  * @function getFeatures
  * @description Gets the value of the max number of pages possible
  */
-function getFeatures() {
+export function getFeatures() {
   return _features;
 }
 
@@ -66,20 +71,22 @@ function getFeatures() {
  * @function setNumberMatched
  * @description Sets the value of the return number of footprints
  */
-function setNumberMatched(matched) {
+export function setNumberMatched(matched) {
   _numberMatched = matched;
-  let sliderElement = document.getElementById('valueSlider');
-  let limitVal = sliderElement.lastChild.firstChild.value;
-    if (limitVal != 0 && matched != 0){
-      setMaxNumberPages(Math.floor(matched/limitVal));
-    }
+
+  if (_limitVal != 0 && matched != 0){
+    setMaxNumberPages(Math.floor(matched/_limitVal));
+  }
+  if (matched == 0){
+    setMaxNumberPages(0);
+  }
 }
 
 /**
  * @function getNumberMatched
  * @description Gets the value of the return number of footprints
  */
-function getNumberMatched() {
+export function getNumberMatched() {
   return _numberMatched
 }
 
@@ -87,7 +94,7 @@ function getNumberMatched() {
  * @function setMaxNumberPages
  * @description Sets the value of the max number of pages possible
  */
-function setMaxNumberPages(pages) {
+export function setMaxNumberPages(pages) {
   _maxNumberPages = pages;
 }
 
@@ -95,7 +102,7 @@ function setMaxNumberPages(pages) {
  * @function getMaxNumberPages
  * @description Gets the value of the max number of pages possible
  */
-function getMaxNumberPages() {
+export function getMaxNumberPages() {
   return _maxNumberPages;
 }
 
@@ -103,17 +110,23 @@ function getMaxNumberPages() {
  * @function setCurrentPage
  * @description Sets the value of the current page
  */
-function setCurrentPage(page) {
+export function setCurrentPage(page) {
   _currentPage = page;
 }
 
 /**
- * @function getMaxNumberPages
- * @description Gets the value of the max number of pages possible
+ * @function getCurrentPage
+ * @description Gets the value of the current page
  */
-function getCurrentPage() {
+export function getCurrentPage() {
   return _currentPage;
 }
 
+/**
+ * @function setLimit
+ * @description Sets the value of the limit
+ */
+export function setLimit(val) {
+  _limitVal = val;
+}
 
-export { getItemCollection, getFeatures, setFeatures, getMaxNumberPages, setCurrentPage, getCurrentPage, setNumberMatched, getNumberMatched, setMaxNumberPages };
