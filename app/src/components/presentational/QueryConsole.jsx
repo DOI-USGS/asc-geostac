@@ -64,9 +64,9 @@ export default function QueryConsole() {
                 orientation="vertical"
                 size="small"
                 variant="contained">
-                <Button sx={css.button} startIcon={<ContentCopyIcon />}>Copy Code</Button>
+                <Button id="copyCodeButton" sx={css.button} startIcon={<ContentCopyIcon />}>Copy Code</Button>
                 <Button id="wktButton" sx={css.button} startIcon={<PolylineIcon />}>Draw WKT String</Button>
-                <Button sx={css.button} startIcon={<PlayArrowIcon />}>Run STAC Query</Button>
+                <Button id="runQueryButton" sx={css.button} startIcon={<PlayArrowIcon />}>Run STAC Query</Button>
               </ButtonGroup>
             </div>
           </div>
