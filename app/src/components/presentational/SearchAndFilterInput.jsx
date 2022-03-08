@@ -21,8 +21,11 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+// No. of Footprints, pagination
 import Slider from '@mui/material/Slider';
 import Pagination from '@mui/material/Pagination';
+import Chip from '@mui/material/Chip';
+import FlagIcon from '@mui/icons-material/Flag';
 
 import { getMaxNumberPages, setCurrentPage, getCurrentPage, getNumberMatched, setLimit } from "../../js/ApiJsonCollection";
 
@@ -35,12 +38,13 @@ let css = {
     backgroundColor: "#f8f9fa",
     overflow: "hidden",
     display: "flex",
-    alignItems: "flex-start"
+    alignItems: "flex-start",
+    flexShrink: 0,
   },
   container: {
     padding: "1rem",
-    height: "100vh",
-    width: 225,
+    maxHeight: "100vh",
+    width: 275,
     display: "flex",
     flexDirection: "column",
     margin: "auto",
@@ -73,6 +77,13 @@ let css = {
     color: "#343a40",
     fontSize: 18,
     fontWeight: 600
+  },
+  chipHidden: {
+    visibility: "hidden"
+  },
+  chipShown: {
+    visibility: "visible",
+    textAlign: "center"
   }
 };
 
@@ -100,18 +111,28 @@ export default function SearchAndFilterInput(props) {
   const [dateCheckVal, setDateCheckVal] = React.useState(false);
   const [dateFromVal, setDateFromVal] = React.useState(null);
   const [dateToVal, setDateToVal] = React.useState(null);
-  const [maxPages, setMaxPages] = React.useState(0);
-  const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(0);
-  const [limitVal, setLimitVal] = React.useState(0);
+  const [maxPages, setMaxPages] = React.useState(10);
+  const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(10);
+  const [limitVal, setLimitVal] = React.useState(10);
 
-  const handleApply = (event) => {
+  const [applyChipVisStyle, setApplyChipVisStyle] = React.useState(css.chipHidden);
+  const [gotoPage, setGotopage] = React.useState("Apply to go to page 2");
+
+  const setApplyChip = (value) => {
+    setGotopage(value);
+    setApplyChipVisStyle(css.chipShown);
+  }
+
+  const handleApply = () => {
     setTimeout(() => {
       setMaxPages(getMaxNumberPages);
+      props.footprintNavClick();
     }, 1000);
+    setApplyChipVisStyle(css.chipHidden);
   }
 
   // Clear all values
-  const handleClear = (event) => {
+  const handleClear = () => {
     setSortVal('');
     setSortAscCheckVal(false);
     setAreaCheckVal(false);
@@ -123,6 +144,7 @@ export default function SearchAndFilterInput(props) {
     setLimitVal(10);
     setMaxPages(getMaxNumberPages);
     setMaxNumberFootprints(getNumberMatched);
+    setApplyChip("Apply to show Footprints");
     //// Uncomment to close details on clear
     // keywordDetails.current.open = false;
     // dateDetails.current.open = false;
@@ -139,13 +161,19 @@ export default function SearchAndFilterInput(props) {
   // Polygon
   const handleAreaCheckChange = (event) => {
     setAreaCheckVal(event.target.checked);
+    if (event.target.checked === true) {
+      setApplyChip("Apply to filter footprints");
+    }
   }
 
   // Keyword
   const handleKeywordCheckChange = (event) => {
     setKeywordCheckVal(event.target.checked);
-    if (event.target.checked === true && keywordDetails.current.open === false) {
-      keywordDetails.current.open = true;
+    if (event.target.checked === true) {
+      setApplyChip("Apply to filter footprints");
+      if (keywordDetails.current.open === false) {
+        keywordDetails.current.open = true;
+      }
     }
   }
   const handleKeywordChange = (event) => {
@@ -156,8 +184,11 @@ export default function SearchAndFilterInput(props) {
   // Date
   const handleDateCheckChange = (event) => {
     setDateCheckVal(event.target.checked);
-    if (event.target.checked === true && dateDetails.current.open === false) {
-      dateDetails.current.open = true;
+    if (event.target.checked === true) {
+      setApplyChip("Apply to filter footprints");
+      if (dateDetails.current.open === false) {
+        dateDetails.current.open = true;
+      }
     }
   }
   const handleDateFromChange = (event) => {
@@ -173,6 +204,7 @@ export default function SearchAndFilterInput(props) {
   const handleLimitChange = (event, value) => {
     setLimitVal(value);
     setLimit(value);
+    setApplyChip("Apply to show " + value + " footprints");
   }
 
   // resets pagination and limit when switching targets
@@ -182,13 +214,15 @@ export default function SearchAndFilterInput(props) {
       setLimitVal(10);
       setLimit(10);
       setMaxPages(getMaxNumberPages);
-    }, 1000);
+      props.footprintNavClick();
+    }, 2000);
   }, [props.target]);
 
 
   // Pagination
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
+    setApplyChip("Apply to go to page " + value);
   };
 
 
@@ -328,31 +362,41 @@ export default function SearchAndFilterInput(props) {
                 </LocalizationProvider>
               </div>
             </details>
+          </div>
+          <div className="panelSectionHeader">
+            <div className="panelItem">
+              <div className="panelSectionTitle">Number of Displayed Footprints</div>
+                <Slider
+                  id="valueSlider"
+                  size="small"
+                  valueLabelDisplay="auto"
+                  onChange={handleLimitChange}
+                  value={limitVal}
+                  max={maxNumberFootprints}
+                  defaultValue={10}
+                />
             </div>
-            <div className="panelSectionHeader">
-              <div className="panelItem">
-                <div className="panelSectionTitle">Number of Displayed Footprints</div>
-                  <Slider
-                    id="valueSlider"
-                    size="small"
-                    valueLabelDisplay="auto"
-                    onChange={handleLimitChange}
-                    value={limitVal}
-                    max={maxNumberFootprints}
-                    defaultValue={10}
-                  />
-              </div>
+          </div>
+          <div className="panelSectionHeader">
+            <div className="panelItem">
+                <Pagination
+                  id="pagination"
+                  count={maxPages}
+                  size="small"
+                  onChange={handlePageChange}
+                />
             </div>
-            <div className="panelSectionHeader">
-              <div className="panelItem">
-                  <Pagination
-                    id="pagination"
-                    count={maxPages}
-                    size="small"
-                    onChange={handlePageChange}
-                  />
-              </div>
-            </div>
+          </div>
+          <div style={applyChipVisStyle}>
+            <Chip 
+              id="applyChip"
+              label={gotoPage}
+              icon={<FlagIcon/>}
+              onClick={handleApply}
+              variant="outlined"
+              clickable
+            />
+          </div>
         </div>
     </div>
   );

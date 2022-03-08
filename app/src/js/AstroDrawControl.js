@@ -73,6 +73,13 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
     L.DomEvent.on(this.wktButton, "click", this.mapWKTString, this);
 
     L.DomEvent.on(
+      L.DomUtil.get("applyChip"),
+      "click",
+      this.applyFilter,
+      this
+    );
+
+    L.DomEvent.on(
       L.DomUtil.get("applyButton"),
       "click",
       this.applyFilter,
