@@ -340,7 +340,7 @@ summary {
   width: 400px;
   text-align: center;
   margin: 0 auto;
-  display: none;
+  display: block;
 }
 
 #geoTiff-Asset-name {

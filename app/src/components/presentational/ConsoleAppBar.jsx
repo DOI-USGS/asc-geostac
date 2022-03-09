@@ -5,6 +5,7 @@ import ConsoleLonLatSelects from "../presentational/ConsoleLonLatSelects.jsx";
 import ConsoleCoordinates from "./ConsoleCoordinates.jsx";
 import AppBar from "@mui/material/AppBar";
 import Divider from "@mui/material/Divider";
+import GeoTiffViewer from "../presentational/GeoTiffViewer.jsx";
 
 /**
  * Controls css styling for this component using js to css
@@ -22,6 +23,8 @@ let css = {
  * @component
  */
 export default function ConsoleAppBar(props) {
+
+
 
   return (
     <AppBar
@@ -45,6 +48,10 @@ export default function ConsoleAppBar(props) {
           <Divider orientation="vertical" />
           <div className="flexbar-item">
             <ConsoleLonLatSelects />
+          </div>
+          <Divider orientation="vertical" />
+          <div className = "flex-bar-item">
+            <GeoTiffViewer />
           </div>
 
         </div>
