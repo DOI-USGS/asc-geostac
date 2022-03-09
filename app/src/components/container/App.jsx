@@ -28,7 +28,7 @@ export default function App() {
   const [targetPlanet, setTargetPlanet] = React.useState("Mars");
   const [showSortBar, setShowSortBar] = React.useState(true);
   const [sortBarStyle, setSortBarStyle] = React.useState(css.hidden);
-  const geoTiffViewer = new GeoTiffViewer("geoTiff-Container");
+  // const geoTiffViewer = new GeoTiffViewer("geoTiff-Container");
 
   const ShowHideSort = () => {
     setShowSortBar(!showSortBar);
@@ -50,6 +50,7 @@ export default function App() {
           <ConsoleAppBar target={targetPlanet} bodyChange={handleTargetBodyChange}  />
         </div>
         <MapContainer target={targetPlanet} />
+        
         <div id="bottom-bar">
           <QueryConsole />
           <CreditsDisplay />
