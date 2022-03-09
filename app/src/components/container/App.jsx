@@ -83,7 +83,6 @@ export default function App() {
           <ConsoleAppBar target={targetPlanet} bodyChange={handleTargetBodyChange}  />
         </div>
         <MapContainer target={targetPlanet} />
-        
         <div id="bottom-bar">
           <QueryConsole />
           <CreditsDisplay />

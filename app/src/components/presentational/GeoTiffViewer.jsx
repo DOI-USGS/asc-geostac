@@ -5,11 +5,6 @@ import Container from '@mui/material/Container';
 import ButtonBase from "@mui/material/ButtonBase";
 import imageAsset from "../../assets/img/ImageIcon.png";
 import { alpha } from "@mui/material/styles";
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import PropTypes from 'prop-types';
-import { Button } from "@mui/material";
-import Grid from "@mui/material/Grid";
 
 
 let css = {
@@ -24,28 +19,9 @@ let css = {
     },
   };
 
-
-
 function DisplayGeoTiff(props) {
-
-  const { open, onClose } = props;
-
-  const handleClose = () => {
-    onClose();
-  };
-
     
     return (
-      <Dialog onClose={handleClose} open = {open}>
-        <DialogTitle>
-          Cloud Optimized GeoTiff
-        </DialogTitle>
-        <Container>
-          <div id = "geoTiff-Asset">
-          </div>
-        </Container>
-      </Dialog>
-      /*
         <div id="geoTiff-Container">
         <Container>
           <AppBar position="relative">
@@ -60,22 +36,19 @@ function DisplayGeoTiff(props) {
                 >
                   Displayed GeoTiff
                 </Typography>
+                <button 
+                  id="geoTiffClose">
+                    CLOSE
+                </button>
             </Container>
           </AppBar>
           <div id = "geoTiff-Asset">
           </div>
         </Container>
       </div>
-      */
         );
 
 }
-
-DisplayGeoTiff.propTypes = {
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  GeoTiffURL: PropTypes.string.isRequired
-};
 
 
 /**
@@ -84,43 +57,19 @@ DisplayGeoTiff.propTypes = {
  *
  * @component
  */
- export default function GeoTiffViewer(props) {
-  
-  const [dialogOpen, setDialogOpen] = React.useState(false);
-  
-  const handleDialogOpen = () => {
-    setDialogOpen(true);
-  }
-
-  const handleClose = () => {
-    setDialogOpen(false);
-    props.close();
-  }
-
-
+ export default function GeoTiffViewer() {
 
     return (
-        <Grid
-        container
-        item
-        justifyContent="center"
-        alignItems="center"
-        xs
-      >
-          <ButtonBase
-                id="geoTiffViewerButton"
-                focusRipple
-                sx={css.button}
-                onClick={handleDialogOpen}
-              >
-                <img style={css.img} src={imageAsset} />
-          </ButtonBase>
-          <DisplayGeoTiff
-            open={dialogOpen}
-            onClose={handleClose}
-            GeoTiffURL = {""}
-          />
-        </Grid>
+        <div>
+        <ButtonBase
+              id="geoTiffViewerButton"
+              focusRipple
+              sx={css.button}
+            >
+              <img style={css.img} src={imageAsset} />
+        </ButtonBase>
+
+        </div>
 
     );
  }

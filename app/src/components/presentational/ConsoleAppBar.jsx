@@ -24,8 +24,6 @@ let css = {
  */
 export default function ConsoleAppBar(props) {
 
-
-
   return (
     <AppBar
       sx={css.appbar}
