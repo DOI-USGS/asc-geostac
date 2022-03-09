@@ -6,11 +6,26 @@ import CreditsDisplay from "../presentational/CreditsDisplay.jsx";
 import SearchAndFilterInput from "../presentational/SearchAndFilterInput.jsx";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import GeoTiffViewer from "../../js/geoTiffViewer";
+import FootprintResults from "../presentational/FootprintResults.jsx";
+import { getFeatures } from "../../js/ApiJsonCollection";
 
 const css = {
-  shown: {
-    display: "block",
+  expanded: {
+    height: "100vh",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "flex-start",
     background: "#f8f9fa"
+  },
+  stacked: {
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    background: "#f8f9fa"
+  },
+  shown: {
+    display: "block"
   },
   hidden: {
     display: "none"
@@ -26,13 +41,26 @@ const css = {
  */
 export default function App() {
   const [targetPlanet, setTargetPlanet] = React.useState("Mars");
-  const [showSortBar, setShowSortBar] = React.useState(true);
-  const [sortBarStyle, setSortBarStyle] = React.useState(css.hidden);
+
+  const [showSidePanel, setShowSidePanel] = React.useState(false);
+  const [sidePanelVisStyle, setSidePanelVisStyle] = React.useState(css.shown);
+
+  const [expandResults, setExpandResults] = React.useState(true);
+  const [resultsExpandStyle, setResultsExpandStyle] = React.useState(css.stacked);
+
   // const geoTiffViewer = new GeoTiffViewer("geoTiff-Container");
 
-  const ShowHideSort = () => {
-    setShowSortBar(!showSortBar);
-    setSortBarStyle(showSortBar ? css.shown : css.hidden);
+
+  const [footprintData, setFootprintData] = React.useState([]);
+
+  const showHideSort = () => {
+    setShowSidePanel(!showSidePanel);
+    setSidePanelVisStyle(showSidePanel ? css.shown : css.hidden);
+  }
+
+  const handlePanelLayout = (event) => {
+    setExpandResults(expandResults => !expandResults);
+    setResultsExpandStyle(expandResults ? css.expanded : css.stacked);
   }
 
   /**
@@ -41,6 +69,11 @@ export default function App() {
    */
   const handleTargetBodyChange = value => {
     setTargetPlanet(value);
+  };
+
+  const handleFootprintClick = () => {
+    setFootprintData(getFeatures);
+    //console.log(footprintData);
   };
 
   return (
@@ -57,13 +90,16 @@ export default function App() {
         </div>
       </div>
       <div id="right-bar">
-        <div id="sort-filter-collapsed" onClick={ShowHideSort} >
+        <div id="sort-filter-collapsed" onClick={showHideSort} >
           <ArrowLeftIcon/>
           Sort and Filter
           <ArrowLeftIcon/>
         </div>
-          <div style={sortBarStyle}>
-            <SearchAndFilterInput target={targetPlanet}/>
+          <div style={sidePanelVisStyle}>
+            <div style={resultsExpandStyle}>
+              <SearchAndFilterInput target={targetPlanet} footprintNavClick={handleFootprintClick} />
+              <FootprintResults changeLayout={handlePanelLayout}/>
+            </div>
           </div>
       </div>
     </div>

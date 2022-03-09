@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useEffect } from "react";
 import AstroMap from "../../js/AstroMap";
 import AstroControlManager from "../../js/AstroControlManager";
 
@@ -8,36 +8,30 @@ import AstroControlManager from "../../js/AstroControlManager";
  * for the map.
  *
  *
- * @class MapContainer
- * @extends {Component}
+ * @component MapContainer
+ * @param {target, map, mapChange}
  */
-export default class MapContainer extends Component {
-  /**
-   *
-   * @param {*} props target - target body name
-   */
-  constructor(props) {
-    super(props);
-    this.state = {oldTarget: ""};
-  }
+export default function MapContainer(props) {
+  
+  const [oldTarget, setOldTarget] = React.useState("");
 
   /**
    * Invoked when the component is successfully mounted to the DOM, then
    * handles all of the map intialization and creation.
    */
-  componentDidMount() {
-    let map = new AstroMap("map-container", this.props.target, {});
+  useEffect( () => {
+    let map = new AstroMap("map-container", props.target, {});
     let controlManager = new AstroControlManager(map);
     controlManager.addTo(map);
-    this.setState({oldTarget: this.props.target})
-  }
+    setOldTarget(props.target)
+  }, []);
 
   /**
    * Invoked after the component's state has changed when the
    * target selector passes down a new target name from props.
    */
-  componentDidUpdate() {
-    if (this.props.target != this.state.oldTarget ) {
+  useEffect( () => {
+    if (props.target != oldTarget ) {
       // remove old map container and append new container to its parent
       let oldContainer = document.getElementById("map-container");
       let parent = oldContainer.parentNode;
@@ -54,16 +48,14 @@ export default class MapContainer extends Component {
       document.getElementById("projectionSouthPole").classList.remove("disabled");
 
       // create new map with updated target
-      let map = new AstroMap("map-container", this.props.target, {});
+      let map = new AstroMap("map-container", props.target, {});
       let controlManager = new AstroControlManager(map);
       controlManager.addTo(map);
-      this.setState({oldTarget: this.props.target})
+      setOldTarget(props.target)
     }
-  }
+  });
 
-  render() {
-    return (
-      <div id="map-container" />
-    );
-  }
+  return (
+    <div id="map-container" />
+  );
 }
