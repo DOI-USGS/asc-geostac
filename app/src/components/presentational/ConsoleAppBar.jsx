@@ -49,10 +49,6 @@ export default function ConsoleAppBar(props) {
           <div className="flexbar-item">
             <ConsoleLonLatSelects />
           </div>
-          <Divider orientation="vertical" />
-          <div className = "flex-bar-item">
-            <GeoTiffViewer />
-          </div>
 
         </div>
     </AppBar>

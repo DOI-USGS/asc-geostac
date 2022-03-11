@@ -15,6 +15,18 @@ let css = {
         width: "10%",
         height: "10%"
     },
+    container: {
+      display: "flex",
+      flexWrap: "noWrap",
+      width: 170,
+      height: 40,
+      marginTop: 5,
+      verticalAlign: "middle",
+    },
+    grid: {
+      width: 120,
+      height: "100%"
+    },
   };
 
 
@@ -35,13 +47,7 @@ let css = {
 
 
     return (
-        <Grid
-        container
-        item
-        justifyContent="center"
-        alignItems="center"
-        xs
-      >
+        <div sx={css.container}>
           <ButtonBase
                 id="geoTiffViewerButton"
                 focusRipple
@@ -50,7 +56,7 @@ let css = {
               >
                 <img style={css.img} src={imageAsset} />
           </ButtonBase>
-        </Grid>
+        </div>
 
     );
  }
