@@ -5,12 +5,9 @@ import QueryConsole from "../presentational/QueryConsole.jsx";
 import CreditsDisplay from "../presentational/CreditsDisplay.jsx";
 import SearchAndFilterInput from "../presentational/SearchAndFilterInput.jsx";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
-import Typography from '@mui/material/Typography';
-import AppBar from '@mui/material/AppBar';
-import Container from '@mui/material/Container';
-import GeoTiffViewer from "../../js/geoTiffViewer";
 import FootprintResults from "../presentational/FootprintResults.jsx";
 import { getFeatures } from "../../js/ApiJsonCollection";
+import DisplayGeoTiff from "../presentational/DisplayGeoTiff.jsx";
 
 const css = {
   expanded: {
@@ -51,7 +48,6 @@ export default function App() {
   const [expandResults, setExpandResults] = React.useState(true);
   const [resultsExpandStyle, setResultsExpandStyle] = React.useState(css.stacked);
 
-  const geoTiffViewer = new GeoTiffViewer("geoTiff-Container");
 
   const [footprintData, setFootprintData] = React.useState([]);
 
@@ -103,36 +99,7 @@ export default function App() {
             </div>
           </div>
       </div>
-
-      <div id="geoTiff-Container">
-        <Container>
-          <AppBar position="relative">
-            <Container sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}>
-              <Typography 
-                variant="h6"
-                id="geoTiff-Asset-name"
-                noWrap
-                component="div"
-                align="center"
-                sx={{ mr: 2, display: { xs: 'none', md: 'flex' } }}
-                >
-                  Displayed GeoTiff
-                </Typography>
-                <button onClick={geoTiffViewer.toggleViewer} 
-                  id="geoTiffClose">
-                    CLOSE
-                </button>
-            </Container>
-          </AppBar>
-          <div id = "geoTiff-Asset">
-          </div>
-          <AppBar position="relative">
-            <Container>
-              <button id="download-button">Download Asset</button>
-            </Container>
-          </AppBar>
-        </Container>
-      </div>
+      <DisplayGeoTiff/>
     </div>
   );
 }

@@ -10,10 +10,15 @@ import PreviewIcon from '@mui/icons-material/Preview';
 import LaunchIcon from '@mui/icons-material/Launch';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+import PhotoIcon from '@mui/icons-material/AddAPhoto';
 
 // object with results
 import { getFeatures } from "../../js/ApiJsonCollection";
 import { autocompleteClasses } from "@mui/material";
+
+// geotiff thumbnail viewer
+import DisplayGeoTiff from "../presentational/DisplayGeoTiff.jsx";
+import GeoTiffViewer from "../../js/geoTiffViewer.js";
 
 
 /**
@@ -47,10 +52,16 @@ export default function FootprintResults(props) {
 
   const [features, setFeatures] = React.useState([]);
 
+  const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
+
   const showMetadata = value => () => {
-    // launch metadata popup here
+    geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
+    geoTiffViewer.changeMetaData(value.collection, value.id, value.properties.datetime);
+    geoTiffViewer.openModal();
     console.log(value);
   }
+
+  
 
   useEffect(() => {
     setTimeout(() => {
@@ -82,7 +93,8 @@ export default function FootprintResults(props) {
         {features.map((feature) => (
           <div className="resultContainer" key={feature.id}>
             <div className="resultImgDiv">
-              <img className="resultImg" src={feature.assets.thumbnail.href}/>
+              <img className="resultImg" 
+              src={feature.assets.thumbnail.href}/>
             </div>
             <div className="resultData">
               <div className="resultSub">
@@ -116,7 +128,7 @@ export default function FootprintResults(props) {
                 />
               </Stack>
             </div>
-          </div>
+          </div>      
         ))}
       </div>
     </div>
