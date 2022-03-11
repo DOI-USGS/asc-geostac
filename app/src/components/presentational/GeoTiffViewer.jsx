@@ -5,6 +5,7 @@ import Grid from "@mui/material/Grid";
 import GeoTiffViewer from "../../js/geoTiffViewer.js";
 
 
+
 let css = {
     img: {
       width: "100%",
@@ -28,8 +29,6 @@ let css = {
       height: "100%"
     },
   };
-
-
 
 
 
@@ -57,6 +56,5 @@ let css = {
                 <img style={css.img} src={imageAsset} />
           </ButtonBase>
         </div>
-
     );
  }
