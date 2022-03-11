@@ -49,7 +49,6 @@ export default function App() {
   const [resultsExpandStyle, setResultsExpandStyle] = React.useState(css.stacked);
 
 
-
   const [footprintData, setFootprintData] = React.useState([]);
 
   const showHideSort = () => {
@@ -82,7 +81,6 @@ export default function App() {
           <ConsoleAppBar target={targetPlanet} bodyChange={handleTargetBodyChange}  />
         </div>
         <MapContainer target={targetPlanet} />
-        
         <div id="bottom-bar">
           <QueryConsole />
           <CreditsDisplay />
