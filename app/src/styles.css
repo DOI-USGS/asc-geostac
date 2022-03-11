@@ -51,6 +51,7 @@ App Layout Grid
 
 #map-container {
   grid-area: c;
+  z-index: -1;
 }
 
 #credits-bar {
@@ -336,14 +337,96 @@ summary {
   vertical-align: center;
 }
 
-#geoTiff-Container {
-  width: 400px;
-  text-align: center;
-  margin: 0 auto;
-  display: block;
+/*
+GeoTiff Modal Container
+*/
+#GeoTiffModal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: 200ms ease-in-out;
+  border: 1px solid black;
+  border-radius: 10px;
+  z-index: 30;
+  background-color: white;
+  width: 250px;
+  max-width: 80%;
 }
 
-#geoTiff-Asset-name {
-  text-align: center;
-  flex-grow: 1;
+#GeoTiffModal.active {
+  transform: translate(-50%, -50%) scale(1);
 }
+
+#GeoTiffModalHeader {
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid black;
+}
+
+#GeoTiffModalHeader #GeoTiffTitle {
+  font-size: 1.20rem;
+  font-weight: bold;
+}
+
+#GeoTiffModalHeader #GeoTiffCloseButton{
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+#GeoTiffAssetsDiv {
+  position: relative;
+  padding: 10px 15px;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  
+}
+
+#GeoTiffAsset {
+  height: 300px;
+  position: relative;
+  align-items: center;
+}
+
+#GeoTiffModalFooter {
+    backgroundColor: "#f8f9fa";
+    overflow: "hidden";
+    display: "flex";
+    alignItems: "flex-start";
+    flexDirection: "column";
+    width: 275;
+    maxHeight: "100vh";
+    wordWrap: "break-word";
+    flexShrink: 1;
+    padding: 0;
+    font-family: Roboto, Arial, Helvetica, sans-serif;
+    font-size: small;
+    padding-bottom: 2px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    margin-bottom: 3px;
+}
+
+#GeoTiffOverlay {
+  position: fixed;
+  opacity: 0;
+  transition: 200ms ease-in-out;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, .5);
+  pointer-events: none;
+  z-index: 10;
+}
+
+#GeoTiffOverlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+

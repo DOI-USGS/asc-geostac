@@ -5,9 +5,9 @@ import QueryConsole from "../presentational/QueryConsole.jsx";
 import CreditsDisplay from "../presentational/CreditsDisplay.jsx";
 import SearchAndFilterInput from "../presentational/SearchAndFilterInput.jsx";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
-import GeoTiffViewer from "../../js/geoTiffViewer";
 import FootprintResults from "../presentational/FootprintResults.jsx";
 import { getFeatures } from "../../js/ApiJsonCollection";
+import DisplayGeoTiff from "../presentational/DisplayGeoTiff.jsx";
 
 const css = {
   expanded: {
@@ -48,7 +48,6 @@ export default function App() {
   const [expandResults, setExpandResults] = React.useState(true);
   const [resultsExpandStyle, setResultsExpandStyle] = React.useState(css.stacked);
 
-  // const geoTiffViewer = new GeoTiffViewer("geoTiff-Container");
 
 
   const [footprintData, setFootprintData] = React.useState([]);
@@ -102,6 +101,7 @@ export default function App() {
             </div>
           </div>
       </div>
+      <DisplayGeoTiff/>
     </div>
   );
 }
