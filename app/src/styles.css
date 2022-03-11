@@ -51,7 +51,7 @@ App Layout Grid
 
 #map-container {
   grid-area: c;
-  z-index: -1;
+  //z-index: -1;
 }
 
 #credits-bar {

@@ -86,6 +86,7 @@ export default class GeoTiffViewer {
 		if (document.getElementById("GeoTiffModal") == null) {
 			return;
 		}
+		document.getElementById("map-container").style.zIndex = "-1";
 		document.getElementById("GeoTiffModal").classList.add('active');
 		document.getElementById("GeoTiffOverlay").classList.add('active');
 
@@ -96,6 +97,7 @@ export default class GeoTiffViewer {
 		if (document.getElementById("GeoTiffModal") == null) {
 			return;
 		}
+		document.getElementById("map-container").style.zIndex = "10";
 		document.getElementById("GeoTiffModal").classList.remove('active');
 		document.getElementById("GeoTiffOverlay").classList.remove('active');
 	}
