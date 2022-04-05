@@ -2,7 +2,13 @@ import L from "leaflet";
 import "proj4leaflet";
 import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
-import { getItemCollection, setNumberMatched, setMaxNumberPages, getCurrentPage, setCurrentPage, setFeatures} from "./ApiJsonCollection";
+import { getItemCollection,
+         setNumberMatched,
+         setMaxNumberPages,
+         getCurrentPage,
+         setCurrentPage,
+         setFeatures,
+         setNumberReturned } from "./ApiJsonCollection";
 import { MY_JSON_MAPS } from "./layers";
 import stacLayer from 'stac-layer/src/index.js';
 
@@ -136,6 +142,7 @@ export default L.Map.AstroMap = L.Map.extend({
    */
   loadFootprintLayer: function(name, queryString) {
     var matched = 0;
+    var returned = 0;
     const features = [];
     getItemCollection(name, queryString).then(result => {
       if (result != undefined) {
@@ -143,6 +150,7 @@ export default L.Map.AstroMap = L.Map.extend({
         for (let i = 0; i < result.length; i++) {
           this._geoLayers[i] = L.geoJSON().on({click: handleClick}).addTo(this);
           matched += result[i].numberMatched;
+          returned += result[i].context["returned"];
           features.push(...result[i].features);
           for (let j = 0; j < result[i].features.length; j++) {
             this._footprintCollection[result[i].features[j].collection] = this._geoLayers[i];
@@ -154,6 +162,7 @@ export default L.Map.AstroMap = L.Map.extend({
           .addTo(this);
       }
       setNumberMatched(matched);
+      setNumberReturned(returned);
       setFeatures(features);
     });
 

@@ -1,6 +1,7 @@
 var _maxNumberPages = 0;
 var _currentPage = 1;
 var _numberMatched = 0;
+var _numberReturned = 0;
 var _features = [];
 var _limitVal = 10;
 
@@ -69,15 +70,15 @@ export function getFeatures() {
 
 /**
  * @function setNumberMatched
- * @description Sets the value of the return number of footprints
+ * @description Sets the value of the matched number of footprints
  */
 export function setNumberMatched(matched) {
   _numberMatched = matched;
 
-  if (_limitVal != 0 && matched != 0){
-    setMaxNumberPages(Math.floor(matched/_limitVal));
+  if (_limitVal != 0 && _numberMatched != 0){
+    setMaxNumberPages(Math.ceil(_numberMatched/_limitVal));
   }
-  if (matched == 0){
+  if (_numberMatched == 0){
     setMaxNumberPages(0);
   }
 }
@@ -88,6 +89,23 @@ export function setNumberMatched(matched) {
  */
 export function getNumberMatched() {
   return _numberMatched
+}
+
+/**
+ * @function setNumberReturned
+ * @description Sets the value of the returned number of footprints
+ */
+export function setNumberReturned(returned) {
+  _numberReturned = returned;
+  console.log(_numberReturned);
+}
+
+/**
+ * @function getNumberReturned
+ * @description Gets the value of the returned number of footprints
+ */
+export function getNumberReturned() {
+  return _numberReturned;
 }
 
 /**
@@ -129,4 +147,3 @@ export function getCurrentPage() {
 export function setLimit(val) {
   _limitVal = val;
 }
-
