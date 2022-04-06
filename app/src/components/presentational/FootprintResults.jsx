@@ -31,7 +31,7 @@ let css = {
     display: "flex",
     alignItems: "flex-start",
     flexDirection: "column",
-    width: 275, 
+    width: 275,
     maxHeight: "100vh",
     wordWrap: "break-word",
     flexShrink: 1,
@@ -61,14 +61,14 @@ export default function FootprintResults(props) {
     console.log(value);
   }
 
-  
+
 
   useEffect(() => {
     setTimeout(() => {
       setFeatures(getFeatures);
     }, 1000);
   });
-  
+
 
   return (
     <div style={css.root}>
@@ -93,7 +93,7 @@ export default function FootprintResults(props) {
         {features.map((feature) => (
           <div className="resultContainer" key={feature.id}>
             <div className="resultImgDiv">
-              <img className="resultImg" 
+              <img className="resultImg"
               src={feature.assets.thumbnail.href}/>
             </div>
             <div className="resultData">
@@ -122,13 +122,14 @@ export default function FootprintResults(props) {
                   icon={<LaunchIcon/>}
                   size="small"
                   component="a"
-                  href="#"
+                  // href={`https://stac.astrogeology.usgs.gov/browser-dev/dev/collections/${feature.collection}/items/${feature.id}`}
+                  href="https://stac.astrogeology.usgs.gov/browser-dev/"
                   variant="outlined"
                   clickable
                 />
               </Stack>
             </div>
-          </div>      
+          </div>
         ))}
       </div>
     </div>

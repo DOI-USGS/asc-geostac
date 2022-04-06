@@ -27,7 +27,12 @@ import Pagination from '@mui/material/Pagination';
 import Chip from '@mui/material/Chip';
 import FlagIcon from '@mui/icons-material/Flag';
 
-import { getMaxNumberPages, setCurrentPage, getCurrentPage, getNumberMatched, setLimit } from "../../js/ApiJsonCollection";
+import { getMaxNumberPages,
+         setCurrentPage,
+         getCurrentPage,
+         getNumberMatched,
+         setLimit,
+         getNumberReturned } from "../../js/ApiJsonCollection";
 
 
 /**
@@ -113,6 +118,7 @@ export default function SearchAndFilterInput(props) {
   const [dateToVal, setDateToVal] = React.useState(null);
   const [maxPages, setMaxPages] = React.useState(10);
   const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(10);
+  const [numberReturned, setNumberReturned] = React.useState(10);
   const [limitVal, setLimitVal] = React.useState(10);
 
   const [applyChipVisStyle, setApplyChipVisStyle] = React.useState(css.chipHidden);
@@ -126,6 +132,8 @@ export default function SearchAndFilterInput(props) {
   const handleApply = () => {
     setTimeout(() => {
       setMaxPages(getMaxNumberPages);
+      setNumberReturned(getNumberReturned);
+      setMaxNumberFootprints(getNumberMatched);
       props.footprintNavClick();
     }, 1000);
     setApplyChipVisStyle(css.chipHidden);
@@ -142,8 +150,9 @@ export default function SearchAndFilterInput(props) {
     setDateFromVal(null);
     setDateToVal(null);
     setLimitVal(10);
-    setMaxPages(getMaxNumberPages);
-    setMaxNumberFootprints(getNumberMatched);
+    setMaxPages(1);
+    setMaxNumberFootprints(0);
+    setNumberReturned(0);
     setApplyChip("Apply to show Footprints");
     //// Uncomment to close details on clear
     // keywordDetails.current.open = false;
@@ -211,6 +220,7 @@ export default function SearchAndFilterInput(props) {
   useEffect(() => {
     setTimeout(() => {
       setMaxNumberFootprints(getNumberMatched);
+      setNumberReturned(getNumberReturned);
       setLimitVal(10);
       setLimit(10);
       setMaxPages(getMaxNumberPages);
@@ -372,7 +382,7 @@ export default function SearchAndFilterInput(props) {
                   valueLabelDisplay="auto"
                   onChange={handleLimitChange}
                   value={limitVal}
-                  max={maxNumberFootprints}
+                  max={100}
                   defaultValue={10}
                 />
             </div>
@@ -387,8 +397,11 @@ export default function SearchAndFilterInput(props) {
                 />
             </div>
           </div>
+          <div className="panelSectionHeader">
+            <div>Displaying {numberReturned} of {maxNumberFootprints} Results</div>
+          </div>
           <div style={applyChipVisStyle}>
-            <Chip 
+            <Chip
               id="applyChip"
               label={gotoPage}
               icon={<FlagIcon/>}
