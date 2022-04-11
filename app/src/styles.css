@@ -7,6 +7,10 @@ body {
   background: lightgray;
 }
 
+a:link {
+  text-decoration: none;
+}
+
 /*
 App Layout Grid
 */
@@ -309,7 +313,6 @@ Controls the CSS for projection buttons when there is no available projection
   padding-bottom: 2px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   margin-bottom: 3px;
-
   word-wrap: break-word;
 }
 
@@ -368,6 +371,7 @@ GeoTiff Modal Container
 }
 
 #GeoTiffModalHeader #GeoTiffTitle {
+  font-family: Roboto, Arial, Helvetica, sans-serif;
   font-size: 1.20rem;
   font-weight: bold;
 }
@@ -386,7 +390,6 @@ GeoTiff Modal Container
   padding: 10px 15px;
   align-items: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  
 }
 
 #GeoTiffAsset {
@@ -433,4 +436,3 @@ GeoTiff Modal Container
   opacity: 1;
   pointer-events: all;
 }
-

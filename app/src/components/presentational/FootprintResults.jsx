@@ -56,9 +56,8 @@ export default function FootprintResults(props) {
 
   const showMetadata = value => () => {
     geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
-    geoTiffViewer.changeMetaData(value.collection, value.id, value.properties.datetime);
+    geoTiffViewer.changeMetaData(value.collection, value.id, value.properties.datetime, value.assets);
     geoTiffViewer.openModal();
-    console.log(value);
   }
 
 
