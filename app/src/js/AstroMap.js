@@ -4,7 +4,6 @@ import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
 import { getItemCollection, setNumberMatched, setMaxNumberPages, getCurrentPage, setCurrentPage, setFeatures} from "./ApiJsonCollection";
 import { MY_JSON_MAPS } from "./layers";
-// import stacLayer from 'stac-layer/src/index.js';
 
 
 /**
