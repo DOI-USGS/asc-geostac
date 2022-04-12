@@ -3,7 +3,6 @@ import { alpha } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import PolylineIcon from '@mui/icons-material/Polyline';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SwitchLeftIcon from '@mui/icons-material/SwitchLeft';
 import SwitchRightIcon from '@mui/icons-material/SwitchRight';
@@ -65,7 +64,6 @@ export default function QueryConsole() {
                 size="small"
                 variant="contained">
                 <Button id="copyCodeButton" sx={css.button} startIcon={<ContentCopyIcon />}>Copy Code</Button>
-                <Button id="wktButton" sx={css.button} startIcon={<PolylineIcon />}>Draw WKT String</Button>
                 <Button id="runQueryButton" sx={css.button} startIcon={<PlayArrowIcon />}>Run STAC Query</Button>
               </ButtonGroup>
             </div>

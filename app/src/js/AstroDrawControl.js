@@ -69,9 +69,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
     this.wkt = new Wkt.Wkt();
     this.myLayer = L.Proj.geoJson().addTo(map);
 
-    this.wktButton = L.DomUtil.get("wktButton");
-    L.DomEvent.on(this.wktButton, "click", this.mapWKTString, this);
-
     L.DomEvent.on(
       L.DomUtil.get("applyChip"),
       "click",
