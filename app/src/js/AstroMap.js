@@ -10,7 +10,6 @@ import { getItemCollection,
          setFeatures,
          setNumberReturned } from "./ApiJsonCollection";
 import { MY_JSON_MAPS } from "./layers";
-import stacLayer from 'stac-layer/src/index.js';
 
 
 /**

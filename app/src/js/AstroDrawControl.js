@@ -74,9 +74,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
     this.wkt = new Wkt.Wkt();
     this.myLayer = L.Proj.geoJson().addTo(map);
 
-    this.wktButton = L.DomUtil.get("wktButton");
-    L.DomEvent.on(this.wktButton, "click", this.mapWKTString, this);
-
     L.DomEvent.on(
       L.DomUtil.get("applyChip"),
       "click",
@@ -84,19 +81,30 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
       this
     );
 
-    L.DomEvent.on(
-      L.DomUtil.get("applyButton"),
-      "click",
-      this.applyFilter,
-      this
-    );
+    L.DomEvent.on(L.DomUtil.get("applyButton"),"click", this.applyFilter, this);
+    L.DomEvent.on(L.DomUtil.get("runQueryButton"),"click", this.applyFilter, this);
     L.DomEvent.on(L.DomUtil.get("clearButton"), "click", this.clearMap, this);
+    L.DomEvent.on(L.DomUtil.get("copyCodeButton"), "click", this.copyToClipboard, this);
 
     map.on("draw:created", this.shapesToWKT, this);
 
     // map.on("projChange", this.reprojectFeature, this);
 
     return container;
+  },
+
+  /**
+   * 
+   * 
+   */
+  copyToClipboard: function(){
+    /* Get the text field */
+    var copyText = document.getElementById("query-textarea");
+
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+    navigator.clipboard.writeText(copyText.value);
   },
 
   /**
