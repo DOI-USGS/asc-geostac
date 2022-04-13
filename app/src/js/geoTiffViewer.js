@@ -6,11 +6,11 @@ export default class GeoTiffViewer {
 
 	/**
 	 * Function name: Constructor
-	 * Desc: The constructor function for the class 
-	 * GeoTiffViewer takes in the div id that the 
+	 * Desc: The constructor function for the class
+	 * GeoTiffViewer takes in the div id that the
 	 * viewer will reside in
 	 * Input: imageDiv - String: the name of div ID where the image
-	 * asset will be displayed. 
+	 * asset will be displayed.
 	**/
 	constructor( imageDiv )
 	{
@@ -42,8 +42,8 @@ export default class GeoTiffViewer {
 				console.log(base64data);
 			}
 
-			const geoTiffDiv = document.getElementById(this._imgDiv)  
-			geoTiffDiv.innerHTML = ''; 
+			const geoTiffDiv = document.getElementById(this._imgDiv)
+			geoTiffDiv.innerHTML = '';
 
 			const imageObjectURL = URL.createObjectURL(imageBlob);
 			var img = document.createElement('img');
@@ -51,7 +51,7 @@ export default class GeoTiffViewer {
 			img.src = imageObjectURL;
 
 			document.getElementById(this._imgDiv).appendChild(img);
-			
+
 		})
 	*/
 	/**
@@ -62,22 +62,27 @@ export default class GeoTiffViewer {
 	 * */
 	displayGeoTiff( imageURL )
 	{
-		
+
 
 		document.getElementById("GeoTiffAsset").src=imageURL;
 
 	}
 
-	changeMetaData( GeoTiffCollectionName, GeoTiffIDName, GeoTiffDateName )
+	changeMetaData( GeoTiffCollectionName, GeoTiffIDName, GeoTiffDateName, Assets )
 	{
-		document.getElementById("GeoTiffCollection").innerHTML = ("<strong>Collection:</strong>&nbsp;" 
+		document.getElementById("GeoTiffCollection").innerHTML = ("<strong>Collection:</strong>&nbsp;"
 			+ GeoTiffCollectionName);
 
-		document.getElementById("GeoTiffID").innerHTML = ("<strong>ID:</strong>&nbsp;" 
+		document.getElementById("GeoTiffID").innerHTML = ("<strong>ID:</strong>&nbsp;"
 			+ GeoTiffIDName.substring(0));
 
-		document.getElementById("GeoTiffDate").innerHTML = ("<strong>Date:</strong>&nbsp;" 
+		document.getElementById("GeoTiffDate").innerHTML = ("<strong>Date:</strong>&nbsp;"
 			+ GeoTiffDateName);
+
+		document.getElementById("Assets").innerHTML = ("<strong>Assets:</strong>&nbsp;<br>");
+		for (const asset in Assets) {
+			document.getElementById("Assets").innerHTML += ("<a href=" + Assets[asset]["href"] + ">" + asset + "</a><br>");
+		}
 
 	}
 
