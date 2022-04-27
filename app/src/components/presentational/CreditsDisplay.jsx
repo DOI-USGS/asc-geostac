@@ -11,18 +11,6 @@ export default function CreditsDisplay() {
 
   return (
     <div id="credits-bar">
-      <div className="credit-item">
-        <Link
-          target="_blank"
-          rel="noopener"
-          color="inherit"
-          style={{ fontWeight: 600 }}
-          variant="caption"
-          href="https://cartocosmos.github.io/docs/index.html"
-        >
-          Documentation
-        </Link>
-      </div>
       <Divider orientation="vertical" />
       <div className="credit-item">
         <Link
@@ -31,7 +19,7 @@ export default function CreditsDisplay() {
           color="inherit"
           style={{ fontWeight: 600 }}
           variant="caption"
-          href=""
+          href="https://www.ceias.nau.edu/capstone/projects/CS/2022/GeoSTAC/documents/usermanual.pdf"
         >
           User Manual
         </Link>

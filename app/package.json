@@ -1,26 +1,26 @@
 {
-  "name": "leaflet-planetary",
+  "name": "leaflet-planetary-with-stac",
   "version": "1.0.0",
   "license": "UNLICENSED",
   "main": "index.js",
-  "description": "Leaflet extension for planetary mapping of non-Earth bodies with varying radii.",
-  "author": "CartoCosmos",
+  "description": "Forked CartoCosmos Leaflet webmap with added ability to discover USGS Analysis Ready Data (ARD) holdings using the SpatioTemporal Asset Catalogs (STAC) API.",
+  "authors": "GeoSTAC",
   "contributors": [
     {
-      "name": "Scott Ames",
-      "url": "https://github.com/scottaames"
+      "name": "Amy Stamile",
+      "url": "https://github.com/amystamile"
     },
     {
-      "name": "Kaitlyn Lee",
-      "url": "https://github.com/kaitlyndlee"
+      "name": "Zachary Kaufman",
+      "url": "https://github.com/zak52"
     },
     {
-      "name": "Jacob Kaufman",
-      "url": "https://github.com/jkaufy"
+      "name": "Jacob Cain",
+      "url": "https://github.com/jrc632"
     },
     {
-      "name": "Christopher Moore",
-      "url": "https://github.com/cgm78"
+      "name": "Gavin Nelson",
+      "url": "https://github.com/gsn9"
     }
   ],
   "homepage": "https://github.com/GeoSTAC/CartoCosmos-with-STAC",

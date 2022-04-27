@@ -10,11 +10,11 @@
   },
   "plugins": ["plugins/markdown"],
   "templates": {
-    "referenceTitle": "CartoCosmos",
+    "referenceTitle": "GeoSTAC",
     "disableSort": false,
     "collapse": false,
     "resources": {
-      "GitHub": "https://github.com/CartoCosmos/CartoCosmos"
+      "GitHub": "https://github.com/GeoSTAC/CartoCosmos-with-STAC"
     }
   },
   "opts": {
