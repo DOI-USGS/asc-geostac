@@ -29,7 +29,7 @@ export function getItemCollection(name, queryString) {
   return callAPI().then(result => {
     for (let i = 0; i < result.collections.length; i++) {
       if (
-        result.collections[i].summaries["ssys:targets"] == name.toLowerCase()
+        result.collections[i].summaries["ssys:targets"][0].toLowerCase() == name.toLowerCase()
       ) {
         let length = result.collections[i].links.length;
         for (let j = 0; j < length; j++) {
@@ -110,7 +110,6 @@ export function getNumberMatched() {
  */
 export function setNumberReturned(returned) {
   _numberReturned = returned;
-  console.log(_numberReturned);
 }
 
 /**
