@@ -4,8 +4,8 @@ import Wkt from "wicket";
 import {getCurrentPage} from "./ApiJsonCollection";
 
 /**
- * @class AstroDrawControl
- * @aka L.Control.AstroDrawControl
+ * @class AstroDrawFilterControl
+ * @aka L.Control.AstroDrawFilterControl
  * @extends L.Control
  * @classdesc
  * Class that extends from the class L.Control.Draw and handles the back-end when a user draws on the leaflet map.
@@ -18,25 +18,25 @@ import {getCurrentPage} from "./ApiJsonCollection";
  * map.addLayer(drawnItems);
  *
  * // add draw control to map
- * let drawControl = new AstroDrawControl({
+ * let drawControl = new AstroDrawFilterControl({
  *   edit: {
  *      featureGroup: drawnItems
  *   }
  * }).addTo(map);
  */
-export default L.Control.AstroDrawControl = L.Control.Draw.extend({
+export default L.Control.AstroDrawFilterControl = L.Control.Draw.extend({
   options: {
-    draw: { 
-      circle: false, 
-      marker: false, 
-      circlemarker: false, 
-      polyline: false, 
+    draw: {
+      circle: false,
+      marker: false,
+      circlemarker: false,
+      polyline: false,
       polygon:false },
       edit: false
   },
 
   /**
-   * @function AstroDrawControl.prototype.onAdd
+   * @function AstroDrawFilterControl.prototype.onAdd
    * @description Adds the draw control to the map provided. Creates an on-draw and on-click event
    *              that allows users to draw polygons onto the leaflet map.
    * @param  {AstroMap} map - The AstroMap to add the control to.
@@ -66,10 +66,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
       }
     }
     this.queryTextBox = L.DomUtil.get("query-textarea");
-    this.queryAuto = L.DomUtil.get("query-auto-checkbox");
-    this.queryAutoWkt = L.DomUtil.get("query-auto-wkt-checkbox");
-    // TODO: STAC Query should auto-populate/set this.queryTextBox.value
-    //       if (this.queryAuto.checked === true && this.queryAutoWkt.checked === false)
 
     this.wkt = new Wkt.Wkt();
     this.myLayer = L.Proj.geoJson().addTo(map);
@@ -88,15 +84,13 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
 
     map.on("draw:created", this.shapesToWKT, this);
 
-    // map.on("projChange", this.reprojectFeature, this);
-
     return container;
   },
 
   /**
-   * 
-   * 
-   */
+  * @function AstroDrawFilterControl.copyToClipboard
+  * @description Copies query string in the query console to clipboard
+  */
   copyToClipboard: function(){
     /* Get the text field */
     var copyText = document.getElementById("query-textarea");
@@ -108,26 +102,9 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
   },
 
   /**
-   * @function AstroDrawControl.prototype.shapesToWKT
-   * @description Is called when a user draws a shape using the on map drawing features.
-   *              Converts the shaped drawn into a Well-Known text string and inserts it into
-   *              the Well-Known text box.
-   * @param  {DomEvent} e  - On draw.
-   */
-  shapesToWKT: function(e) {
-    this.myLayer.clearLayers();
-    this.options.edit["featureGroup"].clearLayers();
-
-    this.options.edit["featureGroup"].addLayer(e.layer);
-    let geoJson = e.layer.toGeoJSON();
-    geoJson = geoJson["geometry"];
-
-    this.wkt.read(JSON.stringify(geoJson));
-    if (this.queryAuto.checked === true && this.queryAutoWkt.checked === true) {
-      this.queryTextBox.value = this.wkt.write();
-    }
-  },
-
+  * @function AstroDrawFilterControl.clearMap
+  * @description clears the layers on map
+  */
   clearMap: function() {
     this._map._footprintControl.remove();
     for(let i = 0; i < this._map._geoLayers.length; i++){
@@ -161,8 +138,6 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
         bboxCoordArr.push([parseFloat(temp[0]), parseFloat(temp[1])]);
       }
     }
-    // will proballby end up refactoring this a little bit when the front end of
-    // this is up
     let bboxArr = [
       bboxCoordArr[0][0],
       bboxCoordArr[0][1],
@@ -173,6 +148,11 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
     return queryString;
   },
 
+  /**
+   * @function applyFilter
+   * @description grabs the information from the filter panel and creates a query string
+   * this function then recalls loadFootprintLayer with the updated query string
+   */
   applyFilter: function() {
     let filterOptions = [];
 
@@ -238,35 +218,5 @@ export default L.Control.AstroDrawControl = L.Control.Draw.extend({
       this._map._geoLayers[i].clearLayers();
     }
     this._map.loadFootprintLayer(this._map._target, queryString);
-  },
-
-  /**
-   * @function AstroDrawControl.prototype.mapWKTString
-   * @description  Is called when a user clicks the draw button below the AstroMap.
-   *               Will take the Well-Known text string and draw the shape onto the map.
-   *               If the Well-Known text string is invalid an error will show in the text box.
-   * @param  {DomEvent} e  - On Click of Well-Known text button.
-   */
-  mapWKTString: function(e) {
-    this.myLayer.clearLayers();
-    this.options.edit["featureGroup"].clearLayers();
-
-    let wktValue = this.queryTextBox.value;
-
-    try {
-      this.wkt.read(wktValue);
-    } catch (err) {
-      alert("Invalid Well Known Text String");
-      return;
-    }
-
-    let geoJson = this.wkt.toJson();
-
-    let geojsonFeature = {
-      type: "Feature",
-      geometry: geoJson
-    };
-
-    this.myLayer.addData(geojsonFeature);
   }
 });

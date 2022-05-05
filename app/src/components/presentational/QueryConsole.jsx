@@ -47,13 +47,6 @@ export default function QueryConsole() {
         <span id="query-console-title">
           <ArrowDropDownCircleIcon sx={{marginRight:1}}/> Query Console
         </span>
-        <span id="query-function">
-          <Checkbox checked={consoleAuto} onChange={handleConsoleAutoChange} id="query-auto-checkbox"/>
-          Auto-populate with:
-          {consoleAutoWkt ? " WKT String" : " STAC Query"}
-          <Checkbox id="query-auto-wkt-checkbox" checked={consoleAutoWkt} onChange={handleConsoleAutoWktChange}
-                icon={<SwitchRightIcon/>} checkedIcon={<SwitchLeftIcon/>} color="default"/>
-        </span>
       </summary>
       <div id="query-console-expanded">
           <div id="query-textarea-container">

@@ -2,8 +2,7 @@ import L from "leaflet";
 
 import ProjectionControl from "./ProjectionControl";
 import MousePositionControl from "./MousePositionControl";
-import AstroDrawControl from "./AstroDrawControl";
-import AstroSidebarControl from "./SidebarControl";
+import AstroDrawFilterControl from "./AstroDrawFilterControl";
 import ViewCenterControl from "./ViewCenterControl";
 
 /**
@@ -40,17 +39,12 @@ export default L.AstroControlManager = L.Class.extend({
     let drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
 
-    this._drawControl = new AstroDrawControl({
+    this._drawControl = new AstroDrawFilterControl({
       edit: {
         featureGroup: drawnItems
       }
     });
     this._controls.push(this._drawControl);
-
-    this._sidebarControl = new AstroSidebarControl(
-      L.DomUtil.get("consoleToolbar"),
-      L.DomUtil.get("coordContainer")
-    );
   },
 
   /**
@@ -63,32 +57,6 @@ export default L.AstroControlManager = L.Class.extend({
       map.addControl(control);
     });
     map.addControl(new L.Control.Scale({ imperial: false }));
-
-    let that = this;
-    map.on("fullscreenchange", function() {
-      if (map.isFullscreen()) {
-        that.reorderControls(map);
-      } else {
-        map.removeControl(that._sidebarControl);
-      }
-    });
   },
 
-  /**
-   * @function AstroControlManager.prototype.reorderControls
-   * @description Removes/adds the existing controls to the map so that the
-   *              sidebar control is at the top.
-   * @param {AstroMap} map - The AstroMap to add the controls to.
-   */
-  reorderControls: function(map) {
-    this._controls.forEach(function(control, index) {
-      map.removeControl(control);
-    });
-
-    map.addControl(this._sidebarControl);
-
-    this._controls.forEach(function(control, index) {
-      map.addControl(control);
-    });
-  }
 });
