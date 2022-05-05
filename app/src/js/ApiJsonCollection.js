@@ -5,18 +5,31 @@ var _numberReturned = 0;
 var _features = [];
 var _limitVal = 10;
 
+/**
+ * @function callAPI
+ * @description Fetches the STAC API at the collections level
+ */
 function callAPI() {
   return fetch(
     "https://6vpdmaqce6.execute-api.us-west-2.amazonaws.com/dev/collections"
   ).then(response => response.json());
 }
 
+/**
+ * @function getItemCollection
+ * @description Function takes the fetch return from callAPI and iterates through
+ * collections with matching target name, if there are multiple collections for
+ * the same target, these will be pushed to an array. Then the function fetches
+ * all the items within the associated collections.
+ * @param {String} name - The target name
+ * @param {String} queryString - the query string to fetch against
+ */
 export function getItemCollection(name, queryString) {
   var urlArray = [];
   return callAPI().then(result => {
     for (let i = 0; i < result.collections.length; i++) {
       if (
-        result.collections[i].summaries["ssys:targets"] == name.toLowerCase()
+        result.collections[i].summaries["ssys:targets"][0].toLowerCase() == name.toLowerCase()
       ) {
         let length = result.collections[i].links.length;
         for (let j = 0; j < length; j++) {
@@ -97,7 +110,6 @@ export function getNumberMatched() {
  */
 export function setNumberReturned(returned) {
   _numberReturned = returned;
-  console.log(_numberReturned);
 }
 
 /**

@@ -2433,7 +2433,7 @@ export const MY_JSON_MAPS = {
             top: "2357032",
             bottom: "-2357032"
           },
-          primary: "true",
+          primary: "false",
           citation: "USGS/NASA",
           notes: " "
         },
@@ -5204,7 +5204,7 @@ export const MY_JSON_MAPS = {
             top: "90",
             bottom: "-90"
           },
-          primary: "false",
+          primary: "true",
           citation: "USGS/AMES",
           notes: " "
         }
@@ -5619,7 +5619,7 @@ export const MY_JSON_MAPS = {
             top: "90",
             bottom: "-90"
           },
-          primary: "true",
+          primary: "false",
           citation: "Goddard/ASU/USGS",
           notes: ""
         }
