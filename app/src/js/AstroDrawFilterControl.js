@@ -102,6 +102,23 @@ export default L.Control.AstroDrawFilterControl = L.Control.Draw.extend({
   },
 
   /**
+   * @function AstroDrawFilterControl.prototype.shapesToWKT
+   * @description Is called when a user draws a shape using the on map drawing features.
+   *              Converts the shaped drawn into a Well-Known text string.
+   * @param  {DomEvent} e  - On draw.
+   */
+  shapesToWKT: function(e) {
+    this.myLayer.clearLayers();
+    this.options.edit["featureGroup"].clearLayers();
+
+    this.options.edit["featureGroup"].addLayer(e.layer);
+    let geoJson = e.layer.toGeoJSON();
+    geoJson = geoJson["geometry"];
+
+    this.wkt.read(JSON.stringify(geoJson));
+  },
+
+  /**
   * @function AstroDrawFilterControl.clearMap
   * @description clears the layers on map
   */
