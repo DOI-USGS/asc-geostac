@@ -121,8 +121,8 @@ export default function FootprintResults(props) {
                   icon={<LaunchIcon/>}
                   size="small"
                   component="a"
-                  // href={`https://stac.astrogeology.usgs.gov/browser-dev/dev/collections/${feature.collection}/items/${feature.id}`}
-                  href="https://stac.astrogeology.usgs.gov/browser-dev/"
+                  href={`https://stac.astrogeology.usgs.gov/browser-dev/#/collections/${feature.collection}/items/${feature.id}`}
+                  //href="https://stac.astrogeology.usgs.gov/browser-dev/"
                   variant="outlined"
                   clickable
                 />
