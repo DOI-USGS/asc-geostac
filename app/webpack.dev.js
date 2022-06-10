@@ -7,6 +7,6 @@ module.exports = merge(Common, {
   devServer: {
     static: "./dist",
     compress: true,
-    port: 8000,
+    port: 8001,
   },
 });
