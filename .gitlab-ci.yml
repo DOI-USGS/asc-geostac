@@ -1,0 +1,27 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  GIT_SSL_NO_VERIFY: 1
+  GIT_SUBMODULE_STRATEGY: recursive
+
+build:
+  stage: build
+  image: code.chs.usgs.gov:5001/asc/stac_browser_deploy
+  script:
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - dist
+
+deploy:
+  stage: deploy
+  image: usgsastro/aws-cli:latest
+  dependencies: 
+    - build
+  script:
+    - aws s3 sync --delete dist s3://asc-stacbrowser/geostac/
+
+
