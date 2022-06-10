@@ -1,0 +1,44 @@
+{
+  "presets": [
+    "airbnb",
+    [
+      "@babel/preset-env",
+      {
+        "modules": false
+      }
+    ]
+  ],
+  "plugins": [
+
+    ["@babel/plugin-transform-runtime",
+      {
+        "regenerator": true
+      }
+    ],
+
+    [
+      "babel-plugin-import",
+      {
+        "libraryName": "@mui/material",
+        "libraryDirectory": "esm",
+        "camel2DashComponentName": false
+      },
+      "core"
+
+    ],
+    [
+      "babel-plugin-import",
+      {
+        "libraryName": "@mui/icons-material",
+        "libraryDirectory": "esm",
+        "camel2DashComponentName": false
+      },
+      "icons"
+    ]
+  ],
+  "env": {
+    "production": {
+      "presets": ["minify"]
+    }
+  }
+}
