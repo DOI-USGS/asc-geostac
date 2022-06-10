@@ -11,7 +11,7 @@ var _limitVal = 10;
  */
 function callAPI() {
   return fetch(
-    "https://6vpdmaqce6.execute-api.us-west-2.amazonaws.com/dev/collections"
+    "https://stac.astrogeology.usgs.gov/api/collections"
   ).then(response => response.json());
 }
 
