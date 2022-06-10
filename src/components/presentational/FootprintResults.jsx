@@ -122,6 +122,7 @@ export default function FootprintResults(props) {
                   size="small"
                   component="a"
                   href={`https://stac.astrogeology.usgs.gov/browser-dev/#/collections/${feature.collection}/items/${feature.id}`}
+                  target="_blank"
                   //href="https://stac.astrogeology.usgs.gov/browser-dev/"
                   variant="outlined"
                   clickable
