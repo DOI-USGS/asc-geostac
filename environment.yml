@@ -3,5 +3,4 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - nodejs=16.13.1=hb931c9a_0
-
+  - nodejs

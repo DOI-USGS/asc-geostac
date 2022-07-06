@@ -161,7 +161,7 @@ export default L.Control.AstroDrawFilterControl = L.Control.Draw.extend({
       bboxCoordArr[1][0],
       bboxCoordArr[1][1]
     ];
-    let queryString = "bbox=" + "[" + bboxArr + "]";
+    let queryString = "bbox=" + bboxArr;
     return queryString;
   },
 
