@@ -3,7 +3,6 @@ import ConsoleTargetInfo from "../presentational/ConsoleTargetInfo.jsx";
 import ConsoleProjectionButtons from "../presentational/ConsoleProjectionButtons.jsx";
 import ConsoleLonLatSelects from "../presentational/ConsoleLonLatSelects.jsx";
 import ConsoleCoordinates from "./ConsoleCoordinates.jsx";
-import AppBar from "@mui/material/AppBar";
 import Divider from "@mui/material/Divider";
 
 /**
@@ -24,30 +23,22 @@ let css = {
 export default function ConsoleAppBar(props) {
 
   return (
-    <AppBar
-      sx={css.appbar}
-      position="static"
-      color="inherit"
-      id="consoleToolbar"
-    >
-        <div className="flexbar">
-          <div className="flexbar-item">
-            <ConsoleTargetInfo target={props.target} bodyChange={props.bodyChange} />
-          </div>
-          <Divider orientation="vertical" />
-          <div className="flexbar-item">
-            <ConsoleCoordinates />
-          </div>
-          <Divider orientation="vertical" />
-          <div className="flexbar-item">
-            <ConsoleProjectionButtons />
-          </div>
-          <Divider orientation="vertical" />
-          <div className="flexbar-item">
-            <ConsoleLonLatSelects />
-          </div>
-
-        </div>
-    </AppBar>
+    <div className="flexbar">
+      <div className="flexbar-item">
+        <ConsoleTargetInfo target={props.target} bodyChange={props.bodyChange} />
+      </div>
+      <Divider orientation="vertical" />
+      <div className="flexbar-item">
+        <ConsoleCoordinates />
+      </div>
+      <Divider orientation="vertical" />
+      <div className="flexbar-item">
+        <ConsoleProjectionButtons />
+      </div>
+      <Divider orientation="vertical" />
+      <div className="flexbar-item">
+        <ConsoleLonLatSelects />
+      </div>
+    </div>
   );
 }

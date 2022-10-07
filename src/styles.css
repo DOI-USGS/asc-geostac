@@ -1,14 +1,43 @@
 @import "https://unpkg.com/leaflet@1.7.1/dist/leaflet.css";
 @import "https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css";
+@import "~@trussworks/react-uswds/lib/index.css";
+@import "~@trussworks/react-uswds/lib/uswds.css";
 
+html,
+body,
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
 
-body {
   margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
   background: lightgray;
+  overflow-y: hidden;
+}
+
+#map {
+  display: flex;
+}
+
+.scroll-parent {
+  min-height: 0;
 }
 
 a:link {
   text-decoration: none;
+}
+
+#header,
+#footer {
+  flex-shrink: 0;
 }
 
 /*
@@ -16,45 +45,39 @@ App Layout Grid
 */
 
 #app-container {
-  height: calc(100vh - 1px);
-  width: calc(100vw - 1px);
-  display: grid;
-  grid-template:
-    "m r" auto
-    / minmax(250px, auto) max-content;
-  grid-gap: 1px;
+  flex-grow: 1;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
 }
 
 #main-column {
-  grid-area: m;
-  display: grid;
-  grid-template:
-    "t" max-content
-    "c" minmax(250px, auto)
-    "b" max-content
-    / minmax(250px, auto);
-  grid-gap: 1px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 #right-bar {
-  grid-area: r;
+  flex-shrink: 0;
   background: lightgray;
   display: flex;
   flex-direction: row;
 }
 
-#top-bar {
-  grid-area: t;
+#top-bar,
+#bottom-bar {
+  flex-shrink: 0;
   background: lightgray;
 }
 
-#bottom-bar {
-  grid-area: b;
-  background: lightgray;
+#map-area {
+  flex-grow: 1;
 }
 
 #map-container {
-  grid-area: c;
+  height: 100%;
+  width: 100%;
   z-index: 0;
 }
 
@@ -75,6 +98,7 @@ App Layout Grid
 }
 
 .flexbar {
+  background-color: white;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -96,20 +120,19 @@ App Layout Grid
   writing-mode: vertical-lr;
   text-orientation: mixed;
   transform: rotate(180deg);
-  height: 100%;
 }
 
 #query-console-container {
   font-family: Arial, Helvetica, sans-serif;
-	background-color: #cecedb;
+  background-color: #cecedb;
   padding: 0;
   display: flex;
   flex-direction: column;
 }
 
 #query-console-collapsed {
-	line-height: 32px;
-	text-align: left;
+  line-height: 32px;
+  text-align: left;
   padding-left: 10px;
   display: flex;
   justify-content: space-between;
@@ -137,7 +160,7 @@ App Layout Grid
 }
 
 #query-textarea {
-  font-family: Consolas 'Lucida Console' 'Cascadia Code' monospace;
+  font-family: Consolas "Lucida Console" "Cascadia Code" monospace;
   font-size: 13pt;
   flex: auto;
   resize: none;
@@ -145,7 +168,7 @@ App Layout Grid
   border-radius: 0;
   border: none;
   background: #1971c2;
-  color: #FFFFFF;
+  color: #ffffff;
   width: auto;
   padding: 15px;
 }
@@ -273,7 +296,8 @@ Controls the CSS for projection buttons when there is no available projection
 }
 
 .resultHeader {
-  display: inline-flex;
+  flex-shrink: 0;
+  display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-content: baseline;
@@ -292,17 +316,16 @@ Controls the CSS for projection buttons when there is no available projection
 
 .resultsList {
   border-top: 1px solid rgba(0, 0, 0, 0.12);
-  width: 275px;
-  flex-shrink: 1;
-  height: auto;
   overflow-y: scroll;
 }
 
 .resultContainer {
+  width: 275px;
   display: grid;
-  grid-template: "ra rb"
-                 "rc rc"
-                 / 20% 80%;
+  grid-template:
+    "ra rb"
+    "rc rc"
+    / 20% 80%;
   border-bottom: 3px double rgba(0, 0, 0, 0.4);
   padding: 10px;
 }
@@ -340,7 +363,6 @@ summary {
   vertical-align: center;
 }
 
-
 /*
 GeoTiff Modal Container
 */
@@ -372,11 +394,11 @@ GeoTiff Modal Container
 
 #GeoTiffModalHeader #GeoTiffTitle {
   font-family: Roboto, Arial, Helvetica, sans-serif;
-  font-size: 1.20rem;
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
-#GeoTiffModalHeader #GeoTiffCloseButton{
+#GeoTiffModalHeader #GeoTiffCloseButton {
   cursor: pointer;
   border: none;
   outline: none;
@@ -402,21 +424,8 @@ GeoTiff Modal Container
 }
 
 #GeoTiffModalFooter {
-    backgroundColor: "#f8f9fa";
-    overflow: "hidden";
-    display: "flex";
-    alignItems: "flex-start";
-    flexDirection: "column";
-    width: 275;
-    maxHeight: "100vh";
-    wordWrap: "break-word";
-    flexShrink: 1;
-    padding: 0;
-    font-family: Roboto, Arial, Helvetica, sans-serif;
-    font-size: small;
-    padding-bottom: 2px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-    margin-bottom: 3px;
+  padding: 10px;
+  flex-shrink: 1;
 }
 
 #GeoTiffOverlay {
@@ -427,7 +436,7 @@ GeoTiff Modal Container
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, .5);
+  background-color: rgba(0, 0, 0, 0.5);
   pointer-events: none;
   z-index: 10;
 }
