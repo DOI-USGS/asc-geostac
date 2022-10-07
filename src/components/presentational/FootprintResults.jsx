@@ -1,16 +1,16 @@
-import React, {useEffect} from "react";
-import Checkbox from '@mui/material/Checkbox';
+import React, { useEffect } from "react";
+import Checkbox from "@mui/material/Checkbox";
 
 // result action links
-import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
 
 // icons
-import PreviewIcon from '@mui/icons-material/Preview';
-import LaunchIcon from '@mui/icons-material/Launch';
-import OpenInFullIcon from '@mui/icons-material/OpenInFull';
-import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
-import PhotoIcon from '@mui/icons-material/AddAPhoto';
+import PreviewIcon from "@mui/icons-material/Preview";
+import LaunchIcon from "@mui/icons-material/Launch";
+import OpenInFullIcon from "@mui/icons-material/OpenInFull";
+import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
+import PhotoIcon from "@mui/icons-material/AddAPhoto";
 
 // object with results
 import { getFeatures } from "../../js/ApiJsonCollection";
@@ -19,7 +19,6 @@ import { autocompleteClasses } from "@mui/material";
 // geotiff thumbnail viewer
 import DisplayGeoTiff from "../presentational/DisplayGeoTiff.jsx";
 import GeoTiffViewer from "../../js/geoTiffViewer.js";
-
 
 /**
  * Controls css styling for this component using js to css
@@ -31,13 +30,9 @@ let css = {
     display: "flex",
     alignItems: "flex-start",
     flexDirection: "column",
-    width: 275,
-    maxHeight: "100vh",
-    wordWrap: "break-word",
-    flexShrink: 1,
     padding: 0,
-    borderLeft: "2px solid lightgray"
-  }
+    borderLeft: "2px solid lightgray",
+  },
 };
 
 /**
@@ -49,18 +44,20 @@ let css = {
  *
  */
 export default function FootprintResults(props) {
-
   const [features, setFeatures] = React.useState([]);
 
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
 
-  const showMetadata = value => () => {
+  const showMetadata = (value) => () => {
     geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
-    geoTiffViewer.changeMetaData(value.collection, value.id, value.properties.datetime, value.assets);
+    geoTiffViewer.changeMetaData(
+      value.collection,
+      value.id,
+      value.properties.datetime,
+      value.assets
+    );
     geoTiffViewer.openModal();
-  }
-
-
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -68,20 +65,19 @@ export default function FootprintResults(props) {
     }, 1000);
   });
 
-
   return (
-    <div style={css.root}>
-
+    <div style={css.root} className="scroll-parent">
       <div className="resultHeader">
-        <span id="panelSectionTitle">
-        Footprint Results
-        </span>
+        <span id="panelSectionTitle">Footprint Results</span>
         <span className="resultHeaderCheck">
-          <Checkbox defaultChecked onChange={props.changeLayout}
-            icon={<CloseFullscreenIcon/>} checkedIcon={<OpenInFullIcon/>}
+          <Checkbox
+            defaultChecked
+            onChange={props.changeLayout}
+            icon={<CloseFullscreenIcon />}
+            checkedIcon={<OpenInFullIcon />}
             sx={{
               color: "#64748B",
-              '&.Mui-checked': {
+              "&.Mui-checked": {
                 color: "#64748B",
               },
             }}
@@ -92,8 +88,7 @@ export default function FootprintResults(props) {
         {features.map((feature) => (
           <div className="resultContainer" key={feature.id}>
             <div className="resultImgDiv">
-              <img className="resultImg"
-              src={feature.assets.thumbnail.href}/>
+              <img className="resultImg" src={feature.assets.thumbnail.href} />
             </div>
             <div className="resultData">
               <div className="resultSub">
@@ -110,7 +105,7 @@ export default function FootprintResults(props) {
               <Stack direction="row" spacing={1}>
                 <Chip
                   label="Metadata"
-                  icon={<PreviewIcon/>}
+                  icon={<PreviewIcon />}
                   size="small"
                   onClick={showMetadata(feature)}
                   variant="outlined"
@@ -118,7 +113,7 @@ export default function FootprintResults(props) {
                 />
                 <Chip
                   label="STAC Browser"
-                  icon={<LaunchIcon/>}
+                  icon={<LaunchIcon />}
                   size="small"
                   component="a"
                   href={`https://stac.astrogeology.usgs.gov/browser-dev/#/collections/${feature.collection}/items/${feature.id}`}

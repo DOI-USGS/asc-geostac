@@ -3,46 +3,30 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 
 // Planet Selection Dialog
-import PropTypes from 'prop-types';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import Avatar from '@mui/material/Avatar';
-import List from '@mui/material/List';
+import PropTypes from "prop-types";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import Avatar from "@mui/material/Avatar";
+import List from "@mui/material/List";
 import ListSubheader from "@mui/material/ListSubheader";
-import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import ListItemText from '@mui/material/ListItemText';
-import { blue } from '@mui/material/colors';
+import ListItem from "@mui/material/ListItem";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import ListItemText from "@mui/material/ListItemText";
+import { blue } from "@mui/material/colors";
 import Link from "@mui/material/Link";
 
 // Icons
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-//import PublicIcon from '@mui/icons-material/Public';     // Generic Planet/moon, in case
-//import DarkModeIcon from '@mui/icons-material/DarkMode'; // we don't want the colored icons
-
-import MercuryIcon from "../../assets/img/planet-icons/001-mercury.png";
-import VenusIcon from "../../assets/img/planet-icons/002-venus.png";
-import EarthIcon from "../../assets/img/planet-icons/003-earth.png";
-import MarsIcon from "../../assets/img/planet-icons/004-mars.png";
-import JupiterIcon from "../../assets/img/planet-icons/005-jupiter.png";
-import SaturnIcon from "../../assets/img/planet-icons/006-saturn.png";
-import UranusIcon from "../../assets/img/planet-icons/007-uranus.png";
-import NeptuneIcon from "../../assets/img/planet-icons/008-neptune.png";
-import PlutoIcon from "../../assets/img/planet-icons/009-pluto.png";
-import MoonIcon from "../../assets/img/planet-icons/010-moon.png";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import PublicIcon from "@mui/icons-material/Public";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 
 /**
  * Controls css styling for this component using js to css
  */
 let css = {
-  img: {
-    width: 32,
-    height: 32,
-    margin: "auto"
-  },
   grid: {
     width: "100%",
-    maxHeight: 45
+    maxHeight: 45,
   },
   title: {
     color: "#343a40",
@@ -54,28 +38,43 @@ let css = {
     cursor: "pointer",
     "&:hover": {
       background: "#efefef",
-      textDecoration: "underline"
-    }
+      textDecoration: "underline",
+    },
   },
-  attributionContainer: {
-    alignContent: "center",
-    paddingLeft: 20
-  }
 };
 
-
- const planets = [
-   ['Mercury', MercuryIcon ],
-   ['Venus', VenusIcon],
-   ['Earth', EarthIcon],
-   ['Mars', MarsIcon],
-   ['Jupiter', JupiterIcon],
-   ['Saturn', SaturnIcon],
-   ['Uranus', UranusIcon],
-   ['Neptune', NeptuneIcon],
-   ['Pluto', PlutoIcon]
-  ];
-const moons = ['Moon', 'Ceres', 'Mimas', 'Titan', 'Deimos', 'Tethys', 'Phoebe', 'Iapetus', 'Dione', 'Enceladus', 	'Hyperion', 'Io', 'Callisto', 'Europa', 'Ganymede', 'Rhea', 'Phobos', 'Vesta', 'Charon' ];
+const planets = [
+  ["Mercury"],
+  ["Venus"],
+  ["Earth"],
+  ["Mars"],
+  ["Jupiter"],
+  ["Saturn"],
+  ["Uranus"],
+  ["Neptune"],
+  ["Pluto"],
+];
+const moons = [
+  "Moon",
+  "Ceres",
+  "Mimas",
+  "Titan",
+  "Deimos",
+  "Tethys",
+  "Phoebe",
+  "Iapetus",
+  "Dione",
+  "Enceladus",
+  "Hyperion",
+  "Io",
+  "Callisto",
+  "Europa",
+  "Ganymede",
+  "Rhea",
+  "Phobos",
+  "Vesta",
+  "Charon",
+];
 
 /**
  * Dialog for selecting planets
@@ -83,7 +82,6 @@ const moons = ['Moon', 'Ceres', 'Mimas', 'Titan', 'Deimos', 'Tethys', 'Phoebe', 
  * @returns Planet Selection Dialog
  */
 function PlanetDialog(props) {
-
   const { onClose, selectedValue, open } = props;
 
   const handleClose = () => {
@@ -100,10 +98,14 @@ function PlanetDialog(props) {
       <List sx={{ pt: 0 }}>
         <ListSubheader value="Mars">Planets</ListSubheader>
         {planets.map((planet) => (
-          <ListItem button onClick={() => handleListItemClick(planet[0])} key={planet[0]}>
+          <ListItem
+            button
+            onClick={() => handleListItemClick(planet[0])}
+            key={planet[0]}
+          >
             <ListItemAvatar>
               <Avatar sx={{ bgcolor: blue[100] }}>
-                <img style={css.img} src={planet[1]} />
+                <PublicIcon />
               </Avatar>
             </ListItemAvatar>
             <ListItemText primary={planet[0]} />
@@ -114,26 +116,13 @@ function PlanetDialog(props) {
           <ListItem button onClick={() => handleListItemClick(moon)} key={moon}>
             <ListItemAvatar>
               <Avatar sx={{ bgcolor: blue[100] }}>
-              <img style={css.img} src={MoonIcon} />
+                <DarkModeIcon />
               </Avatar>
             </ListItemAvatar>
             <ListItemText primary={moon} />
           </ListItem>
         ))}
       </List>
-      <div style={css.attributionContainer}>
-        <Link
-          title="Space Icons"
-          target="_blank"
-          rel="noopener"
-          color="inherit"
-          style={{ fontWeight: 600 }}
-          variant="caption"
-          href="https://www.flaticon.com/packs/space-275"
-        >
-          Icons by Freepik on Flaticon
-        </Link>
-      </div>
     </Dialog>
   );
 }
@@ -141,7 +130,7 @@ function PlanetDialog(props) {
 PlanetDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired
+  selectedValue: PropTypes.string.isRequired,
 };
 
 /**
@@ -156,7 +145,6 @@ PlanetDialog.propTypes = {
  * )
  */
 export default function ConsoleTargetInfo(props) {
-
   const [open, setOpen] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState(planets[3][0]);
 
@@ -180,7 +168,12 @@ export default function ConsoleTargetInfo(props) {
       xs
     >
       <Grid item>
-        <Typography id="targetName" sx={css.title} variant="h4" onClick={handleClickOpen}>
+        <Typography
+          id="targetName"
+          sx={css.title}
+          variant="h4"
+          onClick={handleClickOpen}
+        >
           {props.target.toUpperCase()} <ArrowDropDownIcon fontSize="large" />
         </Typography>
       </Grid>

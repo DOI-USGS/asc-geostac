@@ -3,12 +3,11 @@ import { alpha } from "@mui/material/styles";
 import Grid from "@mui/material/Grid";
 import ButtonBase from "@mui/material/ButtonBase";
 import Typography from "@mui/material/Typography";
-import northPolar from "../../assets/img/NorthPolar.png";
-import simpleCylindrical from "../../assets/img/SimpleCylindrical.png";
-import southPolar from "../../assets/img/SouthPolar.png";
+import northPolar from "../../images/projections/NorthPolar.png";
+import simpleCylindrical from "../../images/projections/SimpleCylindrical.png";
+import southPolar from "../../images/projections/SouthPolar.png";
 import Zoom from "@mui/material/Zoom";
 import Tooltip from "@mui/material/Tooltip";
-
 
 /**
  * Controls css styling for this component using js to css
@@ -16,7 +15,7 @@ import Tooltip from "@mui/material/Tooltip";
 let css = {
   img: {
     width: "100%",
-    height: "100%"
+    height: "100%",
   },
   button: {
     width: 31,
@@ -26,17 +25,17 @@ let css = {
       cursor: "not-allowed",
       pointerEvents: "none",
       "&:hover": {
-        border: "none"
-      }
+        border: "none",
+      },
     },
     "&:active": {
-      background: alpha("#1971c2", 0.5)
+      background: alpha("#1971c2", 0.5),
     },
     "&:hover, &$focusVisible": {
       border: "2px #1971c2 solid",
       borderRadius: "15%",
-      borderStyle: "outset"
-    }
+      borderStyle: "outset",
+    },
   },
   activeBtn: {
     width: 31,
@@ -44,15 +43,14 @@ let css = {
     border: "2px #1971c2 solid",
     background: alpha("#ffa500", 0.2),
     borderRadius: "15%",
-    borderStyle: "outset"
+    borderStyle: "outset",
   },
   grid: {
     width: 120,
-    height: "100%"
+    height: "100%",
   },
-  focusVisible: {}
+  focusVisible: {},
 };
-
 
 /**
  * Component used only in this file, passed in to the Tooltip to
@@ -109,10 +107,9 @@ function SouthDisabled() {
  * @component
  */
 export default function ConsoleProjectionButtons() {
-
   const [active, setActive] = React.useState("cylindrical");
 
-  const handleNorthClick = event => {
+  const handleNorthClick = (event) => {
     if (!event.currentTarget.classList.contains("disabled")) {
       setActive("north");
     } else {
@@ -120,7 +117,7 @@ export default function ConsoleProjectionButtons() {
     }
   };
 
-  const handleSouthClick = event => {
+  const handleSouthClick = (event) => {
     if (!event.currentTarget.classList.contains("disabled")) {
       setActive("south");
     } else {
@@ -175,9 +172,7 @@ export default function ConsoleProjectionButtons() {
             <ButtonBase
               id="projectionCylindrical"
               focusRipple
-              sx={
-                active == "cylindrical" ? css.activeBtn : css.button
-              }
+              sx={active == "cylindrical" ? css.activeBtn : css.button}
               value="cylindrical"
               onClick={() => setActive("cylindrical")}
             >

@@ -10,7 +10,6 @@ import { getItemCollection,
          setFeatures,
          setNumberReturned } from "./ApiJsonCollection";
 import { MY_JSON_MAPS } from "./layers";
-import stacLayer from 'stac-layer/src/index.js';
 
 
 /**
@@ -168,6 +167,8 @@ export default L.Map.AstroMap = L.Map.extend({
 
     function handleClick(e) {
       const url_to_stac_item = e.layer.feature.links[0].href;
+      console.log (url_to_stac_item);
+      /*
       fetch(url_to_stac_item).then(res => res.json()).then(async feature => {
         const thumbnail = await L.stacLayer(feature, {displayPreview: true});
         thumbnail.on("click", e => {
@@ -175,6 +176,7 @@ export default L.Map.AstroMap = L.Map.extend({
         })
         thumbnail.addTo(this);
       });
+      */
     }
   },
 
