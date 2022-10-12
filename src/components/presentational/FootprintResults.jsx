@@ -10,11 +10,9 @@ import PreviewIcon from "@mui/icons-material/Preview";
 import LaunchIcon from "@mui/icons-material/Launch";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
-import PhotoIcon from "@mui/icons-material/AddAPhoto";
 
 // object with results
 import { getFeatures } from "../../js/ApiJsonCollection";
-import { autocompleteClasses } from "@mui/material";
 
 // geotiff thumbnail viewer
 import DisplayGeoTiff from "../presentational/DisplayGeoTiff.jsx";

@@ -37,7 +37,6 @@ export default function Sidebar(props) {
 
   const showHideSort = () => {
     setShowSidePanel(!showSidePanel);
-    console.log(showSidePanel);
   };
 
   const handlePanelLayout = (event) => {
@@ -48,7 +47,7 @@ export default function Sidebar(props) {
     if (expandResults) {
       return (
         <div id="right-bar" className="scroll-parent">
-          <div id="sort-filter-collapsed" onClick={showHideSort}>
+          <div id="sidebar-collapsed" onClick={showHideSort}>
             <ArrowLeftIcon />
             Sort and Filter
             <ArrowLeftIcon />
@@ -63,7 +62,7 @@ export default function Sidebar(props) {
     }
     return (
       <div id="right-bar" className="scroll-parent">
-        <div id="sort-filter-collapsed" onClick={showHideSort}>
+        <div id="sidebar-collapsed" onClick={showHideSort}>
           <ArrowLeftIcon />
           Sort and Filter
           <ArrowLeftIcon />
@@ -81,7 +80,7 @@ export default function Sidebar(props) {
 
   return (
     <div id="right-bar" className="scroll-parent">
-      <div id="sort-filter-collapsed" onClick={showHideSort}>
+      <div id="sidebar-collapsed" onClick={showHideSort}>
         <ArrowLeftIcon />
         Sort and Filter
         <ArrowLeftIcon />

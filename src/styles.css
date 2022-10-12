@@ -3,6 +3,10 @@
 @import "~@trussworks/react-uswds/lib/index.css";
 @import "~@trussworks/react-uswds/lib/uswds.css";
 
+/*
+ * App Layout (Flex)
+ */
+
 html,
 body,
 #map {
@@ -23,10 +27,6 @@ body,
   overflow-y: hidden;
 }
 
-#map {
-  display: flex;
-}
-
 .scroll-parent {
   min-height: 0;
 }
@@ -40,21 +40,16 @@ a:link {
   flex-shrink: 0;
 }
 
-/*
-App Layout Grid
-*/
-
-#app-container {
+.flex {
   flex-grow: 1;
-  height: 100%;
-  width: 100%;
   display: flex;
+}
+
+.row {
   flex-direction: row;
 }
 
-#main-column {
-  flex-grow: 1;
-  display: flex;
+.col {
   flex-direction: column;
 }
 
@@ -65,11 +60,9 @@ App Layout Grid
   flex-direction: row;
 }
 
-#top-bar,
-#bottom-bar {
-  flex-shrink: 0;
-  background: lightgray;
-}
+/*
+ * Map
+ */
 
 #map-area {
   flex-grow: 1;
@@ -80,6 +73,44 @@ App Layout Grid
   width: 100%;
   z-index: 0;
 }
+
+/*
+ * Menu Bar
+ */
+
+#menu-bar {
+  color: white;
+  background-color: #03989e;
+  display: inline-flex;
+  align-items: flex-start;
+  flex-direction: row;
+  padding: 0px 7px;
+}
+
+.menu-item {
+  margin: 5px 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  border-bottom: 2px solid white;
+  margin-bottom: 3px;
+}
+
+.menu-item-text {
+  margin: 0px 4px;
+}
+
+.menu-link {
+  color: white;
+}
+
+/*
+ * Credits Bar
+ */
 
 #credits-bar {
   display: flex;
@@ -97,6 +128,10 @@ App Layout Grid
   text-align: center;
 }
 
+/*
+ * Toolbar
+ */
+
 .flexbar {
   background-color: white;
   display: flex;
@@ -109,18 +144,9 @@ App Layout Grid
   margin: 5px;
 }
 
-#sort-filter-collapsed {
-  background: lightgray;
-  cursor: pointer;
-  font-size: 12pt;
-  line-height: 20px;
-  font-family: sans-serif;
-  font-weight: 600;
-  text-align: center;
-  writing-mode: vertical-lr;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-}
+/*
+ * Query Console
+*/
 
 #query-console-container {
   font-family: Arial, Helvetica, sans-serif;
@@ -189,70 +215,22 @@ Controls the CSS for projection buttons when there is no available projection
 .leaflet-control-view-center {
   background-image: url("https://raw.github.com/pwldp/leaflet.viewcenter/master/icon-viewcenter.png");
 }
-.sidebar {
-  box-shadow: 0px 6px 6px -3px rgba(0, 0, 0, 0.2),
-    0px 10px 14px 1px rgba(0, 0, 0, 0.14), 0px 4px 18px 3px rgba(0, 0, 0, 0.12);
-}
 
-.sidebar-collapsed {
-  width: 200px;
-  height: 48px;
-  background: #f8f9fa;
-  border-radius: 5px;
-  padding-left: 5px;
-  padding-bottom: 2px;
-  display: grid;
-  grid-template-columns: auto 20px;
-}
+/*
+ * Sidebar
+ */
 
-.sidebar-expanded {
-  width: 800px;
-  height: 98px;
-  background: #f8f9fa;
-  display: grid;
-  grid-template-columns: auto 20px;
-  border-radius: 5px;
-}
-
-.sidebar-button {
-  font: bold 18px "Lucida Console", Monaco, monospace;
+#sidebar-collapsed {
+  background: lightgray;
   cursor: pointer;
+  font-size: 12pt;
+  line-height: 20px;
+  font-family: sans-serif;
+  font-weight: 600;
   text-align: center;
-  display: flex;
-  align-items: center;
-}
-
-.sidebar-expanded .sidebar-button {
-  padding: 2px;
-  cursor: pointer;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  border: none;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
-  border-left: thin solid #ccc;
-  background-color: #fff;
-}
-
-.sidebar-collapsed .sidebar-button {
-  font: bold 18px "Lucida Console", Monaco, monospace;
-  margin-left: 5px;
-  margin-bottom: -2px;
-  padding: 2px;
-  cursor: pointer;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  border: none;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
-  border-left: thin solid #ccc;
-  background-color: #fff;
-}
-
-.sidebar-button:hover {
-  background-color: #ccc;
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  transform: rotate(180deg);
 }
 
 .panelSection {
@@ -364,8 +342,9 @@ summary {
 }
 
 /*
-GeoTiff Modal Container
-*/
+ * GeoTiff Modal Container
+ */
+
 #GeoTiffModal {
   position: fixed;
   top: 50%;
