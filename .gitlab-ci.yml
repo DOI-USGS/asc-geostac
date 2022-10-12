@@ -17,11 +17,11 @@ build:
       - dist
 
 deploy:
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
   stage: deploy
   image: usgsastro/aws-cli:latest
   dependencies: 
     - build
   script:
     - aws s3 sync --delete dist s3://asc-stacbrowser/geostac/
-
-
