@@ -10,8 +10,8 @@ import Divider from "@mui/material/Divider";
  */
 let css = {
   appbar: {
-    background: "#f8f9fa"
-  }
+    background: "#f8f9fa",
+  },
 };
 
 /**
@@ -21,21 +21,20 @@ let css = {
  * @component
  */
 export default function ConsoleAppBar(props) {
-
   return (
     <div className="flexbar">
       <div className="flexbar-item">
-        <ConsoleTargetInfo target={props.target} bodyChange={props.bodyChange} />
+        <ConsoleTargetInfo
+          target={props.target}
+          bodyChange={props.bodyChange}
+        />
       </div>
-      <Divider orientation="vertical" />
       <div className="flexbar-item">
         <ConsoleCoordinates />
       </div>
-      <Divider orientation="vertical" />
       <div className="flexbar-item">
         <ConsoleProjectionButtons />
       </div>
-      <Divider orientation="vertical" />
       <div className="flexbar-item">
         <ConsoleLonLatSelects />
       </div>
