@@ -18,7 +18,7 @@ build:
 
 deploy:
   rules:
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "main"'
   stage: deploy
   image: usgsastro/aws-cli:latest
   dependencies: 
