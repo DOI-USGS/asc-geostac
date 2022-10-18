@@ -53,6 +53,10 @@ a:link {
   flex-direction: column;
 }
 
+.red {
+  color: red;
+}
+
 #right-bar {
   flex-shrink: 0;
   background: lightgray;
@@ -298,7 +302,7 @@ Controls the CSS for projection buttons when there is no available projection
 }
 
 .resultContainer {
-  width: 275px;
+  width: 268px;
   display: grid;
   grid-template:
     "ra rb"

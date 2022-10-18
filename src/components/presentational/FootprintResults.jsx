@@ -69,7 +69,6 @@ export default function FootprintResults(props) {
         <span id="panelSectionTitle">Footprint Results</span>
         <span className="resultHeaderCheck">
           <Checkbox
-            defaultChecked
             onChange={props.changeLayout}
             icon={<CloseFullscreenIcon />}
             checkedIcon={<OpenInFullIcon />}
