@@ -2,6 +2,11 @@ import React from "react";
 import SearchAndFilterInput from "./SearchAndFilterInput.jsx";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import FootprintResults from "./FootprintResults.jsx";
+import {
+  createHtmlPortalNode,
+  InPortal,
+  OutPortal,
+} from "react-reverse-portal";
 
 const css = {
   expanded: {
@@ -30,6 +35,16 @@ const css = {
  * @component
  */
 export default function Sidebar(props) {
+  const footprintResultPortalNode = React.useMemo(
+    () =>
+      createHtmlPortalNode({
+        attributes: {
+          style: "min-height: 0; display: flex;",
+        },
+      }),
+    []
+  );
+
   const [showSidePanel, setShowSidePanel] = React.useState(true);
   const [sidePanelSubStyle, setSidePanelSubStyle] = React.useState(css.shown);
 
@@ -43,55 +58,31 @@ export default function Sidebar(props) {
     setExpandResults((expandResults) => !expandResults);
   };
 
-  if (showSidePanel) {
-    if (expandResults) {
-      return (
-        <div id="right-bar" className="scroll-parent">
-          <div id="sidebar-collapsed" onClick={showHideSort}>
-            <ArrowLeftIcon />
-            Sort and Filter
-            <ArrowLeftIcon />
-          </div>
-          <SearchAndFilterInput
-            target={props.target}
-            footprintNavClick={props.footprintNavClick}
-          />
-          <FootprintResults changeLayout={handlePanelLayout} />
-        </div>
-      );
-    }
-    return (
+  return (
+    <>
       <div id="right-bar" className="scroll-parent">
         <div id="sidebar-collapsed" onClick={showHideSort}>
           <ArrowLeftIcon />
           Sort and Filter
           <ArrowLeftIcon />
         </div>
-        <div style={css.stacked} className="scroll-parent">
+        <div
+          style={showSidePanel ? css.stacked : css.hidden}
+          className="scroll-parent"
+        >
           <SearchAndFilterInput
             target={props.target}
             footprintNavClick={props.footprintNavClick}
           />
-          <FootprintResults changeLayout={handlePanelLayout} />
+          {!expandResults && <OutPortal node={footprintResultPortalNode} />}
         </div>
+        {expandResults && showSidePanel && (
+          <OutPortal node={footprintResultPortalNode} />
+        )}
       </div>
-    );
-  }
-
-  return (
-    <div id="right-bar" className="scroll-parent">
-      <div id="sidebar-collapsed" onClick={showHideSort}>
-        <ArrowLeftIcon />
-        Sort and Filter
-        <ArrowLeftIcon />
-      </div>
-      <div style={css.hidden} className="scroll-parent">
-        <SearchAndFilterInput
-          target={props.target}
-          footprintNavClick={props.footprintNavClick}
-        />
+      <InPortal node={footprintResultPortalNode}>
         <FootprintResults changeLayout={handlePanelLayout} />
-      </div>
-    </div>
+      </InPortal>
+    </>
   );
 }

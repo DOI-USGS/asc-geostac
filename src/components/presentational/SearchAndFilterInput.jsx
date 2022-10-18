@@ -9,9 +9,9 @@ import TextField from "@mui/material/TextField";
 // CSS
 import { alpha } from "@mui/material/styles";
 // Date Range
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import DatePicker from "@mui/lab/DatePicker";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 // Filter By "This" checkboxes
 import Checkbox from "@mui/material/Checkbox";
 // Sort By Drop Down
@@ -422,7 +422,7 @@ export default function SearchAndFilterInput(props) {
         </div>
       </div>
       <div className="panelSectionHeader">
-        <div>
+        <div className="panelItem">
           Displaying {numberReturned} of {maxNumberFootprints} Results
         </div>
       </div>
