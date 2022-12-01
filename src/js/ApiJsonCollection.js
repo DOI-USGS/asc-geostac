@@ -28,16 +28,18 @@ export function getItemCollection(name, queryString) {
   var urlArray = [];
   return callAPI().then(result => {
     for (let i = 0; i < result.collections.length; i++) {
-      if (
-        result.collections[i].summaries["ssys:targets"][0].toLowerCase() == name.toLowerCase()
-      ) {
-        let length = result.collections[i].links.length;
-        for (let j = 0; j < length; j++) {
-          let link = result.collections[i].links[j];
-          if (link.rel == "items") {
-            var url = result.collections[i].links[j].href;
-            url = url + queryString;
-            urlArray.push(url);
+      if (result.collections[i].hasOwnProperty("summaries")){
+        if (
+          result.collections[i].summaries["ssys:targets"][0].toLowerCase() == name.toLowerCase()
+        ) {
+          let length = result.collections[i].links.length;
+          for (let j = 0; j < length; j++) {
+            let link = result.collections[i].links[j];
+            if (link.rel == "items") {
+              var url = result.collections[i].links[j].href;
+              url = url + queryString;
+              urlArray.push(url);
+            }
           }
         }
       }
