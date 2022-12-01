@@ -45,7 +45,8 @@ export default L.LayerCollection = L.Class.extend({
       let baseLayer = L.tileLayer.wms(
         String(layer["url"]) + "?map=" + String(layer["map"]),
         {
-          layers: String(layer["layer"])
+          layers: String(layer["layer"]),
+          noWrap: true
         }
       );
       let name = String(layer["displayname"]);
@@ -66,7 +67,8 @@ export default L.LayerCollection = L.Class.extend({
         {
           layers: String(layer["layer"]),
           transparent: true,
-          format: "image/png"
+          format: "image/png",
+          noWrap: true
         }
       );
       let name = String(layer["displayname"]);
