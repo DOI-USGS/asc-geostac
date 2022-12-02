@@ -46,7 +46,8 @@ export default L.LayerCollection = L.Class.extend({
         String(layer["url"]) + "?map=" + String(layer["map"]),
         {
           layers: String(layer["layer"]),
-          noWrap: true
+          noWrap: true,
+          bounds: [[[-90, 360], [90, 0]]]
         }
       );
       let name = String(layer["displayname"]);
@@ -68,7 +69,8 @@ export default L.LayerCollection = L.Class.extend({
           layers: String(layer["layer"]),
           transparent: true,
           format: "image/png",
-          noWrap: true
+          noWrap: true,
+          bounds: [[-90, 360], [90, 0]]
         }
       );
       let name = String(layer["displayname"]);

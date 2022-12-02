@@ -40,7 +40,7 @@ export default L.Control.MousePositionControl = L.Control.extend({
 
     this.map = map;
 
-    this.isLonDom180 = true;
+    this.isLonDom180 = false;
     this.isLatTypeOcentric = true;
     this.isLonDirEast = true;
 

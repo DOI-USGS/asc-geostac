@@ -35,7 +35,7 @@ import { MY_JSON_MAPS } from "./layers";
  */
 export default L.Map.AstroMap = L.Map.extend({
   options: {
-    center: [0, 0],
+    center: [0, 180],
     zoom: 1,
     maxZoom: 8,
     attributionControl: false,
@@ -100,6 +100,7 @@ export default L.Map.AstroMap = L.Map.extend({
     L.setOptions(this, options);
     L.Map.prototype.initialize.call(this, this._mapDiv, this.options);
     this.loadLayerCollection("cylindrical");
+    
 
     setCurrentPage(1);
     this.loadFootprintLayer(target, "?page=1");
