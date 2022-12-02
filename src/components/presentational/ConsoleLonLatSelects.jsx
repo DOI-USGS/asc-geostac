@@ -189,14 +189,17 @@ export default function ConsoleLonLatSelects() {
               <ToggleButton
                 id="consoleLon180Btn"
                 value={180}
-                color="primary">
+                color="primary"
+                disabled={true}
+                selected={false}>
                 <ExposureIcon fontSize="small" />
                 <Typography sx={css.buttonText}>180&deg;</Typography>
               </ToggleButton>
               <ToggleButton
                 id="consoleLon360Btn"
                 value={360}
-                color="primary">
+                color="primary"
+                selected={true}>
                 <AddBoxIcon fontSize="small" />
                 <Typography sx={css.buttonText}>360&deg;</Typography>
               </ToggleButton>
