@@ -28,7 +28,7 @@ let css = {
  *
  * @component
  */
-export default function GeoStacApp() {
+export default function GeoStacApp(props) {
   const [targetPlanet, setTargetPlanet] = React.useState("Mars");
 
   const [footprintData, setFootprintData] = React.useState([]);
@@ -64,6 +64,7 @@ export default function GeoStacApp() {
         <div className="flex col">
           <ConsoleAppBar
             target={targetPlanet}
+            mapList={props.mapList}
             bodyChange={handleTargetBodyChange}
           />
           <div id="map-area">

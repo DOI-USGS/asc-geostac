@@ -57,12 +57,26 @@ a:link {
   color: red;
 }
 
+.white {
+  background-color: white;
+}
+
 #right-bar {
   flex-shrink: 0;
   background: lightgray;
   display: flex;
   flex-direction: row;
 }
+
+/*
+ * Loading
+ */
+.loading-slate {
+  margin: auto;
+  text-align: center;
+}
+
+
 
 /*
  * Map

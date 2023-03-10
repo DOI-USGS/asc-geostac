@@ -9,15 +9,19 @@ import DialogTitle from "@mui/material/DialogTitle";
 import Avatar from "@mui/material/Avatar";
 import List from "@mui/material/List";
 import ListSubheader from "@mui/material/ListSubheader";
-import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
+import Collapse from '@mui/material/Collapse';
 import { blue } from "@mui/material/colors";
 
 // Icons
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ScatterPlotIcon from '@mui/icons-material/ScatterPlot';
 import PublicIcon from "@mui/icons-material/Public";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 
 /**
  * Controls css styling for this component using js to css
@@ -41,6 +45,11 @@ let css = {
     },
   },
 };
+
+
+// Delete if new data loading works
+// Unless we add images here
+// Why is Puck not on this list?
 
 const planets = [
   ["Mercury"],
@@ -81,6 +90,19 @@ const moons = [
  * @returns Planet Selection Dialog
  */
 function PlanetDialog(props) {
+
+  const [openSys, setOpenSys] = React.useState(Array(props.mapList.systems.length).fill(false));
+
+  function handleSysOpen(index){
+    const nextOpenSys = openSys.map((isOpen, curIndex) => {
+      if (index === curIndex) {
+        return !isOpen;
+      }
+      return false;
+    });
+    setOpenSys(nextOpenSys);
+  }
+
   const { onClose, selectedValue, open } = props;
 
   const handleClose = () => {
@@ -91,35 +113,45 @@ function PlanetDialog(props) {
     onClose(value);
   };
 
+  console.log(props.mapList)
+
   return (
     <Dialog onClose={handleClose} open={open}>
       <DialogTitle>Select Target Body</DialogTitle>
       <List sx={{ pt: 0 }}>
-        <ListSubheader value="Mars">Planets</ListSubheader>
-        {planets.map((planet) => (
-          <ListItem
-            button
-            onClick={() => handleListItemClick(planet[0])}
-            key={planet[0]}
-          >
-            <ListItemAvatar>
-              <Avatar sx={{ bgcolor: blue[100] }}>
-                <PublicIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary={planet[0]} />
-          </ListItem>
-        ))}
-        <ListSubheader value="Moon">Moons and Other Bodies</ListSubheader>
-        {moons.map((moon) => (
-          <ListItem button onClick={() => handleListItemClick(moon)} key={moon}>
-            <ListItemAvatar>
-              <Avatar sx={{ bgcolor: blue[100] }}>
-                <DarkModeIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary={moon} />
-          </ListItem>
+        <ListSubheader value="None">Systems</ListSubheader>
+        {props.mapList.systems.map((system, sysIndex) => (
+          <>
+            <ListItemButton
+              onClick={() => handleSysOpen(sysIndex)}
+              key={system.name}
+            >
+              <ListItemAvatar>
+                <Avatar sx={{ bgcolor: blue[100] }}>
+                  <ScatterPlotIcon />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText primary={system.name} />
+            </ListItemButton>
+            <Collapse in={openSys[sysIndex]} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {props.mapList.systems[sysIndex].bodies.map((body, bodIndex) => (
+                  <ListItemButton
+                    sx={{ pl: 4 }}
+                    onClick={() => handleListItemClick(body.name)}
+                    key={body.name}
+                  >
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: blue[100] }}>
+                        {body.name === system.name ? <PublicIcon /> : <DarkModeIcon/>}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary={body.name} />
+                  </ListItemButton>
+                ))}
+              </List>
+            </Collapse>
+          </>
         ))}
       </List>
     </Dialog>
@@ -177,6 +209,7 @@ export default function ConsoleTargetInfo(props) {
         </Typography>
       </Grid>
       <PlanetDialog
+        mapList={props.mapList}
         selectedValue={selectedValue}
         open={open}
         onClose={handleClose}
