@@ -192,6 +192,7 @@ export default L.Map.AstroMap = L.Map.extend({
     let layers = {
       base: [],
       overlays: [],
+      nomenclature: [],
       wfs: []
     };
 
@@ -218,6 +219,10 @@ export default L.Map.AstroMap = L.Map.extend({
               // Do not add "Show Feature Names" PNG layer.
               if (currentLayer["displayname"] != "Show Feature Names") {
                 layers["overlays"].push(currentLayer);
+              } else {
+                if(currentLayer["layer"] == "NOMENCLATURE"){
+                  layers["nomenclature"].push(currentLayer);
+                }
               }
             }
           } else {
