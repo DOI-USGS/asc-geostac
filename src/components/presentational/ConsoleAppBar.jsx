@@ -26,6 +26,7 @@ export default function ConsoleAppBar(props) {
       <div className="flexbar-item">
         <ConsoleTargetInfo
           target={props.target}
+          mapList={props.mapList}
           bodyChange={props.bodyChange}
         />
       </div>
