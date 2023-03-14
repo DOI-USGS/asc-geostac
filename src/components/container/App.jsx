@@ -148,12 +148,13 @@ export default function App() {
                 };
 
                 // Add maps
+                // TODO: Add nomenclature layers here?
                 for (const wmap of webMaps) {
                     if(wmap.type === "WMS" && wmap.layer != "GENERIC") {
                         if(wmap.transparent == "false") {
                             // Non-transparent layers are base maps
                             myLayers.base.push(wmap);
-                        } else if (wmap.displayname != "Show Feature Names"){
+                        } else if (wmap.displayname != "Show Feature Names"){ // Currently, this avoids adding nomenclature layers!
                             // Transparent layers are overlays
                             myLayers.overlays.push(wmap);
                         }
