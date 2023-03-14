@@ -30,15 +30,15 @@ export default function App() {
         "https://stac.astrogeology.usgs.gov/api/collections";
 
     // Async tracking
-    let fetchStatus = {}
-    let fetchPromise = {}
-    let jsonPromise = {}
+    let fetchStatus = {};
+    let fetchPromise = {};
+    let jsonPromise = {};
 
     // Fetched Maps
-    var mapsJson = {}
+    var mapsJson = {};
 
     // Combined Data
-    var aggregateMapList = {}
+    var aggregateMapList = {};
 
     // Init
     fetchStatus[astroWebMaps] = "Not Started";
@@ -55,14 +55,14 @@ export default function App() {
     async function ensureFetched(targetUrl) {
         if(fetchStatus[targetUrl] === "Not Started")
         {
-            fetchStatus[targetUrl] = "Started"
+            fetchStatus[targetUrl] = "Started";
             fetchPromise[targetUrl] = fetch(
               targetUrl
             ).then((res)=>{
                 jsonPromise[targetUrl] = res.json().then((jsonData)=>{
                     mapsJson[targetUrl] = jsonData;
                 }).catch((err)=>{
-                    console.log(err)
+                    console.log(err);
                 });
             }).catch((err) => {
                 console.log(err);
@@ -81,20 +81,20 @@ export default function App() {
 
         // Check for Planets that have STAC footprints from the STAC API
         for (let i = 0; i < stacApiCollections.collections.length; i++) {
-            if (stacApiCollections.collections[i].hasOwnProperty("summaries")){
-                let stacTarget = stacApiCollections.collections[i].summaries["ssys:targets"][0].toLowerCase();
-                if(!stacList.find(targetBody => targetBody == stacTarget)){
-                    stacList.push(stacTarget.toLowerCase());
-                }
+            let stacTarget = stacApiCollections.collections[i].summaries["ssys:targets"][0].toLowerCase();
+            if(!stacList.find(targetBody => targetBody == stacTarget)){
+                stacList.push(stacTarget.toLowerCase());
             }
         }
 
+        // Scan through every target in the Astro Web Maps JSON
         for (const target of astroWebMaps.targets){
 
-            // Check for/add system
+            // Check for, add system if system is not in array
             if (!mapList.systems.some(system => system.name === target.system)) {
                 mapList.systems.push({
                     "name" : target.system,
+                    "naif" : 0,
                     "bodies" : []
                 })
             }
@@ -102,28 +102,100 @@ export default function App() {
             // Index of System
             let sysIndex = mapList.systems.map(sys => sys.name).indexOf(target.system);
 
-            // Check for/add body
+            // ID the system
+            if (target.naif % 100 === 99){
+                mapList.systems[sysIndex].naif = target.naif;
+            }
+
+            // Check for/add body if not already incl
             if (!mapList.systems[sysIndex].bodies.some(body => body.name === target.name)) {
 
                 // A flag that indicates whether or not the body has footprints
                 let hasFootprints = stacList.includes(target.name.toLowerCase())
 
+                // Add STAC collections
+                let myCollections = []
+                if (hasFootprints) {
+                    for (const collection of stacApiCollections.collections){
+                        if (target.name == collection.summaries["ssys:targets"][0].toUpperCase()) {
+                            myCollections.push(collection);
+                        }
+                    }
+                }
+
+                // Add a body data entry
                 mapList.systems[sysIndex].bodies.push({
                     "name" : target.name,
-                    "has-footprints" : hasFootprints,
-                    "maps" : []
+                    "naif" : target.naif,
+                    "hasFootprints" : hasFootprints,
+                    "layers" : {
+                        "base" : [],
+                        "overlays" : []
+                    },
+                    "collections" : myCollections
                 })
             }
 
             // Index of Body
             let bodIndex = mapList.systems[sysIndex].bodies.map(bod => bod.name).indexOf(target.name);
 
-            // Add maps
-            for (const wmap of target.webmap) {
-                mapList.systems[sysIndex].bodies[bodIndex].maps.push(wmap.displayname);
-                // More properties?
+            // Sort through AstroWebMaps to get the right ones for GeoSTAC
+            function getWmsMaps(webMaps) {
+                let myLayers = {
+                    "base" : [],
+                    "overlays" : [],
+                    /* "wfs" : [] */
+                };
+
+                // Add maps
+                for (const wmap of webMaps) {
+                    if(wmap.type === "WMS" && wmap.layer != "GENERIC") {
+                        if(wmap.transparent == "false") {
+                            // Non-transparent layers are base maps
+                            myLayers.base.push(wmap);
+                        } else if (wmap.displayname != "Show Feature Names"){
+                            // Transparent layers are overlays
+                            myLayers.overlays.push(wmap);
+                        }
+                    }
+                    // else if (wmap.type === "WFS") {
+                    //     // Currently in AstroMap but doesn't seem to be used.
+                    //     myLayers.wfs.push(wmap);
+                    // }
+                }
+                return myLayers;
             }
 
+            // Add base and overlay maps (but not empty arrays!)
+            let myLayers = getWmsMaps(target.webmap);
+            if (myLayers.base.length > 0){
+                mapList.systems[sysIndex].bodies[bodIndex].layers.base.push(...myLayers.base);
+            }
+            if (myLayers.overlays.length > 0){
+                mapList.systems[sysIndex].bodies[bodIndex].layers.overlays.push(...myLayers.overlays);
+            }
+        }
+
+        // Sort systems by NAIF ID
+        mapList.systems.sort((a, b)=>{return a.naif - b.naif})
+
+        // Go through each System
+        for (let sysIndex = 0; sysIndex < mapList.systems.length; sysIndex++){
+
+            // Remove bodies with no base maps
+            for (let bodIndex = mapList.systems[sysIndex].bodies.length - 1; bodIndex >= 0; bodIndex--){
+                if(mapList.systems[sysIndex].bodies[bodIndex].layers.base.length < 1){
+                    mapList.systems[sysIndex].bodies.splice(bodIndex, 1);
+                }
+            }
+            // Sort targets by naif id
+            mapList.systems[sysIndex].bodies.sort((a, b)=>{
+                let valA = a.naif;
+                let valB = b.naif;
+                if (a.naif % 100 == 99) valA = 0; // Planet IDs end with 99,
+                if (b.naif % 100 == 99) valB = 0; // but put them first.
+                return valA - valB;
+            })
         }
 
         return mapList;
