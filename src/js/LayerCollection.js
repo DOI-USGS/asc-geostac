@@ -29,7 +29,7 @@ export default L.LayerCollection = L.Class.extend({
       throw "No base layers created. At least one base layer is needed.";
     }
     this.createOverlays(layerInfo["overlays"]);
-    this.createNomenclature(layerInfo["nomenclature"])
+    this.createNomenclature(layerInfo["nomenclature"]);
   },
 
   /**
