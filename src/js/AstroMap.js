@@ -3,7 +3,7 @@ import "proj4leaflet";
 import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
 import { getItemCollection,
-         getCollectionNames,
+         callAPI,
          setNumberMatched,
          setMaxNumberPages,
          getCurrentPage,
@@ -160,7 +160,7 @@ export default L.Map.AstroMap = L.Map.extend({
           }
         }
         var collectionNames ={};
-        getCollectionNames().then(response =>{
+        callAPI().then(response =>{
           for (let i = 0; i < response.collections.length; i++) {
             if (response.collections[i].hasOwnProperty("summaries")){
               if (
