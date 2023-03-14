@@ -130,7 +130,8 @@ export default function App() {
                     "hasFootprints" : hasFootprints,
                     "layers" : {
                         "base" : [],
-                        "overlays" : []
+                        "overlays" : [],
+                        "nomenclature" : []
                     },
                     "collections" : myCollections
                 })
@@ -144,18 +145,21 @@ export default function App() {
                 let myLayers = {
                     "base" : [],
                     "overlays" : [],
+                    "nomenclature" : [],
                     /* "wfs" : [] */
                 };
 
                 // Add maps
-                // TODO: Add nomenclature layers here?
                 for (const wmap of webMaps) {
                     if(wmap.type === "WMS" && wmap.layer != "GENERIC") {
                         if(wmap.transparent == "false") {
                             // Non-transparent layers are base maps
                             myLayers.base.push(wmap);
-                        } else if (wmap.displayname != "Show Feature Names"){ // Currently, this avoids adding nomenclature layers!
-                            // Transparent layers are overlays
+                        } else if (wmap.layer == "NOMENCLATURE") {
+                            // Feature Name Layers
+                            myLayers.nomenclature.push(wmap);
+                        } else {
+                            // OthTransparent layers are overlays
                             myLayers.overlays.push(wmap);
                         }
                     }
@@ -171,6 +175,9 @@ export default function App() {
             let myLayers = getWmsMaps(target.webmap);
             if (myLayers.base.length > 0){
                 mapList.systems[sysIndex].bodies[bodIndex].layers.base.push(...myLayers.base);
+            }
+            if (myLayers.nomenclature.length > 0){
+                mapList.systems[sysIndex].bodies[bodIndex].layers.nomenclature.push(...myLayers.nomenclature);
             }
             if (myLayers.overlays.length > 0){
                 mapList.systems[sysIndex].bodies[bodIndex].layers.overlays.push(...myLayers.overlays);
