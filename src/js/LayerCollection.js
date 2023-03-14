@@ -124,7 +124,9 @@ export default L.LayerCollection = L.Class.extend({
             transparent: true,
             format: "image/png",
             noWrap: true,
+            minZoom: 4,
             bounds: [[-90, 360], [90, 0]]
+
           }
         );
         let name = String(layer["displayname"]);
