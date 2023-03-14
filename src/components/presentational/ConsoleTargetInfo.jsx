@@ -128,10 +128,9 @@ function PlanetDialog(props) {
       <List sx={{ pt: 0 }}>
         <ListSubheader value="None">Systems</ListSubheader>
         {props.mapList.systems.map((system, sysIndex) => (
-          <>
+          <React.Fragment key={system.name}>
             <ListItemButton
               onClick={() => handleSysOpen(sysIndex)}
-              key={system.name}
             >
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: blue[100] }}>
@@ -161,7 +160,7 @@ function PlanetDialog(props) {
                 ))}
               </List>
             </Collapse>
-          </>
+          </React.Fragment>
         ))}
       </List>
     </Dialog>
