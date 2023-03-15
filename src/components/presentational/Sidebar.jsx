@@ -81,7 +81,7 @@ export default function Sidebar(props) {
         )}
       </div>
       <InPortal node={footprintResultPortalNode}>
-        <FootprintResults changeLayout={handlePanelLayout} />
+        <FootprintResults target={props.target} changeLayout={handlePanelLayout} />
       </InPortal>
     </>
   );

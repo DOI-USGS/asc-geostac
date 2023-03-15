@@ -42,7 +42,14 @@ let css = {
  *
  */
 export default function FootprintResults(props) {
+
   const [features, setFeatures] = React.useState([]);
+
+  const [footprintListComponent, setFootprintListComponent] = React.useState(() => {
+    return(
+      <div>Loading...</div>
+    );
+  })
 
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
 
@@ -58,10 +65,104 @@ export default function FootprintResults(props) {
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      setFeatures(getFeatures);
-    }, 1000);
-  });
+
+    // If target has collections (of footprints)
+    if (props.target.collections.length > 0) {
+
+      let fetchPromise = {};
+      let jsonPromise = {};
+      let jsonRes = {};
+
+      let itemCollectionUrls = [];
+      for(const collection of props.target.collections) {
+        // Get "items" link for each collection
+        let newItemCollectionUrl = collection.links.find(obj => obj.rel === "items").href
+        itemCollectionUrls.push(newItemCollectionUrl);
+      }
+
+      for(const itemCollectionUrl of itemCollectionUrls) {
+        fetchPromise[itemCollectionUrl] = "Not Started";
+        jsonPromise[itemCollectionUrl] = "Not Started";
+        jsonRes[itemCollectionUrl] = [];
+      }
+
+      // Fetch JSON and read into object
+      async function startFetch(targetUrl) {
+          fetchPromise[targetUrl] = fetch(
+            targetUrl
+          ).then((res)=>{
+              jsonPromise[targetUrl] = res.json().then((jsonData)=>{
+                  jsonRes[targetUrl] = jsonData;
+              }).catch((err)=>{
+                  console.log(err);
+              });
+          }).catch((err) => {
+              console.log(err);
+          });
+      }
+
+      async function awaitFetch(targetUrl) {
+        await fetchPromise[targetUrl];
+        await jsonPromise[targetUrl];
+      }
+      
+      function extractFootprints(resultsArr) {
+        for(const result in resultsArr){
+
+        }
+      }
+
+      async function fetchAndWait() {
+        // Start fetching
+        for(const itemCollectionUrl of itemCollectionUrls) {
+          startFetch(itemCollectionUrl);
+        }
+
+        // Wait for completion
+        for(const itemCollectionUrl of itemCollectionUrls) {
+          await awaitFetch(itemCollectionUrl);
+        }
+        
+        let resultsArr = [];
+        let myFeatures = [];
+
+        for(const itemCollectionUrl of itemCollectionUrls) {
+          myFeatures.push(jsonRes[itemCollectionUrl]);
+        }
+
+        for(const featCollection of myFeatures) {
+          resultsArr.push(...featCollection.features)
+        }
+
+        return resultsArr;
+      }
+
+      
+
+      (async () => {
+        // Wait
+        let myFeatures = await fetchAndWait()
+        setFeatures(myFeatures);
+        setFootprintListComponent(
+          <>
+            <div>Footprints!</div>
+          </>
+        );
+      })();
+
+      
+
+      
+
+    } else {
+      setFootprintListComponent(<div>No footprints for this Target.</div>)
+    }
+    
+    // setTimeout(() => {
+    //   setFeatures(getFeatures);
+    // }, 1000); 
+
+  }, []);
 
   return (
     <div style={css.root} className="scroll-parent">
@@ -81,6 +182,7 @@ export default function FootprintResults(props) {
           />
         </span>
       </div>
+      {footprintListComponent}
       <div className="resultsList">
         {features.map((feature) => (
           <div className="resultContainer" key={feature.id}>

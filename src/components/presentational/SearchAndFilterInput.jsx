@@ -221,7 +221,7 @@ export default function SearchAndFilterInput(props) {
       setMaxPages(getMaxNumberPages);
       props.footprintNavClick();
     }, 2000);
-  }, [props.target]);
+  }, [props.target.name]);
 
   // Pagination
   const handlePageChange = (event, value) => {
