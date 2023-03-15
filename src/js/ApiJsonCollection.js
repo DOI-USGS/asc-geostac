@@ -9,7 +9,7 @@ var _limitVal = 10;
  * @function callAPI
  * @description Fetches the STAC API at the collections level
  */
-function callAPI() {
+export function callAPI() {
   return fetch(
     "https://stac.astrogeology.usgs.gov/api/collections"
   ).then(response => response.json());

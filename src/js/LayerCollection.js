@@ -29,6 +29,7 @@ export default L.LayerCollection = L.Class.extend({
       throw "No base layers created. At least one base layer is needed.";
     }
     this.createOverlays(layerInfo["overlays"]);
+    this.createNomenclature(layerInfo["nomenclature"]);
   },
 
   /**
@@ -107,7 +108,32 @@ export default L.LayerCollection = L.Class.extend({
     //   this._overlays["Show Feature Names"] = this._wfsLayer;
     // }
   },
+    
+  /**
+   * @function LayerCollection.prototype.createNomenclatures
+   * @description Creates nomenclature layers and adds them to the list of overlays.
+   * @param  {List} layers - List of nomenclature information.
+   */
+    createNomenclature: function(layers){
+      for (let i = 0; i < layers.length; i++){
+        let layer = layers[i];
+        let nomenclature = L.tileLayer.wms(
+          String(layer["url"]) + "?map=" + String(layer["map"]),
+          {
+            layers: String(layer["layer"]),
+            transparent: true,
+            format: "image/png",
+            noWrap: true,
+            minZoom: 4,
+            bounds: [[-90, 360], [90, 0]]
 
+          }
+        );
+        let name = String(layer["displayname"] + " (Zoom to enable)");
+        this._overlays[name] = nomenclature;
+      }
+    },
+  
   /**
    * @function LayerCollection.prototype.addTo
    * @description Removes the current layers, adds the base layers and overlays to the map, and sets the default layer.

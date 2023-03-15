@@ -3,6 +3,7 @@ import "proj4leaflet";
 import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
 import { getItemCollection,
+         callAPI,
          setNumberMatched,
          setMaxNumberPages,
          getCurrentPage,
@@ -144,6 +145,7 @@ export default L.Map.AstroMap = L.Map.extend({
     var matched = 0;
     var returned = 0;
     const features = [];
+    
     getItemCollection(name, queryString).then(result => {
       if (result != undefined) {
         this._geoLayers = new Array(result.length);
@@ -157,9 +159,27 @@ export default L.Map.AstroMap = L.Map.extend({
             this._geoLayers[i].addData(result[i].features[j]);
           }
         }
-        this._footprintControl = L.control
-          .layers(null, this._footprintCollection, {collapsed: false})
-          .addTo(this);
+        var collectionNames ={};
+        callAPI().then(response =>{
+          for (let i = 0; i < response.collections.length; i++) {
+            if (response.collections[i].hasOwnProperty("summaries")){
+              if (
+                response.collections[i].summaries["ssys:targets"][0].toLowerCase() == name.toLowerCase()
+              ) {
+                collectionNames[response.collections[i].id] = response.collections[i].title;
+              }
+            }
+          }
+         for (var key in this._footprintCollection){
+           let title = collectionNames[key];
+           this._footprintCollection[title]= this._footprintCollection[key];
+           delete this._footprintCollection[key];
+         }
+
+         this._footprintControl = L.control
+         .layers(null, this._footprintCollection, {collapsed: false})
+         .addTo(this)
+        });
       }
       setNumberMatched(matched);
       setNumberReturned(returned);
@@ -192,6 +212,7 @@ export default L.Map.AstroMap = L.Map.extend({
     let layers = {
       base: [],
       overlays: [],
+      nomenclature: [],
       wfs: []
     };
 
@@ -218,6 +239,10 @@ export default L.Map.AstroMap = L.Map.extend({
               // Do not add "Show Feature Names" PNG layer.
               if (currentLayer["displayname"] != "Show Feature Names") {
                 layers["overlays"].push(currentLayer);
+              } else {
+                if(currentLayer["layer"] == "NOMENCLATURE"){
+                  layers["nomenclature"].push(currentLayer);
+                }
               }
             }
           } else {
