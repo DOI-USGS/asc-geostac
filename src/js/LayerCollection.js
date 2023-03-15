@@ -129,7 +129,7 @@ export default L.LayerCollection = L.Class.extend({
 
           }
         );
-        let name = String(layer["displayname"]);
+        let name = String(layer["displayname"] + " (Zoom to enable)");
         this._overlays[name] = nomenclature;
       }
     },
