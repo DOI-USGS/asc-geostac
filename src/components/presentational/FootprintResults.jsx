@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import Checkbox from "@mui/material/Checkbox";
+import {Card, CardContent, CardActions} from "@mui/material";
 
 // result action links
 import Chip from "@mui/material/Chip";
@@ -29,24 +30,31 @@ function LoadingFootprints() {
   return (
     <div className="resultsList">
       { Array(5).fill(null).map((_, i) => (
-        <div className="resultContainer" key={i}>
-          <div className="resultImgDiv">
-            <Skeleton variant="rectangular" width={32} height={32}/>
-          </div>
-          <div className="resultData">
-            <Skeleton/>
-            <Skeleton/>
-            <Skeleton/>
-            <Skeleton/>
-            <Skeleton/>
-          </div>
-          <div className="resultLinks">
-            <Stack direction="row" spacing={1} sx={{marginTop:1}}>
-              <Skeleton variant="rounded" width={100} height={20} sx={{borderRadius:5}}/>
-              <Skeleton variant="rounded" width={100} height={20} sx={{borderRadius:5}}/>
-            </Stack>
-          </div>
-        </div>
+        <Card sx={{ width: 250, margin: 1}}>
+          <CardContent sx={{padding: 0.9, paddingBottom: 0}}>
+            <div className="resultContainer" key={i}>
+              <div className="resultImgDiv">
+                <Skeleton variant="rectangular" width={32} height={32}/>
+              </div>
+              <div className="resultData">
+                <Skeleton/>
+                <Skeleton/>
+                <Skeleton/>
+                <Skeleton/>
+                <Skeleton/>
+              </div>
+            </div>
+          </CardContent>
+          <CardActions>
+            <div className="resultLinks">
+              <Stack direction="row" spacing={1} sx={{marginTop:1}}>
+                <Skeleton variant="rounded" width={100} height={20} sx={{borderRadius:5}}/>
+                <Skeleton variant="rounded" width={100} height={20} sx={{borderRadius:5}}/>
+              </Stack>
+            </div>
+          </CardActions>
+        </Card>
+        
       ))}
     </div>
   );
@@ -224,45 +232,50 @@ export default function FootprintResults(props) {
       : hasFootprints ?   
         <div className="resultsList">
           {features.map((feature) => (
-            <div className="resultContainer" key={feature.id}>
-              <div className="resultImgDiv">
-                <img className="resultImg" src={feature.assets.thumbnail.href} />
-              </div>
-              <div className="resultData">
-                <div className="resultSub">
-                  <strong>Collection:</strong>&nbsp;{feature.collection}
+            <Card sx={{ width: 250, margin: 1}} key={feature.id}>
+              <CardContent sx={{padding: 1.2, paddingBottom: 0}}>
+                <div className="resultContainer" >
+                  <div className="resultImgDiv">
+                    <img className="resultImg" src={feature.assets.thumbnail.href} />
+                  </div>
+                  <div className="resultData">
+                    <div className="resultSub">
+                      <strong>Collection:</strong>&nbsp;{feature.collection}
+                    </div>
+                    <div className="resultSub">
+                      <strong>ID:</strong>&nbsp;{feature.id}
+                    </div>
+                    <div className="resultSub">
+                      <strong>Date:</strong>&nbsp;{feature.properties.datetime}
+                    </div>
+                  </div>
                 </div>
-                <div className="resultSub">
-                  <strong>ID:</strong>&nbsp;{feature.id}
+              </CardContent>
+              <CardActions>
+                <div className="resultLinks">
+                  <Stack direction="row" spacing={1}>
+                    <Chip
+                      label="Metadata"
+                      icon={<PreviewIcon />}
+                      size="small"
+                      onClick={showMetadata(feature)}
+                      variant="outlined"
+                      clickable
+                    />
+                    <Chip
+                      label="STAC Browser"
+                      icon={<LaunchIcon />}
+                      size="small"
+                      component="a"
+                      href={`https://stac.astrogeology.usgs.gov/browser-dev/#/collections/${feature.collection}/items/${feature.id}`}
+                      target="_blank"
+                      variant="outlined"
+                      clickable
+                    />
+                  </Stack>
                 </div>
-                <div className="resultSub">
-                  <strong>Date:</strong>&nbsp;{feature.properties.datetime}
-                </div>
-              </div>
-              <div className="resultLinks">
-                <Stack direction="row" spacing={1}>
-                  <Chip
-                    label="Metadata"
-                    icon={<PreviewIcon />}
-                    size="small"
-                    onClick={showMetadata(feature)}
-                    variant="outlined"
-                    clickable
-                  />
-                  <Chip
-                    label="STAC Browser"
-                    icon={<LaunchIcon />}
-                    size="small"
-                    component="a"
-                    href={`https://stac.astrogeology.usgs.gov/browser-dev/#/collections/${feature.collection}/items/${feature.id}`}
-                    target="_blank"
-                    //href="https://stac.astrogeology.usgs.gov/browser-dev/"
-                    variant="outlined"
-                    clickable
-                  />
-                </Stack>
-              </div>
-            </div>
+              </CardActions>
+            </Card>
           ))}
         </div>
       :
