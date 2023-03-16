@@ -30,9 +30,9 @@ function LoadingFootprints() {
   return (
     <div className="resultsList">
       { Array(5).fill(null).map((_, i) => (
-        <Card sx={{ width: 250, margin: 1}}>
+        <Card sx={{ width: 250, margin: 1}} key={i}>
           <CardContent sx={{padding: 0.9, paddingBottom: 0}}>
-            <div className="resultContainer" key={i}>
+            <div className="resultContainer">
               <div className="resultImgDiv">
                 <Skeleton variant="rectangular" width={32} height={32}/>
               </div>
@@ -136,7 +136,9 @@ export default function FootprintResults(props) {
       let itemCollectionUrls = [];
       for(const collection of props.target.collections) {
         // Get "items" link for each collection
-        let newItemCollectionUrl = collection.links.find(obj => obj.rel === "items").href
+        let newItemCollectionUrl =
+              collection.links.find(obj => obj.rel === "items").href
+              + props.queryString; 
         itemCollectionUrls.push(newItemCollectionUrl);
       }
 
@@ -207,7 +209,7 @@ export default function FootprintResults(props) {
     //   setFeatures(getFeatures);
     // }, 1000); 
 
-  }, [props.target.name]);
+  }, [props.target.name, props.queryString]);
 
   return (
     <div style={css.root} className="scroll-parent">

@@ -95,32 +95,40 @@ let css = {
  *
  */
 export default function SearchAndFilterInput(props) {
+
+  // Allows showing/hiding of fields
   const keywordDetails = React.useRef(null);
   const dateDetails = React.useRef(null);
 
-  // React States
-  const [sortVal, setSortVal] = React.useState("");
-  const [sortAscCheckVal, setSortAscCheckVal] = React.useState(false);
-  const [areaCheckVal, setAreaCheckVal] = React.useState(false);
+  // Sort By
+  const [sortVal, setSortVal] = React.useState("");                    // Sort By What?
+  const [sortAscCheckVal, setSortAscCheckVal] = React.useState(false); // Sort Ascending or Descending
+  
+  // Filter by X checkboxes
+  const [areaCheckVal, setAreaCheckVal] = React.useState(false);       // Area
+  const [keywordCheckVal, setKeywordCheckVal] = React.useState(false); // Keyword
+  const [dateCheckVal, setDateCheckVal] = React.useState(false);       // Date
 
-  const [keywordCheckVal, setKeywordCheckVal] = React.useState(false);
-  const [keywordTextVal, setKeywordTextVal] = React.useState("");
+  // Filter by X values
+  const [keywordTextVal, setKeywordTextVal] = React.useState(""); // Keyword
+  const [dateFromVal, setDateFromVal] = React.useState(null);     // From Date
+  const [dateToVal, setDateToVal] = React.useState(null);         // To Date
 
-  const [dateCheckVal, setDateCheckVal] = React.useState(false);
-  const [dateFromVal, setDateFromVal] = React.useState(null);
-  const [dateToVal, setDateToVal] = React.useState(null);
+  // Page Number
+  const [pageNumber, setPageNumber] = React.useState(1);
+
+  // Pagination
   const [maxPages, setMaxPages] = React.useState(10);
   const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(10);
   const [numberReturned, setNumberReturned] = React.useState(10);
-  const [limitVal, setLimitVal] = React.useState(10);
-
-  const [applyChipVisStyle, setApplyChipVisStyle] = React.useState(
-    css.chipHidden
-  );
-  const [gotoPage, setGotopage] = React.useState("Apply to go to page 2");
+  const [limitVal, setLimitVal] = React.useState(10);  // Max Number of footprints requested per collection
+  
+  // Apply/Alert Chip
+  const [applyChipVisStyle, setApplyChipVisStyle] = React.useState(css.chipHidden);
+  const [chipMessage, setChipMessage] = React.useState("Apply to go to page 2");
 
   const setApplyChip = (value) => {
-    setGotopage(value);
+    setChipMessage(value);
     setApplyChipVisStyle(css.chipShown);
   };
 
@@ -153,6 +161,46 @@ export default function SearchAndFilterInput(props) {
     // keywordDetails.current.open = false;
     // dateDetails.current.open = false;
   };
+
+  const buildQueryString = () => {
+    let myQueryString = "?";
+
+    // Page Number
+    if (pageNumber != 1) myQueryString += "page=" + pageNumber + "&";
+  
+    // Number of footprints requested per request
+    if (limitVal != 10) myQueryString += "limit=" + limitVal + "&"
+    
+    // Date
+    if (dateCheckVal) {
+      let d = new Date();
+      let fromDate = "1970-01-01T00:00:00Z";             // From start of 1970 by default
+      let toDate = d.getFullYear() + "-12-31T23:59:59Z"; // To end of current year by default
+
+      // From
+      if(dateFromVal instanceof Date && !isNaN(dateFromVal.valueOf())) {
+        fromDate = dateFromVal.toISOString();
+      }
+
+      // To
+      if(dateToVal instanceof Date && !isNaN(dateToVal.valueOf())) {
+        toDate = dateToVal.toISOString();
+      }
+
+      myQueryString += "datetime=" + fromDate + "/" + toDate + "&";
+    }
+
+    // Keyword
+    if(keywordCheckVal) myQueryString += "keywords=[" + keywordTextVal.split(" ") + "]&";
+
+    // Area
+    if(areaCheckVal) console.log("Warning: Area not Supported!")
+
+    // Sorting
+    // Not Supported?
+
+    props.setQueryString(myQueryString);
+  }
 
   // Sorting
   const handleSortChange = (event) => {
@@ -211,6 +259,13 @@ export default function SearchAndFilterInput(props) {
     setApplyChip("Apply to show " + value + " footprints");
   };
 
+  // Pagination
+  const handlePageChange = (event, value) => {
+    setPageNumber(value);
+    setCurrentPage(value);
+    setApplyChip("Apply to go to page " + value);
+  };
+
   // resets pagination and limit when switching targets
   useEffect(() => {
     setTimeout(() => {
@@ -223,11 +278,9 @@ export default function SearchAndFilterInput(props) {
     }, 2000);
   }, [props.target.name]);
 
-  // Pagination
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value);
-    setApplyChip("Apply to go to page " + value);
-  };
+  useEffect(() => {
+    buildQueryString();
+  }, [sortVal, sortAscCheckVal, areaCheckVal, keywordCheckVal, keywordTextVal, dateCheckVal, dateFromVal, dateToVal, limitVal, pageNumber])
 
   /* Control IDs for reference:
   applyButton
@@ -429,7 +482,7 @@ export default function SearchAndFilterInput(props) {
       <div style={applyChipVisStyle}>
         <Chip
           id="applyChip"
-          label={gotoPage}
+          label={chipMessage}
           icon={<FlagIcon />}
           onClick={handleApply}
           variant="outlined"
