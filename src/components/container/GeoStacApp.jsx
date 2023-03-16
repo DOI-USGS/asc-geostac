@@ -29,6 +29,7 @@ let css = {
  * @component
  */
 export default function GeoStacApp(props) {
+  console.log(props);
   const [targetPlanet, setTargetPlanet] = React.useState("Mars");
 
   const [footprintData, setFootprintData] = React.useState([]);
@@ -68,7 +69,7 @@ export default function GeoStacApp(props) {
             bodyChange={handleTargetBodyChange}
           />
           <div id="map-area">
-            <MapContainer target={targetPlanet} />
+            <MapContainer target={targetPlanet} mapList={props.mapList} />
           </div>
           <QueryConsole />
         </div>

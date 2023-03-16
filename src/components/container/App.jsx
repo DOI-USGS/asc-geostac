@@ -128,6 +128,9 @@ export default function App() {
                     "name" : target.name,
                     "naif" : target.naif,
                     "hasFootprints" : hasFootprints,
+                    "aaxisradius": target.aaxisradius,
+                    "baxisradius": target.baxisradius,
+                    "caxisradius":target.caxisradius,
                     "layers" : {
                         "base" : [],
                         "overlays" : [],

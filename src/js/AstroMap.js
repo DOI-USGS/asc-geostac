@@ -43,7 +43,8 @@ export default L.Map.AstroMap = L.Map.extend({
     zoomControl: false
   },
 
-  initialize: function(mapDiv, target, options) {
+  initialize: function(mapDiv, target, mapList, options) {
+    this._mapList = mapList
     this._mapDiv = mapDiv;
     this._target = target;
     this._astroProj = new AstroProj();
@@ -216,37 +217,21 @@ export default L.Map.AstroMap = L.Map.extend({
       wfs: []
     };
 
-    let targets = MY_JSON_MAPS["targets"];
-    for (let i = 0; i < targets.length; i++) {
-      let currentTarget = targets[i];
-
-      if (currentTarget["name"].toLowerCase() == this._target.toLowerCase()) {
-        this._radii["a"] = parseFloat(currentTarget["aaxisradius"] * 1000);
-        this._radii["c"] = parseFloat(currentTarget["caxisradius"] * 1000);
-        let jsonLayers = currentTarget["webmap"];
-        for (let j = 0; j < jsonLayers.length; j++) {
-          let currentLayer = jsonLayers[j];
-          if (
-            currentLayer["projection"].toLowerCase() != projection.toLowerCase()
-          ) {
-            continue;
-          }
-          if (currentLayer["type"] == "WMS") {
-            // Base layer check
-            if (currentLayer["transparent"] == "false") {
-              layers["base"].push(currentLayer);
-            } else {
-              // Do not add "Show Feature Names" PNG layer.
-              if (currentLayer["displayname"] != "Show Feature Names") {
-                layers["overlays"].push(currentLayer);
-              } else {
-                if(currentLayer["layer"] == "NOMENCLATURE"){
-                  layers["nomenclature"].push(currentLayer);
-                }
-              }
-            }
-          } else {
-            layers["wfs"].push(currentLayer);
+    let systems = this._mapList["systems"];
+    for(let x = 0; x < systems.length; x++){
+      let targets = systems[x].bodies
+    
+      for (let i = 0; i < targets.length; i++) {
+        let currentTarget = targets[i];
+        if (currentTarget["name"].toLowerCase() == this._target.toLowerCase()) {
+          this._radii["a"] = parseFloat(currentTarget["aaxisradius"] * 1000);
+          this._radii["c"] = parseFloat(currentTarget["caxisradius"] * 1000);
+          let jsonLayers = currentTarget.layers;
+          console.log(jsonLayers['base']);
+          for (let key of Object.keys(jsonLayers)){
+              layers[key] =jsonLayers[key].filter(function(currentLayer){
+                  return currentLayer["projection"].toLowerCase() == projection.toLowerCase();
+              }); 
           }
         }
       }

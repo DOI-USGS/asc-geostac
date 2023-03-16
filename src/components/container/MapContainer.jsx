@@ -12,7 +12,7 @@ import AstroControlManager from "../../js/AstroControlManager";
  * @param {target, map, mapChange}
  */
 export default function MapContainer(props) {
-  
+
   const [oldTarget, setOldTarget] = React.useState("");
 
   /**
@@ -20,7 +20,7 @@ export default function MapContainer(props) {
    * handles all of the map intialization and creation.
    */
   useEffect( () => {
-    let map = new AstroMap("map-container", props.target, {});
+    let map = new AstroMap("map-container", props.target, props.mapList, {});
     let controlManager = new AstroControlManager(map);
     controlManager.addTo(map);
     setOldTarget(props.target)
@@ -48,7 +48,7 @@ export default function MapContainer(props) {
       document.getElementById("projectionSouthPole").classList.remove("disabled");
 
       // create new map with updated target
-      let map = new AstroMap("map-container", props.target, {});
+      let map = new AstroMap("map-container", props.target, props.mapList,{});
       let controlManager = new AstroControlManager(map);
       controlManager.addTo(map);
       setOldTarget(props.target)
