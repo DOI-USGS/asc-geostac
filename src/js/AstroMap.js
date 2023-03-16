@@ -10,7 +10,6 @@ import { getItemCollection,
          setCurrentPage,
          setFeatures,
          setNumberReturned } from "./ApiJsonCollection";
-import { MY_JSON_MAPS } from "./layers";
 
 
 /**
@@ -227,7 +226,6 @@ export default L.Map.AstroMap = L.Map.extend({
           this._radii["a"] = parseFloat(currentTarget["aaxisradius"] * 1000);
           this._radii["c"] = parseFloat(currentTarget["caxisradius"] * 1000);
           let jsonLayers = currentTarget.layers;
-          console.log(jsonLayers['base']);
           for (let key of Object.keys(jsonLayers)){
               layers[key] =jsonLayers[key].filter(function(currentLayer){
                   return currentLayer["projection"].toLowerCase() == projection.toLowerCase();
