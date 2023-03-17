@@ -1,6 +1,8 @@
 import React from "react";
+import CircularProgress from '@mui/material/LinearProgress';
 import SvgIcon from "@mui/material/SvgIcon";
 import loadingImage from "../../images/logos/geostac-logo.svg";
+import LinearProgress from "@mui/material/LinearProgress";
 
 export default function SplashScreen() {
     return(
@@ -20,6 +22,7 @@ export default function SplashScreen() {
                 }}
                 component={loadingImage}
                 />
+                <LinearProgress/>
             </div>
         </div>
     )
