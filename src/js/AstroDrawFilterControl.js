@@ -116,6 +116,7 @@ export default L.Control.AstroDrawFilterControl = L.Control.Draw.extend({
     geoJson = geoJson["geometry"];
 
     this.wkt.read(JSON.stringify(geoJson));
+    window.postMessage(this.shapesToFootprint(this.wkt.components[0]), "*");
   },
 
   /**

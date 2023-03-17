@@ -110,6 +110,7 @@ export default function SearchAndFilterInput(props) {
   const [dateCheckVal, setDateCheckVal] = React.useState(false);       // Date
 
   // Filter by X values
+  const [areaTextVal, setAreaTextVal] = React.useState("");
   const [keywordTextVal, setKeywordTextVal] = React.useState(""); // Keyword
   const [dateFromVal, setDateFromVal] = React.useState(null);     // From Date
   const [dateToVal, setDateToVal] = React.useState(null);         // To Date
@@ -194,10 +195,16 @@ export default function SearchAndFilterInput(props) {
     if(keywordCheckVal) myQueryString += "keywords=[" + keywordTextVal.split(" ") + "]&";
 
     // Area
-    if(areaCheckVal) console.log("Warning: Area not Supported!")
+    // We need to get the area selected from the Leaflet side of the application.
+    // Look at (possibly old or CartoCosmos) code with the query console/WKT Box.
+    if(areaCheckVal) myQueryString += areaTextVal;
 
-    // Sorting
-    // Not Supported?
+    // Sorting... Not supported by the API?
+    const sortAscDesc = sortAscCheckVal ? "asc" : "desc";
+    if (sortVal === "date" || sortVal === "location") {
+      console.log("Warning: Sorting not Supported!");
+      // myQueryString += 'sort=[{field:datetime,direction:' + sortAscDesc + '}]&'
+    }
 
     props.setQueryString(myQueryString);
   }
@@ -278,9 +285,25 @@ export default function SearchAndFilterInput(props) {
     }, 2000);
   }, [props.target.name]);
 
+  // Listen for any state change (input) and update the query string based on it
   useEffect(() => {
     buildQueryString();
-  }, [sortVal, sortAscCheckVal, areaCheckVal, keywordCheckVal, keywordTextVal, dateCheckVal, dateFromVal, dateToVal, limitVal, pageNumber])
+  }, [sortVal, sortAscCheckVal, areaCheckVal, areaTextVal, keywordCheckVal, keywordTextVal, dateCheckVal, dateFromVal, dateToVal, limitVal, pageNumber]);
+
+  const onBoxDraw = event => {
+    if(typeof event.data == "string" && event.data.includes("bbox")){
+      setAreaTextVal(event.data);
+      setAreaCheckVal(true);
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("message", onBoxDraw);
+
+    return () => {
+      window.removeEventListener("message", onBoxDraw);
+    }
+  }, []);
 
   /* Control IDs for reference:
   applyButton
