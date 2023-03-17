@@ -110,7 +110,7 @@ export default function SearchAndFilterInput(props) {
   const [dateCheckVal, setDateCheckVal] = React.useState(false);       // Date
 
   // Filter by X values
-  const [areaTextVal, setAreaTextVal] = React.useState("");
+  const [areaTextVal, setAreaTextVal] = React.useState("");       // Area (received by window message from AstroDrawFilterControl)
   const [keywordTextVal, setKeywordTextVal] = React.useState(""); // Keyword
   const [dateFromVal, setDateFromVal] = React.useState(null);     // From Date
   const [dateToVal, setDateToVal] = React.useState(null);         // To Date
@@ -195,9 +195,7 @@ export default function SearchAndFilterInput(props) {
     if(keywordCheckVal) myQueryString += "keywords=[" + keywordTextVal.split(" ") + "]&";
 
     // Area
-    // We need to get the area selected from the Leaflet side of the application.
-    // Look at (possibly old or CartoCosmos) code with the query console/WKT Box.
-    if(areaCheckVal) myQueryString += areaTextVal;
+    if(areaCheckVal && areaTextVal !== "") myQueryString += areaTextVal;
 
     // Sorting... Not supported by the API?
     const sortAscDesc = sortAscCheckVal ? "asc" : "desc";
