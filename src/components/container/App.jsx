@@ -35,10 +35,10 @@ export default function App() {
     let jsonPromise = {};
 
     // Fetched Maps
-    var mapsJson = {};
+    let mapsJson = {};
 
     // Combined Data
-    var aggregateMapList = {};
+    let aggregateMapList = {};
 
     // Init
     fetchStatus[astroWebMaps] = "Not Started";

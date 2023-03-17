@@ -120,18 +120,15 @@ function PlanetDialog(props) {
     onClose(value);
   };
 
-  console.log(props.mapList)
-
   return (
     <Dialog PaperProps={{sx: {overflowY: "scroll"}}} onClose={handleClose} open={open}>
       <DialogTitle sx={{ minWidth: 225 }}>Select Target Body</DialogTitle>
       <List sx={{ pt: 0 }}>
         <ListSubheader value="None">Systems</ListSubheader>
         {props.mapList.systems.map((system, sysIndex) => (
-          <>
+          <React.Fragment key={system.name}>
             <ListItemButton
               onClick={() => handleSysOpen(sysIndex)}
-              key={system.name}
             >
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: blue[100] }}>
@@ -147,7 +144,7 @@ function PlanetDialog(props) {
                 {props.mapList.systems[sysIndex].bodies.map((body, bodIndex) => (
                   <ListItemButton
                     sx={{ pl: 4 }}
-                    onClick={() => handleListItemClick(body.name)}
+                    onClick={() => handleListItemClick(body)}
                     key={body.name}
                   >
                     <ListItemAvatar>
@@ -161,7 +158,7 @@ function PlanetDialog(props) {
                 ))}
               </List>
             </Collapse>
-          </>
+          </React.Fragment>
         ))}
       </List>
     </Dialog>
@@ -171,7 +168,7 @@ function PlanetDialog(props) {
 PlanetDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
+  selectedValue: PropTypes.object.isRequired,
 };
 
 /**
@@ -187,7 +184,7 @@ PlanetDialog.propTypes = {
  */
 export default function ConsoleTargetInfo(props) {
   const [open, setOpen] = React.useState(false);
-  const [selectedValue, setSelectedValue] = React.useState(planets[3][0]);
+  const [selectedValue, setSelectedValue] = React.useState(props.mapList.systems[4].bodies[0]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -215,7 +212,7 @@ export default function ConsoleTargetInfo(props) {
           variant="h4"
           onClick={handleClickOpen}
         >
-          {props.target.toUpperCase()} <ArrowDropDownIcon fontSize="large" />
+          {props.target.name.toUpperCase()} <ArrowDropDownIcon fontSize="large" />
         </Typography>
       </Grid>
       <PlanetDialog
