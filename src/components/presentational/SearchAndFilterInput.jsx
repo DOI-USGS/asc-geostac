@@ -126,10 +126,10 @@ export default function SearchAndFilterInput(props) {
   
   // Apply/Alert Chip
   const [applyChipVisStyle, setApplyChipVisStyle] = React.useState(css.chipHidden);
-  const [chipMessage, setChipMessage] = React.useState("Apply to go to page 2");
+  const [chipMessage, setChipMessage] = React.useState("Apply to Show Footprints on Map");
 
   const setApplyChip = (value) => {
-    setChipMessage(value);
+    setChipMessage("Apply to Show Footprints on Map");
     setApplyChipVisStyle(css.chipShown);
   };
 
@@ -157,7 +157,7 @@ export default function SearchAndFilterInput(props) {
     setMaxPages(1);
     setMaxNumberFootprints(0);
     setNumberReturned(0);
-    setApplyChip("Apply to show Footprints");
+    setApplyChip("Apply to Show Footprints on Map");
     //// Uncomment to close details on clear
     // keywordDetails.current.open = false;
     // dateDetails.current.open = false;
@@ -274,6 +274,8 @@ export default function SearchAndFilterInput(props) {
   // resets pagination and limit when switching targets
   useEffect(() => {
     setTimeout(() => {
+      setCurrentPage(1);
+      setPageNumber(1);
       setMaxNumberFootprints(getNumberMatched);
       setNumberReturned(getNumberReturned);
       setLimitVal(10);
