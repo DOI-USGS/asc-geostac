@@ -6,7 +6,7 @@ import SplashScreen from "../presentational/SplashScreen.jsx";
 
 /**
  * App is the parent component for all of the other components in the project.
- * It loads the data needed to initialize GeoStac.
+ * It fetches and parses the data needed to initialize GeoStac.
  * It includes the main GeoStacApp and OCAP compliant headers and footers.
  *
  * @component
@@ -21,11 +21,11 @@ export default function App() {
 
   useEffect(() => {
 
-    // Astro Web Maps, has the tile data
+    // Astro Web Maps, has the tile base data for the map of each planetary body
     const astroWebMaps =
         "https://astrowebmaps.wr.usgs.gov/webmapatlas/Layers/maps.json";
 
-    // STAC API, has footprint data
+    // STAC API, has footprint data for select planetary bodies
     const stacApiCollections = 
         "https://stac.astrogeology.usgs.gov/api/collections";
 
@@ -205,7 +205,7 @@ export default function App() {
                 return valA - valB;
             })
         }
-
+        
         return mapList;
     }
 
@@ -227,7 +227,6 @@ export default function App() {
         setMainComponent(<GeoStacApp mapList={aggregateMapList}/>);
     })();
 
-    
   }, [])
 
   return (

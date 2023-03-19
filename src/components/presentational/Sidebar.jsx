@@ -49,8 +49,6 @@ export default function Sidebar(props) {
 
   const [expandResults, setExpandResults] = React.useState(true);
 
-  const [queryString, setQueryString] = React.useState("?");
-
   const showHideSort = () => {
     setShowSidePanel(!showSidePanel);
   };
@@ -73,8 +71,7 @@ export default function Sidebar(props) {
         >
           <SearchAndFilterInput
             target={props.target}
-            setQueryString={setQueryString}
-            footprintNavClick={props.footprintNavClick}
+            setQueryString={props.setQueryString}
           />
           {!expandResults && <OutPortal node={footprintResultPortalNode} />}
         </div>
@@ -83,7 +80,12 @@ export default function Sidebar(props) {
         )}
       </div>
       <InPortal node={footprintResultPortalNode}>
-        <FootprintResults target={props.target} queryString={queryString} changeLayout={handlePanelLayout} />
+        <FootprintResults 
+          target={props.target} 
+          queryString={props.queryString} 
+          changeLayout={handlePanelLayout} 
+          setCollectionUrls={props.setCollectionUrls}
+        />
       </InPortal>
     </>
   );

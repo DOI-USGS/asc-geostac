@@ -2,7 +2,6 @@ import React from "react";
 import ConsoleAppBar from "../presentational/ConsoleAppBar.jsx";
 import MapContainer from "./MapContainer.jsx";
 import QueryConsole from "../presentational/QueryConsole.jsx";
-import { getFeatures } from "../../js/ApiJsonCollection";
 import DisplayGeoTiff from "../presentational/DisplayGeoTiff.jsx";
 import Sidebar from "../presentational/Sidebar.jsx";
 import MenuBar from "../presentational/Menubar.jsx";
@@ -33,6 +32,9 @@ export default function GeoStacApp(props) {
 
   const [footprintData, setFootprintData] = React.useState([]);
 
+  const [queryString, setQueryString] = React.useState("?");
+  const [collectionUrls, setCollectionUrls] = React.useState([]);
+
   const [appFullWindow, setAppFullWindow] = React.useState(true);
   const [appViewStyle, setAppViewStyle] = React.useState(css.appFlex);
 
@@ -47,11 +49,6 @@ export default function GeoStacApp(props) {
    */
   const handleTargetBodyChange = (value) => {
     setTargetPlanet(value);
-  };
-
-  const handleFootprintClick = () => {
-    setFootprintData(getFeatures);
-    //console.log(footprintData);
   };
 
   return (
@@ -70,11 +67,16 @@ export default function GeoStacApp(props) {
           <div id="map-area">
             <MapContainer target={targetPlanet.name} />
           </div>
-          <QueryConsole />
+          <QueryConsole
+            queryString={queryString}
+            setQueryString={setQueryString}
+            collectionUrls={collectionUrls}/>
         </div>
         <Sidebar
+          queryString={queryString}
+          setQueryString={setQueryString}
+          setCollectionUrls={setCollectionUrls}
           target={targetPlanet}
-          footprintNavClick={handleFootprintClick}
         />
       </div>
       <DisplayGeoTiff />

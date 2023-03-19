@@ -2,13 +2,7 @@ import L from "leaflet";
 import "proj4leaflet";
 import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
-import { getItemCollection,
-         callAPI,
-         setNumberMatched,
-         setMaxNumberPages,
-         getCurrentPage,
-         setCurrentPage,
-         setFeatures,
+import { setNumberMatched,
          setNumberReturned } from "./ApiJsonCollection";
 import { MY_JSON_MAPS } from "./layers";
 
@@ -102,9 +96,12 @@ export default L.Map.AstroMap = L.Map.extend({
     L.Map.prototype.initialize.call(this, this._mapDiv, this.options);
     this.loadLayerCollection("cylindrical");
     
+    // Remove this once loading from react works?
+    // setCurrentPage(1);
+    // this.loadFootprintLayer(target, "?page=1");
 
-    setCurrentPage(1);
-    this.loadFootprintLayer(target, "?page=1");
+    // Listener for list of features sent from React
+    // L.DomEvent.on(window, "message", this.loadFeatureCollections, this);
 
     // Listen to baselayerchange event so that we can set the current layer being
     // viewed by the map.
@@ -131,61 +128,16 @@ export default L.Map.AstroMap = L.Map.extend({
     this.layers[name].addTo(this);
   },
 
-
   /**
-   * @function AstroMap.prototype.loadFootprintLayer
-   * @description Adds the ApiJsonCollection with the requested name.
+   * @function AstroMap.prototype.loadFeatureCollection
+   * @description Adds Feature Collections to map.
    *
-   * @param {String} name - Name of the target
-   *
-   * @param {String} queryString - Filter for deisered footprints ie: ?page=1
+   * @param {object} featureCollections - Feature Collections
    *
    */
-  loadFootprintLayer: function(name, queryString) {
-    var matched = 0;
-    var returned = 0;
-    const features = [];
-    
-    getItemCollection(name, queryString).then(result => {
-      if (result != undefined) {
-        this._geoLayers = new Array(result.length);
-        for (let i = 0; i < result.length; i++) {
-          this._geoLayers[i] = L.geoJSON().on({click: handleClick}).addTo(this);
-          matched += result[i].numberMatched;
-          returned += result[i].context["returned"];
-          features.push(...result[i].features);
-          for (let j = 0; j < result[i].features.length; j++) {
-            this._footprintCollection[result[i].features[j].collection] = this._geoLayers[i];
-            this._geoLayers[i].addData(result[i].features[j]);
-          }
-        }
-        var collectionNames ={};
-        callAPI().then(response =>{
-          for (let i = 0; i < response.collections.length; i++) {
-            if (response.collections[i].hasOwnProperty("summaries")){
-              if (
-                response.collections[i].summaries["ssys:targets"][0].toLowerCase() == name.toLowerCase()
-              ) {
-                collectionNames[response.collections[i].id] = response.collections[i].title;
-              }
-            }
-          }
-         for (var key in this._footprintCollection){
-           let title = collectionNames[key];
-           this._footprintCollection[title]= this._footprintCollection[key];
-           delete this._footprintCollection[key];
-         }
+  loadFeatureCollections: function(featureCollections) {
 
-         this._footprintControl = L.control
-         .layers(null, this._footprintCollection, {collapsed: false})
-         .addTo(this)
-        });
-      }
-      setNumberMatched(matched);
-      setNumberReturned(returned);
-      setFeatures(features);
-    });
-
+    // show thumbnail on map when clicked - use stac-layer for this?
     function handleClick(e) {
       const url_to_stac_item = e.layer.feature.links[0].href;
       console.log (url_to_stac_item);
@@ -198,6 +150,41 @@ export default L.Map.AstroMap = L.Map.extend({
         thumbnail.addTo(this);
       });
       */
+    } 
+
+    if (featureCollections != undefined) {
+      let matched = 0;
+      let returned = 0;
+      this._geoLayers = new Array(featureCollections.length);
+      for (let i = 0; i < featureCollections.length; i++) {
+        this._geoLayers[i] = L.geoJSON().on({click: handleClick}).addTo(this);
+        matched += featureCollections[i].numberMatched;
+        returned += featureCollections[i].context["returned"];
+        for (let j = 0; j < featureCollections[i].features.length; j++) {
+          this._footprintCollection[featureCollections[i].features[j].collection] = this._geoLayers[i];
+          this._geoLayers[i].addData(featureCollections[i].features[j]);
+        }
+      }
+
+      console.info("geoLayers after", this._geoLayers);
+
+      var collectionNames = {};
+      for(const collection of featureCollections) {
+        collectionNames[collection.id] = collection.title;
+      }
+
+      for (var key in this._footprintCollection){
+          let title = collectionNames[key];
+          this._footprintCollection[title]= this._footprintCollection[key];
+          delete this._footprintCollection[key];
+        }
+        
+        this._footprintControl = L.control
+        .layers(null, this._footprintCollection, {collapsed: true})
+        .addTo(this)
+
+        setNumberMatched(matched);
+        setNumberReturned(returned);
     }
   },
 

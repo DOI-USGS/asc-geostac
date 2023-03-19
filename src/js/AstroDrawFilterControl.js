@@ -70,17 +70,10 @@ export default L.Control.AstroDrawFilterControl = L.Control.Draw.extend({
     this.wkt = new Wkt.Wkt();
     this.myLayer = L.Proj.geoJson().addTo(map);
 
-    L.DomEvent.on(
-      L.DomUtil.get("applyChip"),
-      "click",
-      this.applyFilter,
-      this
-    );
-
-    L.DomEvent.on(L.DomUtil.get("applyButton"),"click", this.applyFilter, this);
-    L.DomEvent.on(L.DomUtil.get("runQueryButton"),"click", this.applyFilter, this);
-    L.DomEvent.on(L.DomUtil.get("clearButton"), "click", this.clearMap, this);
+    // Add listener for window message from FootprintResults.jsx, which has Feature Collections
+    L.DomEvent.on(window, "message", this.refreshFeatures, this);
     L.DomEvent.on(L.DomUtil.get("copyCodeButton"), "click", this.copyToClipboard, this);
+
 
     map.on("draw:created", this.shapesToWKT, this);
 
@@ -116,7 +109,7 @@ export default L.Control.AstroDrawFilterControl = L.Control.Draw.extend({
     geoJson = geoJson["geometry"];
 
     this.wkt.read(JSON.stringify(geoJson));
-    window.postMessage(this.shapesToFootprint(this.wkt.components[0]), "*");
+    window.postMessage(["setWkt", this.shapesToFootprint(this.wkt.components[0])], "*");
   },
 
   /**
@@ -167,74 +160,24 @@ export default L.Control.AstroDrawFilterControl = L.Control.Draw.extend({
   },
 
   /**
-   * @function applyFilter
-   * @description grabs the information from the filter panel and creates a query string
-   * this function then recalls loadFootprintLayer with the updated query string
+   * @function refreshFeatures
+   * @description Clears map and shows features revceived via window message event.
+   *
+   * @param {object} event - The window message event received.
    */
-  applyFilter: function() {
-    let filterOptions = [];
+  refreshFeatures: function(event) {
+    if(typeof event.data == "object" && event.data[0] === "setFeatureCollections") {
+      const receivedCollections = event.data[1];
 
-    if (L.DomUtil.get("dateCheckBox").checked == true) {
-      let fromDate = L.DomUtil.get("dateFromID").value;
-      let toDate = L.DomUtil.get("dateToID").value;
-      fromDate = fromDate.split("/");
-      toDate = toDate.split("/");
-
-      let newFromDate = "";
-      newFromDate = newFromDate.concat(
-        fromDate[2],
-        "-",
-        fromDate[0],
-        "-",
-        fromDate[1],
-        "T00:00:00Z"
-      );
-
-      let newToDate = "";
-      newToDate = newToDate.concat(
-        toDate[2],
-        "-",
-        toDate[0],
-        "-",
-        toDate[1],
-        "T23:59:59Z"
-      );
-
-      let timeQuery = "".concat("datetime=", newFromDate, "/", newToDate);
-      filterOptions.push(timeQuery);
-    }
-
-    if (L.DomUtil.get("keywordCheckBox").checked == true) {
-      let keywordString = "keywords=[" + L.DomUtil.get("keywordTextBox").value.split(" ")  + "]"
-      filterOptions.push(keywordString);
-    }
-
-    if (L.DomUtil.get("areaCheckBox").checked == true) {
-      let drawnArea = this.shapesToFootprint(this.wkt.components[0]);
-      filterOptions.push(drawnArea);
-    }
-
-    let currentPage = getCurrentPage();
-    filterOptions.push("page=" + currentPage);
-
-    let sliderElement = L.DomUtil.get("valueSlider");
-    let limitVal = sliderElement.lastChild.firstChild.value;
-    filterOptions.push("limit=" + limitVal);
-
-    let queryString = "";
-
-    for (let i = 0; i < filterOptions.length; i++) {
-      if (queryString == "") {
-        queryString = queryString.concat("?", filterOptions[i]);
-      } else {
-        queryString = queryString.concat("&", filterOptions[i]);
+      // re render map
+      if(this._map._footprintControl) {
+        this._map._footprintControl.remove();
       }
+      
+      for(let i = 0; i < this._map._geoLayers.length; i++){
+        this._map._geoLayers[i].clearLayers();
+      }
+      this._map.loadFeatureCollections(receivedCollections);
     }
-    // re render map
-    this._map._footprintControl.remove();
-    for(let i = 0; i < this._map._geoLayers.length; i++){
-      this._map._geoLayers[i].clearLayers();
-    }
-    this._map.loadFootprintLayer(this._map._target, queryString);
   }
 });
