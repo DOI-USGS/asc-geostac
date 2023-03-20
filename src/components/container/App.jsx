@@ -224,7 +224,7 @@ export default function App() {
 
     (async () => {
         aggregateMapList = await getStacAndAstroWebMapsData();
-        setMainComponent(<GeoStacApp mapList={aggregateMapList}/>);
+        setMainComponent(<GeoStacApp mapList={aggregateMapList} astroWebMaps={mapsJson[astroWebMaps]}/>);
     })();
 
   }, [])

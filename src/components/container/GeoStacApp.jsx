@@ -30,8 +30,6 @@ let css = {
 export default function GeoStacApp(props) {
   const [targetPlanet, setTargetPlanet] = React.useState(props.mapList.systems[4].bodies[0]);
 
-  const [footprintData, setFootprintData] = React.useState([]);
-
   const [queryString, setQueryString] = React.useState("?");
   const [collectionUrls, setCollectionUrls] = React.useState([]);
 
@@ -65,7 +63,7 @@ export default function GeoStacApp(props) {
             bodyChange={handleTargetBodyChange}
           />
           <div id="map-area">
-            <MapContainer target={targetPlanet.name} />
+            <MapContainer target={targetPlanet.name} astroWebMaps={props.astroWebMaps}/>
           </div>
           <QueryConsole
             queryString={queryString}

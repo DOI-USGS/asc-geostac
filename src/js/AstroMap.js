@@ -4,8 +4,6 @@ import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
 import { setNumberMatched,
          setNumberReturned } from "./ApiJsonCollection";
-import { MY_JSON_MAPS } from "./layers";
-
 
 /**
  * @class AstroMap
@@ -25,6 +23,8 @@ import { MY_JSON_MAPS } from "./layers";
  * @param {String} mapDiv - ID of the div for the map.
  *
  * @param {String} target - Name of target to display layers for.
+ * 
+ * @param {Object} myJsonMaps - Json fetched from AstroWebMaps
  *
  * @param {Object} options - Options for the map.
  */
@@ -37,9 +37,10 @@ export default L.Map.AstroMap = L.Map.extend({
     zoomControl: false
   },
 
-  initialize: function(mapDiv, target, options) {
+  initialize: function(mapDiv, target, jsonMaps, options) {
     this._mapDiv = mapDiv;
     this._target = target;
+    this._jsonMaps = jsonMaps;
     this._astroProj = new AstroProj();
     this._radii = {
       a: "",
@@ -203,7 +204,7 @@ export default L.Map.AstroMap = L.Map.extend({
       wfs: []
     };
 
-    let targets = MY_JSON_MAPS["targets"];
+    let targets = this._jsonMaps["targets"];
     for (let i = 0; i < targets.length; i++) {
       let currentTarget = targets[i];
 
