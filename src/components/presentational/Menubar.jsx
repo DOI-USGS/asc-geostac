@@ -47,8 +47,8 @@ export default function MenuBar(props) {
           <span className="menu-item-text">Help</span>
         </div>
       </a>
-      <div className="menu-item" onClick={props.handleAppViewChange}>
-        {props.appFullWindow ? (
+      <div className="menu-item" onClick={props.handleOpenCloseHeader}>
+        {props.showHeaderFooter ? (
           <>
             <OpenInFullIcon fontSize="small" />
             <span className="menu-item-text">Expand</span>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import UsgsHeader from "../presentational/UsgsHeader.jsx";
 import UsgsFooter from "../presentational/UsgsFooter.jsx";
+import MenuBar from "../presentational/MenuBar.jsx";
 import GeoStacApp from "./GeoStacApp.jsx";
 import SplashScreen from "../presentational/SplashScreen.jsx";
 
@@ -12,6 +13,12 @@ import SplashScreen from "../presentational/SplashScreen.jsx";
  * @component
  */
 export default function App() {
+
+  const [showHeaderFooter, setShowHeaderFooter] = React.useState(true);
+
+  const handleOpenCloseHeader = () => {
+    setShowHeaderFooter(!showHeaderFooter);
+  }
 
   const [mainComponent, setMainComponent] = useState(() => {
     return(
@@ -224,16 +231,26 @@ export default function App() {
 
     (async () => {
         aggregateMapList = await getStacAndAstroWebMapsData();
-        setMainComponent(<GeoStacApp mapList={aggregateMapList} astroWebMaps={mapsJson[astroWebMaps]}/>);
+        setMainComponent(
+            <GeoStacApp 
+                mapList={aggregateMapList}
+                astroWebMaps={mapsJson[astroWebMaps]}
+                showHeaderFooter={showHeaderFooter}
+                setShowHeaderFooter={setShowHeaderFooter}
+            />);
     })();
 
   }, [])
 
   return (
     <>
-      <UsgsHeader />
+      <UsgsHeader visible={showHeaderFooter}/>
+      <MenuBar
+        showHeaderFooter={showHeaderFooter}
+        handleOpenCloseHeader={handleOpenCloseHeader}
+      />
       {mainComponent}
-      <UsgsFooter />
+      <UsgsFooter visible={showHeaderFooter}/>
     </>
   );
 }

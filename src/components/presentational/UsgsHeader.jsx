@@ -1,6 +1,7 @@
 import React from "react";
 import UsgsLogo from "../../images/logos/usgs-logo.png";
 import { GovBanner } from "@trussworks/react-uswds";
+import { Collapse } from "@mui/material";
 
 const css = {
   headerNav: {
@@ -35,7 +36,7 @@ const css = {
  */
 export default function UsgsHeader(props) {
   return (
-    <>
+    <Collapse in={props.visible} sx={{flexShrink: 0}}>
       <GovBanner aria-label="Official government website" />
       <header id="navbar" style={css.headerNav} role="banner">
         <div style={css.tmpContainer}>
@@ -65,6 +66,6 @@ export default function UsgsHeader(props) {
           </div>
         </div>
       </header>
-    </>
+    </Collapse>
   );
 }

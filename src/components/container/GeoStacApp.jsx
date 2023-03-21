@@ -4,21 +4,6 @@ import MapContainer from "./MapContainer.jsx";
 import QueryConsole from "../presentational/QueryConsole.jsx";
 import DisplayGeoTiff from "../presentational/DisplayGeoTiff.jsx";
 import Sidebar from "../presentational/Sidebar.jsx";
-import MenuBar from "../presentational/Menubar.jsx";
-
-/**
- * Controls css styling for this component using js to css
- */
-let css = {
-  appFlex: {
-    position: "relative",
-  },
-  appFull: {
-    position: "fixed",
-    height: "100%",
-    width: "100%",
-  },
-};
 
 /**
  * GeoStacApp is the parent component for all of the other components of the main app.
@@ -33,14 +18,6 @@ export default function GeoStacApp(props) {
   const [queryString, setQueryString] = React.useState("?");
   const [collectionUrls, setCollectionUrls] = React.useState([]);
 
-  const [appFullWindow, setAppFullWindow] = React.useState(true);
-  const [appViewStyle, setAppViewStyle] = React.useState(css.appFlex);
-
-  const handleAppViewChange = () => {
-    setAppFullWindow(!appFullWindow);
-    setAppViewStyle(appFullWindow ? css.appFull : css.appFlex);
-  };
-
   /**
    * Handles target body selection
    * @param {*} value selection event
@@ -50,11 +27,7 @@ export default function GeoStacApp(props) {
   };
 
   return (
-    <div style={appViewStyle} className="flex col scroll-parent">
-      <MenuBar
-        handleAppViewChange={handleAppViewChange}
-        appFullWindow={appFullWindow}
-      />
+    <div className="flex col scroll-parent">
       <div className="flex row scroll-parent">
         <div className="flex col">
           <ConsoleAppBar
