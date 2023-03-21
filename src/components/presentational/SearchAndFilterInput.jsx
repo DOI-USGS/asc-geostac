@@ -22,17 +22,9 @@ import FormControl from "@mui/material/FormControl";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 // No. of Footprints, pagination
-import Slider from "@mui/material/Slider";
 import Pagination from "@mui/material/Pagination";
 
-import {
-  getMaxNumberPages,
-  setCurrentPage,
-  getCurrentPage,
-  getNumberMatched,
-  setLimit,
-  getNumberReturned,
-} from "../../js/ApiJsonCollection";
+import { FormHelperText } from "@mui/material";
 
 /**
  * Controls css styling for this component using js to css
@@ -74,6 +66,12 @@ let css = {
     color: "#343a40",
     fontSize: 18,
     fontWeight: 600,
+  },
+  thinSelect: {
+    marginRight: "12px",
+    "& .MuiInputBase-input": {
+      padding: "2px 32px 2px 8px",
+    }
   }
 };
 
@@ -106,14 +104,9 @@ export default function SearchAndFilterInput(props) {
   const [dateFromVal, setDateFromVal] = React.useState(null);     // From Date
   const [dateToVal, setDateToVal] = React.useState(null);         // To Date
 
-  // Page Number
-  const [pageNumber, setPageNumber] = React.useState(1);
-
   // Pagination
-  const [maxPages, setMaxPages] = React.useState(10);
   const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(10);
   const [numberReturned, setNumberReturned] = React.useState(10);
-  const [limitVal, setLimitVal] = React.useState(10);  // Max Number of footprints requested per collection
 
   // const handleApply = () => {
   //   setTimeout(() => {
@@ -133,8 +126,8 @@ export default function SearchAndFilterInput(props) {
     setDateCheckVal(false);
     setDateFromVal(null);
     setDateToVal(null);
-    setLimitVal(10);
-    setMaxPages(1);
+    props.setCurrentStep(10);
+    //setMaxPages(1);
     setMaxNumberFootprints(0);
     setNumberReturned(0);
     //// Uncomment to close details on clear
@@ -146,10 +139,10 @@ export default function SearchAndFilterInput(props) {
     let myQueryString = "?";
 
     // Page Number
-    if (pageNumber != 1) myQueryString += "page=" + pageNumber + "&";
+    if (props.currentPage != 1) myQueryString += "page=" + props.currentPage + "&";
   
     // Number of footprints requested per request
-    if (limitVal != 10) myQueryString += "limit=" + limitVal + "&"
+    if (props.currentStep != 10) myQueryString += "limit=" + props.currentStep + "&"
     
     // Date
     if (dateCheckVal) {
@@ -249,33 +242,24 @@ export default function SearchAndFilterInput(props) {
 
   // limit
   const handleLimitChange = (event, value) => {
-    setLimitVal(value);
-    setLimit(value);
+    props.setCurrentStep(value.props.value);
   };
 
   // Pagination
   const handlePageChange = (event, value) => {
-    setPageNumber(value);
-    setCurrentPage(value);
+    props.setCurrentPage(value);
   };
 
   // resets pagination and limit when switching targets
   useEffect(() => {
-    setTimeout(() => {
-      setCurrentPage(1);
-      setPageNumber(1);
-      setMaxNumberFootprints(getNumberMatched);
-      setNumberReturned(getNumberReturned);
-      setLimitVal(10);
-      setLimit(10);
-      setMaxPages(getMaxNumberPages);
-    }, 2000);
+    props.setCurrentPage(1);
+    props.setCurrentStep(10);
   }, [props.target.name]);
 
   // Listen for any state change (input) and update the query string based on it
   useEffect(() => {
     buildQueryString();
-  }, [sortVal, sortAscCheckVal, areaCheckVal, areaTextVal, keywordCheckVal, keywordTextVal, dateCheckVal, dateFromVal, dateToVal, limitVal, pageNumber]);
+  }, [sortVal, sortAscCheckVal, areaCheckVal, areaTextVal, keywordCheckVal, keywordTextVal, dateCheckVal, dateFromVal, dateToVal, props.currentStep, props.currentPage]);
 
   const onBoxDraw = event => {
     console.info("Window meassage received from: ", event.origin);  // For production, check if messages coming from prod url
@@ -462,33 +446,41 @@ export default function SearchAndFilterInput(props) {
       </div>
       <div className="panelSectionHeader">
         <div className="panelItem">
-          <div className="panelSectionTitle">
-            Number of Displayed Footprints
-          </div>
-          <Slider
-            id="valueSlider"
-            size="small"
-            valueLabelDisplay="auto"
-            onChange={handleLimitChange}
-            value={limitVal}
-            max={100}
-            defaultValue={10}
-          />
+          <FormControl>
+            <Select
+              sx={css.thinSelect}
+              size="small"
+              value={props.currentStep}
+              onChange={handleLimitChange}
+              >
+              <MenuItem value={1}>1</MenuItem>
+              <MenuItem value={2}>2</MenuItem>
+              <MenuItem value={5}>5</MenuItem>
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={15}>15</MenuItem>
+              <MenuItem value={20}>20</MenuItem>
+              <MenuItem value={30}>30</MenuItem>
+              <MenuItem value={50}>50</MenuItem>
+              <MenuItem value={100}>100</MenuItem>
+            </Select>
+            {/* <FormHelperText>Footprints per Request</FormHelperText> */}
+          </FormControl>
+          <span style={{lineHeight: "28px"}}>
+            Footprints per Request
+          </span>
         </div>
       </div>
       <div className="panelSectionHeader">
         <div className="panelItem">
           <Pagination
             id="pagination"
-            count={maxPages}
+            page={props.currentPage}
+            count={Math.ceil(props.maxFootprintsMatched/props.currentStep)}
             size="small"
+            shape="rounded"
+            variant="outlined"
             onChange={handlePageChange}
           />
-        </div>
-      </div>
-      <div className="panelSectionHeader">
-        <div className="panelItem">
-          Displaying {numberReturned} of {maxNumberFootprints} Results
         </div>
       </div>
     </div>

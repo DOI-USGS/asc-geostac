@@ -35,6 +35,24 @@ const css = {
  * @component
  */
 export default function Sidebar(props) {
+  
+  // Page Tracking
+  const [currentStep, setCurrentStep] = React.useState(10);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [maxFootprintsMatched, setMaxFootprintsMatched] = React.useState(10);
+
+  // Layout
+  const [showSidePanel, setShowSidePanel] = React.useState(true);
+  const [expandResults, setExpandResults] = React.useState(true);
+ 
+  const showHideSort = () => {
+    setShowSidePanel(!showSidePanel);
+  };
+
+  const handlePanelLayout = (event) => {
+    setExpandResults((expandResults) => !expandResults);
+  };
+
   const footprintResultPortalNode = React.useMemo(
     () =>
       createHtmlPortalNode({
@@ -44,18 +62,6 @@ export default function Sidebar(props) {
       }),
     []
   );
-
-  const [showSidePanel, setShowSidePanel] = React.useState(true);
-
-  const [expandResults, setExpandResults] = React.useState(true);
-
-  const showHideSort = () => {
-    setShowSidePanel(!showSidePanel);
-  };
-
-  const handlePanelLayout = (event) => {
-    setExpandResults((expandResults) => !expandResults);
-  };
 
   return (
     <>
@@ -72,6 +78,11 @@ export default function Sidebar(props) {
           <SearchAndFilterInput
             target={props.target}
             setQueryString={props.setQueryString}
+            currentStep={currentStep}
+            setCurrentStep={setCurrentStep}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            maxFootprintsMatched={maxFootprintsMatched}
           />
           {!expandResults && <OutPortal node={footprintResultPortalNode} />}
         </div>
@@ -85,6 +96,9 @@ export default function Sidebar(props) {
           queryString={props.queryString} 
           changeLayout={handlePanelLayout} 
           setCollectionUrls={props.setCollectionUrls}
+          currentStep={currentStep}
+          currentPage={currentPage}
+          setMaxFootprintsMatched={setMaxFootprintsMatched}
         />
       </InPortal>
     </>

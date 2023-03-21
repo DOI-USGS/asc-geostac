@@ -167,8 +167,6 @@ export default L.Map.AstroMap = L.Map.extend({
         }
       }
 
-      console.info("geoLayers after", this._geoLayers);
-
       var collectionNames = {};
       for(const collection of featureCollections) {
         collectionNames[collection.id] = collection.title;

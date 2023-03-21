@@ -2,16 +2,7 @@ var _maxNumberPages = 0;
 var _currentPage = 1;
 var _numberMatched = 0;
 var _numberReturned = 0;
-var _features = [];
 var _limitVal = 10;
-
-/**
- * @function getFeatures
- * @description Gets the value of the max number of pages possible
- */
-export function getFeatures() {
-  return _features;
-}
 
 
 /**
@@ -75,14 +66,6 @@ export function getMaxNumberPages() {
  */
 export function setCurrentPage(page) {
   _currentPage = page;
-}
-
-/**
- * @function getCurrentPage
- * @description Gets the value of the current page
- */
-export function getCurrentPage() {
-  return _currentPage;
 }
 
 /**

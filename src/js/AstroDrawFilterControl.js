@@ -1,7 +1,6 @@
 import L from "leaflet";
 import "leaflet-draw";
 import Wkt from "wicket";
-import {getCurrentPage} from "./ApiJsonCollection";
 
 /**
  * @class AstroDrawFilterControl
