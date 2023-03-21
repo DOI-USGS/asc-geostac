@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import UsgsHeader from "../presentational/UsgsHeader.jsx";
 import UsgsFooter from "../presentational/UsgsFooter.jsx";
-import MenuBar from "../presentational/MenuBar.jsx";
+import Menubar from "../presentational/Menubar.jsx";
 import GeoStacApp from "./GeoStacApp.jsx";
 import SplashScreen from "../presentational/SplashScreen.jsx";
 
@@ -245,7 +245,7 @@ export default function App() {
   return (
     <>
       <UsgsHeader visible={showHeaderFooter}/>
-      <MenuBar
+      <Menubar
         showHeaderFooter={showHeaderFooter}
         handleOpenCloseHeader={handleOpenCloseHeader}
       />

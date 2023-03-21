@@ -12,7 +12,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
-export default function MenuBar(props) {
+export default function Menubar(props) {
   const [showAbout, setShowAbout] = React.useState(false);
 
   const handleOpenAbout = () => {
