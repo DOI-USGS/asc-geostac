@@ -2,8 +2,6 @@ import L from "leaflet";
 import "proj4leaflet";
 import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
-import { setNumberMatched,
-         setNumberReturned } from "./ApiJsonCollection";
 
 /**
  * @class AstroMap
@@ -181,9 +179,6 @@ export default L.Map.AstroMap = L.Map.extend({
         this._footprintControl = L.control
         .layers(null, this._footprintCollection, {collapsed: true})
         .addTo(this)
-
-        setNumberMatched(matched);
-        setNumberReturned(returned);
     }
   },
 
