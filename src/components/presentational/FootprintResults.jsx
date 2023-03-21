@@ -14,8 +14,6 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 
 // geotiff thumbnail viewer... Should we be using DisplayGeoTiff.jsx instead?
 import GeoTiffViewer from "../../js/geoTiffViewer.js";
-import { lineHeight } from "@mui/system";
-
 
 /**
  * Skeleton to show when footprints are loading
@@ -57,11 +55,29 @@ function NoFootprints(){
   return(
     <div style={{padding: 10, maxWidth: 268}}>
       <p>
-        This target has no footprints. To see 
+        This target has no footprints. To find 
         footprints, go to the dropdown menu 
         in the upper left and pick a target 
         body with the <TravelExploreIcon sx={{fontSize: 16, verticalAlign: "middle"}}/> icon next to it.
       </p>
+    </div>
+  );
+}
+
+function FilterTooStrict(){
+  return(
+    <div style={{padding: 10, maxWidth: 268}}>
+      <p>
+        No footprints match this filter.
+      </p>
+      <p>
+        To find more footprints: 
+      </p>
+      <ul>
+        <li>Uncheck current filters</li>
+        <li>Draw a larger search area</li>
+        <li>Enter a wider date range to filter by</li>
+      </ul>
     </div>
   );
 }
@@ -289,6 +305,11 @@ export default function FootprintResults(props) {
 
   }, [props.target.name, props.queryString]);
 
+  let noFootprintsReturned = true;
+  for(const collection of featureCollections){
+    if(collection.numberReturned > 0) noFootprintsReturned = false;
+  }
+
   return (
     <div style={css.root} className="scroll-parent">
       <div className="resultHeader">
@@ -309,6 +330,8 @@ export default function FootprintResults(props) {
       </div>
       {isLoading ? 
         <LoadingFootprints/>
+      : noFootprintsReturned ?
+        <FilterTooStrict/>
       : hasFootprints ?   
         <div className="resultsList">
           <List sx={{maxWidth: 265, paddingTop: 0}}>

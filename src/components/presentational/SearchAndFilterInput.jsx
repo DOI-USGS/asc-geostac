@@ -262,7 +262,6 @@ export default function SearchAndFilterInput(props) {
   }, [sortVal, sortAscCheckVal, areaCheckVal, areaTextVal, keywordCheckVal, keywordTextVal, dateCheckVal, dateFromVal, dateToVal, props.currentStep, props.currentPage]);
 
   const onBoxDraw = event => {
-    console.info("Window meassage received from: ", event.origin);  // For production, check if messages coming from prod url
     if(typeof event.data == "object" && event.data[0] === "setWkt"){
       const receivedWkt = event.data[1];
       setAreaTextVal(receivedWkt);

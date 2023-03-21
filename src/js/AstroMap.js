@@ -94,13 +94,6 @@ export default L.Map.AstroMap = L.Map.extend({
     L.setOptions(this, options);
     L.Map.prototype.initialize.call(this, this._mapDiv, this.options);
     this.loadLayerCollection("cylindrical");
-    
-    // Remove this once loading from react works?
-    // setCurrentPage(1);
-    // this.loadFootprintLayer(target, "?page=1");
-
-    // Listener for list of features sent from React
-    // L.DomEvent.on(window, "message", this.loadFeatureCollections, this);
 
     // Listen to baselayerchange event so that we can set the current layer being
     // viewed by the map.
@@ -152,33 +145,38 @@ export default L.Map.AstroMap = L.Map.extend({
     } 
 
     if (featureCollections != undefined) {
-      let matched = 0;
-      let returned = 0;
+      
+        // Init _geoLayers, at the length of one layer per collection
       this._geoLayers = new Array(featureCollections.length);
+
+        // For each Collection (and each geoLayer)
       for (let i = 0; i < featureCollections.length; i++) {
+
+            // Add the click handler for each Layer
         this._geoLayers[i] = L.geoJSON().on({click: handleClick}).addTo(this);
-        matched += featureCollections[i].numberMatched;
-        returned += featureCollections[i].context["returned"];
-        for (let j = 0; j < featureCollections[i].features.length; j++) {
-          this._footprintCollection[featureCollections[i].features[j].collection] = this._geoLayers[i];
-          this._geoLayers[i].addData(featureCollections[i].features[j]);
+
+            // Add each _geoLayer that has footprints to the FootprintCollection object.
+            // The collection title is used as the property name, and it
+            // shows up as the layer title when added to the Leaflet control
+        if(featureCollections[i].numberReturned > 0) {
+          this._footprintCollection[featureCollections[i].title] = this._geoLayers[i];
+        }
+            // Delete layers with no Footprints
+        else {
+          delete this._footprintCollection[featureCollections[i].title];
+        }
+
+            // Add each feature to _geoLayers.
+            // _geoLayers is the footprint outlines shown on the map
+        for(const feature of featureCollections[i].features) {
+          this._geoLayers[i].addData(feature);
         }
       }
-
-      var collectionNames = {};
-      for(const collection of featureCollections) {
-        collectionNames[collection.id] = collection.title;
-      }
-
-      for (var key in this._footprintCollection){
-          let title = collectionNames[key];
-          this._footprintCollection[title]= this._footprintCollection[key];
-          delete this._footprintCollection[key];
-        }
-        
-        this._footprintControl = L.control
-        .layers(null, this._footprintCollection, {collapsed: true})
-        .addTo(this)
+      
+      this._footprintControl = L.control                          // 1. Make a leaflet control
+      .layers(null, this._footprintCollection, {collapsed: true}) // 2. Add the footprint collections to the control as layers
+      .addTo(this)                                                // 3. Add the control to leaflet.
+                                                                  // Now the user show/hide layers (and see their titles)
     }
   },
 
