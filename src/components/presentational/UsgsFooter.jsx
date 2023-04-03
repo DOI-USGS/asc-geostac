@@ -1,4 +1,5 @@
 import React from "react";
+import { Collapse } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSquareTwitter,
@@ -136,37 +137,13 @@ const socialLinks = [
  */
 export default function UsgsFooter(props) {
   return (
-    <footer style={css.footer}>
-      <div style={css.tmpContainer}>
-        <div>
-          <ul style={css.ulMenuNav}>
-            {usgsLinks.map((link, index, array) => (
-              <li style={index === 0 ? css.firstLeaf : css.leaf} key={link[0]}>
-                <a style={css.footerLink} href={link[0]}>
-                  {link[1]}
-                </a>
-                <span
-                  style={
-                    index === array.length - 1 ? css.noSpacer : css.linkSpacer
-                  }
-                >
-                  |
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <hr style={css.dividerLine} />
-
-        <div style={css.footerBottomRow}>
-          <div style={css.footerDoi}>
+    <Collapse in={props.visible} sx={{flexShrink: 0}}>
+      <footer style={css.footer}>
+        <div style={css.tmpContainer}>
+          <div>
             <ul style={css.ulMenuNav}>
-              {doiLinks.map((link, index, array) => (
-                <li
-                  style={index === 0 ? css.firstLeaf : css.leaf}
-                  key={link[0]}
-                >
+              {usgsLinks.map((link, index, array) => (
+                <li style={index === 0 ? css.firstLeaf : css.leaf} key={link[0]}>
                   <a style={css.footerLink} href={link[0]}>
                     {link[1]}
                   </a>
@@ -182,23 +159,49 @@ export default function UsgsFooter(props) {
             </ul>
           </div>
 
-          <div style={css.footerSocial}>
-            <ul style={css.ulMenuNav}>
-              <li style={css.follow}>Follow</li>
-              {socialLinks.map((link, index, array) => (
-                <li style={css.socialLeaf} key={link[0]}>
-                  <a href={link[0]} target="_blank">
-                    <FontAwesomeIcon style={css.socialIcon} icon={link[2]} />
-                    <i>
-                      <span style={css.only}>{link[1]}</span>
-                    </i>
-                  </a>
-                </li>
-              ))}
-            </ul>
+          <hr style={css.dividerLine} />
+
+          <div style={css.footerBottomRow}>
+            <div style={css.footerDoi}>
+              <ul style={css.ulMenuNav}>
+                {doiLinks.map((link, index, array) => (
+                  <li
+                    style={index === 0 ? css.firstLeaf : css.leaf}
+                    key={link[0]}
+                  >
+                    <a style={css.footerLink} href={link[0]}>
+                      {link[1]}
+                    </a>
+                    <span
+                      style={
+                        index === array.length - 1 ? css.noSpacer : css.linkSpacer
+                      }
+                    >
+                      |
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={css.footerSocial}>
+              <ul style={css.ulMenuNav}>
+                <li style={css.follow}>Follow</li>
+                {socialLinks.map((link, index, array) => (
+                  <li style={css.socialLeaf} key={link[0]}>
+                    <a href={link[0]} target="_blank">
+                      <FontAwesomeIcon style={css.socialIcon} icon={link[2]} />
+                      <i>
+                        <span style={css.only}>{link[1]}</span>
+                      </i>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
-    </footer>
+      </footer>
+    </Collapse>
   );
 }

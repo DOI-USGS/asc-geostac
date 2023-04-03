@@ -12,7 +12,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
-export default function MenuBar(props) {
+export default function Menubar(props) {
   const [showAbout, setShowAbout] = React.useState(false);
 
   const handleOpenAbout = () => {
@@ -47,8 +47,8 @@ export default function MenuBar(props) {
           <span className="menu-item-text">Help</span>
         </div>
       </a>
-      <div className="menu-item" onClick={props.handleAppViewChange}>
-        {props.appFullWindow ? (
+      <div className="menu-item" onClick={props.handleOpenCloseHeader}>
+        {props.showHeaderFooter ? (
           <>
             <OpenInFullIcon fontSize="small" />
             <span className="menu-item-text">Expand</span>

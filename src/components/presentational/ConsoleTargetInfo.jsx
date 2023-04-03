@@ -22,13 +22,8 @@ import PublicIcon from "@mui/icons-material/Public"; // Planets
 import DarkModeIcon from "@mui/icons-material/DarkMode"; // Moons
 import CookieIcon from '@mui/icons-material/Cookie'; // Asteroids
 import TravelExploreIcon from '@mui/icons-material/TravelExplore'; // Footprints.
-// import PetsIcon from '@mui/icons-material/Pets';                 // Other
-// import SatelliteAltIcon from '@mui/icons-material/SatelliteAlt'; // possible
-// import ViewTimelineIcon from '@mui/icons-material/ViewTimeline'; // footprint
-// import WhereToVoteIcon from '@mui/icons-material/WhereToVote';   // icons.
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { textTransform } from "@mui/system";
 
 /**
  * Controls css styling for this component using js to css
@@ -52,44 +47,6 @@ let css = {
     },
   },
 };
-
-
-// Delete if new data loading works
-// Unless we add images here
-// Why is Puck/Titania not on this list?
-
-const planets = [
-  ["Mercury"],
-  ["Venus"],
-  ["Earth"],
-  ["Mars"],
-  ["Jupiter"],
-  ["Saturn"],
-  ["Uranus"],
-  ["Neptune"],
-  ["Pluto"],
-];
-const moons = [
-  "Moon",
-  "Ceres",
-  "Mimas",
-  "Titan",
-  "Deimos",
-  "Tethys",
-  "Phoebe",
-  "Iapetus",
-  "Dione",
-  "Enceladus",
-  "Hyperion",
-  "Io",
-  "Callisto",
-  "Europa",
-  "Ganymede",
-  "Rhea",
-  "Phobos",
-  "Vesta",
-  "Charon",
-];
 
 /**
  * Dialog for selecting planets

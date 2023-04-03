@@ -2,24 +2,8 @@ import React from "react";
 import ConsoleAppBar from "../presentational/ConsoleAppBar.jsx";
 import MapContainer from "./MapContainer.jsx";
 import QueryConsole from "../presentational/QueryConsole.jsx";
-import { getFeatures } from "../../js/ApiJsonCollection";
 import DisplayGeoTiff from "../presentational/DisplayGeoTiff.jsx";
 import Sidebar from "../presentational/Sidebar.jsx";
-import MenuBar from "../presentational/Menubar.jsx";
-
-/**
- * Controls css styling for this component using js to css
- */
-let css = {
-  appFlex: {
-    position: "relative",
-  },
-  appFull: {
-    position: "fixed",
-    height: "100%",
-    width: "100%",
-  },
-};
 
 /**
  * GeoStacApp is the parent component for all of the other components of the main app.
@@ -31,15 +15,8 @@ let css = {
 export default function GeoStacApp(props) {
   const [targetPlanet, setTargetPlanet] = React.useState(props.mapList.systems[4].bodies[0]);
 
-  const [footprintData, setFootprintData] = React.useState([]);
-
-  const [appFullWindow, setAppFullWindow] = React.useState(true);
-  const [appViewStyle, setAppViewStyle] = React.useState(css.appFlex);
-
-  const handleAppViewChange = () => {
-    setAppFullWindow(!appFullWindow);
-    setAppViewStyle(appFullWindow ? css.appFull : css.appFlex);
-  };
+  const [queryString, setQueryString] = React.useState("?");
+  const [collectionUrls, setCollectionUrls] = React.useState([]);
 
   /**
    * Handles target body selection
@@ -49,17 +26,8 @@ export default function GeoStacApp(props) {
     setTargetPlanet(value);
   };
 
-  const handleFootprintClick = () => {
-    setFootprintData(getFeatures);
-    //console.log(footprintData);
-  };
-
   return (
-    <div style={appViewStyle} className="flex col scroll-parent">
-      <MenuBar
-        handleAppViewChange={handleAppViewChange}
-        appFullWindow={appFullWindow}
-      />
+    <div className="flex col scroll-parent">
       <div className="flex row scroll-parent">
         <div className="flex col">
           <ConsoleAppBar
@@ -68,13 +36,18 @@ export default function GeoStacApp(props) {
             bodyChange={handleTargetBodyChange}
           />
           <div id="map-area">
-            <MapContainer target={targetPlanet.name} />
+            <MapContainer target={targetPlanet.name} astroWebMaps={props.astroWebMaps}/>
           </div>
-          <QueryConsole />
+          <QueryConsole
+            queryString={queryString}
+            setQueryString={setQueryString}
+            collectionUrls={collectionUrls}/>
         </div>
         <Sidebar
+          queryString={queryString}
+          setQueryString={setQueryString}
+          setCollectionUrls={setCollectionUrls}
           target={targetPlanet}
-          footprintNavClick={handleFootprintClick}
         />
       </div>
       <DisplayGeoTiff />

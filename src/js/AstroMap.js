@@ -2,16 +2,6 @@ import L from "leaflet";
 import "proj4leaflet";
 import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
-import { getItemCollection,
-         callAPI,
-         setNumberMatched,
-         setMaxNumberPages,
-         getCurrentPage,
-         setCurrentPage,
-         setFeatures,
-         setNumberReturned } from "./ApiJsonCollection";
-import { MY_JSON_MAPS } from "./layers";
-
 
 /**
  * @class AstroMap
@@ -31,6 +21,8 @@ import { MY_JSON_MAPS } from "./layers";
  * @param {String} mapDiv - ID of the div for the map.
  *
  * @param {String} target - Name of target to display layers for.
+ * 
+ * @param {Object} myJsonMaps - Json fetched from AstroWebMaps
  *
  * @param {Object} options - Options for the map.
  */
@@ -43,9 +35,10 @@ export default L.Map.AstroMap = L.Map.extend({
     zoomControl: false
   },
 
-  initialize: function(mapDiv, target, options) {
+  initialize: function(mapDiv, target, jsonMaps, options) {
     this._mapDiv = mapDiv;
     this._target = target;
+    this._jsonMaps = jsonMaps;
     this._astroProj = new AstroProj();
     this._radii = {
       a: "",
@@ -101,10 +94,6 @@ export default L.Map.AstroMap = L.Map.extend({
     L.setOptions(this, options);
     L.Map.prototype.initialize.call(this, this._mapDiv, this.options);
     this.loadLayerCollection("cylindrical");
-    
-
-    setCurrentPage(1);
-    this.loadFootprintLayer(target, "?page=1");
 
     // Listen to baselayerchange event so that we can set the current layer being
     // viewed by the map.
@@ -131,61 +120,16 @@ export default L.Map.AstroMap = L.Map.extend({
     this.layers[name].addTo(this);
   },
 
-
   /**
-   * @function AstroMap.prototype.loadFootprintLayer
-   * @description Adds the ApiJsonCollection with the requested name.
+   * @function AstroMap.prototype.loadFeatureCollection
+   * @description Adds Feature Collections to map.
    *
-   * @param {String} name - Name of the target
-   *
-   * @param {String} queryString - Filter for deisered footprints ie: ?page=1
+   * @param {object} featureCollections - Feature Collections
    *
    */
-  loadFootprintLayer: function(name, queryString) {
-    var matched = 0;
-    var returned = 0;
-    const features = [];
-    
-    getItemCollection(name, queryString).then(result => {
-      if (result != undefined) {
-        this._geoLayers = new Array(result.length);
-        for (let i = 0; i < result.length; i++) {
-          this._geoLayers[i] = L.geoJSON().on({click: handleClick}).addTo(this);
-          matched += result[i].numberMatched;
-          returned += result[i].context["returned"];
-          features.push(...result[i].features);
-          for (let j = 0; j < result[i].features.length; j++) {
-            this._footprintCollection[result[i].features[j].collection] = this._geoLayers[i];
-            this._geoLayers[i].addData(result[i].features[j]);
-          }
-        }
-        var collectionNames ={};
-        callAPI().then(response =>{
-          for (let i = 0; i < response.collections.length; i++) {
-            if (response.collections[i].hasOwnProperty("summaries")){
-              if (
-                response.collections[i].summaries["ssys:targets"][0].toLowerCase() == name.toLowerCase()
-              ) {
-                collectionNames[response.collections[i].id] = response.collections[i].title;
-              }
-            }
-          }
-         for (var key in this._footprintCollection){
-           let title = collectionNames[key];
-           this._footprintCollection[title]= this._footprintCollection[key];
-           delete this._footprintCollection[key];
-         }
+  loadFeatureCollections: function(featureCollections) {
 
-         this._footprintControl = L.control
-         .layers(null, this._footprintCollection, {collapsed: false})
-         .addTo(this)
-        });
-      }
-      setNumberMatched(matched);
-      setNumberReturned(returned);
-      setFeatures(features);
-    });
-
+    // show thumbnail on map when clicked - use stac-layer for this?
     function handleClick(e) {
       const url_to_stac_item = e.layer.feature.links[0].href;
       console.log (url_to_stac_item);
@@ -198,6 +142,41 @@ export default L.Map.AstroMap = L.Map.extend({
         thumbnail.addTo(this);
       });
       */
+    } 
+
+    if (featureCollections != undefined) {
+      
+        // Init _geoLayers, at the length of one layer per collection
+      this._geoLayers = new Array(featureCollections.length);
+
+        // For each Collection (and each geoLayer)
+      for (let i = 0; i < featureCollections.length; i++) {
+
+            // Add the click handler for each Layer
+        this._geoLayers[i] = L.geoJSON().on({click: handleClick}).addTo(this);
+
+            // Add each _geoLayer that has footprints to the FootprintCollection object.
+            // The collection title is used as the property name, and it
+            // shows up as the layer title when added to the Leaflet control
+        if(featureCollections[i].numberReturned > 0) {
+          this._footprintCollection[featureCollections[i].title] = this._geoLayers[i];
+        }
+            // Delete layers with no Footprints
+        else {
+          delete this._footprintCollection[featureCollections[i].title];
+        }
+
+            // Add each feature to _geoLayers.
+            // _geoLayers is the footprint outlines shown on the map
+        for(const feature of featureCollections[i].features) {
+          this._geoLayers[i].addData(feature);
+        }
+      }
+      
+      this._footprintControl = L.control                          // 1. Make a leaflet control
+      .layers(null, this._footprintCollection, {collapsed: true}) // 2. Add the footprint collections to the control as layers
+      .addTo(this)                                                // 3. Add the control to leaflet.
+                                                                  // Now the user show/hide layers (and see their titles)
     }
   },
 
@@ -216,7 +195,7 @@ export default L.Map.AstroMap = L.Map.extend({
       wfs: []
     };
 
-    let targets = MY_JSON_MAPS["targets"];
+    let targets = this._jsonMaps["targets"];
     for (let i = 0; i < targets.length; i++) {
       let currentTarget = targets[i];
 

@@ -181,6 +181,7 @@ a:link {
   display: flex;
   justify-content: space-between;
   align-content: baseline;
+  cursor: pointer;
 }
 
 #query-console-title {
@@ -289,6 +290,17 @@ Controls the CSS for projection buttons when there is no available projection
 .panelSortAscCheck {
   float: right;
   margin-right: -10px;
+}
+
+.collectionStatExpander {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.flatExpander {
+  margin-top: -4px;
+  margin-bottom: -10px;
 }
 
 .resultHeader {

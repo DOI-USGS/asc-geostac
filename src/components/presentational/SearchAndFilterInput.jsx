@@ -22,19 +22,9 @@ import FormControl from "@mui/material/FormControl";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 // No. of Footprints, pagination
-import Slider from "@mui/material/Slider";
 import Pagination from "@mui/material/Pagination";
-import Chip from "@mui/material/Chip";
-import FlagIcon from "@mui/icons-material/Flag";
 
-import {
-  getMaxNumberPages,
-  setCurrentPage,
-  getCurrentPage,
-  getNumberMatched,
-  setLimit,
-  getNumberReturned,
-} from "../../js/ApiJsonCollection";
+import { FormHelperText } from "@mui/material";
 
 /**
  * Controls css styling for this component using js to css
@@ -77,13 +67,12 @@ let css = {
     fontSize: 18,
     fontWeight: 600,
   },
-  chipHidden: {
-    visibility: "hidden",
-  },
-  chipShown: {
-    visibility: "visible",
-    textAlign: "center",
-  },
+  thinSelect: {
+    marginRight: "12px",
+    "& .MuiInputBase-input": {
+      padding: "2px 32px 2px 8px",
+    }
+  }
 };
 
 /**
@@ -115,33 +104,17 @@ export default function SearchAndFilterInput(props) {
   const [dateFromVal, setDateFromVal] = React.useState(null);     // From Date
   const [dateToVal, setDateToVal] = React.useState(null);         // To Date
 
-  // Page Number
-  const [pageNumber, setPageNumber] = React.useState(1);
-
   // Pagination
-  const [maxPages, setMaxPages] = React.useState(10);
   const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(10);
   const [numberReturned, setNumberReturned] = React.useState(10);
-  const [limitVal, setLimitVal] = React.useState(10);  // Max Number of footprints requested per collection
-  
-  // Apply/Alert Chip
-  const [applyChipVisStyle, setApplyChipVisStyle] = React.useState(css.chipHidden);
-  const [chipMessage, setChipMessage] = React.useState("Apply to Show Footprints on Map");
 
-  const setApplyChip = (value) => {
-    setChipMessage("Apply to Show Footprints on Map");
-    setApplyChipVisStyle(css.chipShown);
-  };
-
-  const handleApply = () => {
-    setTimeout(() => {
-      setMaxPages(getMaxNumberPages);
-      setNumberReturned(getNumberReturned);
-      setMaxNumberFootprints(getNumberMatched);
-      props.footprintNavClick();
-    }, 3000);
-    setApplyChipVisStyle(css.chipHidden);
-  };
+  // const handleApply = () => {
+  //   setTimeout(() => {
+  //     setMaxPages(getMaxNumberPages);
+  //     setNumberReturned(getNumberReturned);
+  //     setMaxNumberFootprints(getNumberMatched);
+  //   }, 3000);
+  // };
 
   // Clear all values
   const handleClear = () => {
@@ -153,11 +126,10 @@ export default function SearchAndFilterInput(props) {
     setDateCheckVal(false);
     setDateFromVal(null);
     setDateToVal(null);
-    setLimitVal(10);
-    setMaxPages(1);
+    props.setCurrentStep(10);
+    //setMaxPages(1);
     setMaxNumberFootprints(0);
     setNumberReturned(0);
-    setApplyChip("Apply to Show Footprints on Map");
     //// Uncomment to close details on clear
     // keywordDetails.current.open = false;
     // dateDetails.current.open = false;
@@ -167,24 +139,40 @@ export default function SearchAndFilterInput(props) {
     let myQueryString = "?";
 
     // Page Number
-    if (pageNumber != 1) myQueryString += "page=" + pageNumber + "&";
+    if (props.currentPage != 1) myQueryString += "page=" + props.currentPage + "&";
   
     // Number of footprints requested per request
-    if (limitVal != 10) myQueryString += "limit=" + limitVal + "&"
+    if (props.currentStep != 10) myQueryString += "limit=" + props.currentStep + "&"
     
     // Date
     if (dateCheckVal) {
+      
       let d = new Date();
-      let fromDate = "1970-01-01T00:00:00Z";             // From start of 1970 by default
-      let toDate = d.getFullYear() + "-12-31T23:59:59Z"; // To end of current year by default
+      const lowestYear = 1970;
+      const highestYear = d.getFullYear();
+      let fromDate = lowestYear + "-01-01T00:00:00Z";
+      let toDate = highestYear + "-12-31T23:59:59Z";
+
+      const isGoodDate = (dateToCheck) => {
+        if(dateToCheck) {
+          const isValid = !isNaN(dateToCheck.valueOf());
+          const isDate = dateToCheck instanceof Date;
+          let yearToCheck = 0;
+          if (isDate & isValid){
+            yearToCheck = dateToCheck.getFullYear();
+            return lowestYear < yearToCheck && yearToCheck < highestYear;
+          }
+        }
+        return false
+      }
 
       // From
-      if(dateFromVal instanceof Date && !isNaN(dateFromVal.valueOf())) {
+      if(isGoodDate(dateFromVal)) {
         fromDate = dateFromVal.toISOString();
       }
 
       // To
-      if(dateToVal instanceof Date && !isNaN(dateToVal.valueOf())) {
+      if(isGoodDate(dateToVal)) {
         toDate = dateToVal.toISOString();
       }
 
@@ -194,15 +182,15 @@ export default function SearchAndFilterInput(props) {
     // Keyword
     if(keywordCheckVal) myQueryString += "keywords=[" + keywordTextVal.split(" ") + "]&";
 
-    // Area
-    if(areaCheckVal && areaTextVal !== "") myQueryString += areaTextVal;
-
     // Sorting... Not supported by the API?
     const sortAscDesc = sortAscCheckVal ? "asc" : "desc";
     if (sortVal === "date" || sortVal === "location") {
       console.log("Warning: Sorting not Supported!");
       // myQueryString += 'sort=[{field:datetime,direction:' + sortAscDesc + '}]&'
     }
+
+    // Area
+    if(areaCheckVal && areaTextVal !== "") myQueryString += areaTextVal; // Add an & if not last
 
     props.setQueryString(myQueryString);
   }
@@ -218,16 +206,12 @@ export default function SearchAndFilterInput(props) {
   // Polygon
   const handleAreaCheckChange = (event) => {
     setAreaCheckVal(event.target.checked);
-    if (event.target.checked === true) {
-      setApplyChip("Apply to filter footprints");
-    }
   };
 
   // Keyword
   const handleKeywordCheckChange = (event) => {
     setKeywordCheckVal(event.target.checked);
     if (event.target.checked === true) {
-      setApplyChip("Apply to filter footprints");
       if (keywordDetails.current.open === false) {
         keywordDetails.current.open = true;
       }
@@ -242,7 +226,6 @@ export default function SearchAndFilterInput(props) {
   const handleDateCheckChange = (event) => {
     setDateCheckVal(event.target.checked);
     if (event.target.checked === true) {
-      setApplyChip("Apply to filter footprints");
       if (dateDetails.current.open === false) {
         dateDetails.current.open = true;
       }
@@ -259,40 +242,29 @@ export default function SearchAndFilterInput(props) {
 
   // limit
   const handleLimitChange = (event, value) => {
-    setLimitVal(value);
-    setLimit(value);
-    setApplyChip("Apply to show " + value + " footprints");
+    props.setCurrentStep(value.props.value);
   };
 
   // Pagination
   const handlePageChange = (event, value) => {
-    setPageNumber(value);
-    setCurrentPage(value);
-    setApplyChip("Apply to go to page " + value);
+    props.setCurrentPage(value);
   };
 
   // resets pagination and limit when switching targets
   useEffect(() => {
-    setTimeout(() => {
-      setCurrentPage(1);
-      setPageNumber(1);
-      setMaxNumberFootprints(getNumberMatched);
-      setNumberReturned(getNumberReturned);
-      setLimitVal(10);
-      setLimit(10);
-      setMaxPages(getMaxNumberPages);
-      props.footprintNavClick();
-    }, 2000);
+    props.setCurrentPage(1);
+    props.setCurrentStep(10);
   }, [props.target.name]);
 
   // Listen for any state change (input) and update the query string based on it
   useEffect(() => {
     buildQueryString();
-  }, [sortVal, sortAscCheckVal, areaCheckVal, areaTextVal, keywordCheckVal, keywordTextVal, dateCheckVal, dateFromVal, dateToVal, limitVal, pageNumber]);
+  }, [sortVal, sortAscCheckVal, areaCheckVal, areaTextVal, keywordCheckVal, keywordTextVal, dateCheckVal, dateFromVal, dateToVal, props.currentStep, props.currentPage]);
 
   const onBoxDraw = event => {
-    if(typeof event.data == "string" && event.data.includes("bbox")){
-      setAreaTextVal(event.data);
+    if(typeof event.data == "object" && event.data[0] === "setWkt"){
+      const receivedWkt = event.data[1];
+      setAreaTextVal(receivedWkt);
       setAreaCheckVal(true);
     }
   }
@@ -320,8 +292,8 @@ export default function SearchAndFilterInput(props) {
 
   return (
     <div style={css.container}>
-      <div className="panelSection panelHeader">Sort and Filter</div>
-      <div className="panelSection">
+      <div className="panelSection panelHeader">Filter Results</div>
+      {/* <div className="panelSection">
         <ButtonGroup>
           <Button
             id="applyButton"
@@ -381,7 +353,7 @@ export default function SearchAndFilterInput(props) {
         </div>
       </div>
 
-      <div className="panelSection panelHeader">Filter By...</div>
+      <div className="panelSection panelHeader">Filter By...</div> */}
 
       <div className="panelSection">
         <div className="panelSectionHeader">
@@ -396,7 +368,7 @@ export default function SearchAndFilterInput(props) {
         </div>
       </div>
 
-      <div className="panelSection">
+      {/* <div className="panelSection">
         <details ref={keywordDetails}>
           <summary>
             <div className="panelSectionHeader">
@@ -427,7 +399,7 @@ export default function SearchAndFilterInput(props) {
             />
           </div>
         </details>
-      </div>
+      </div> */}
 
       <div className="panelSection">
         <details ref={dateDetails}>
@@ -473,44 +445,42 @@ export default function SearchAndFilterInput(props) {
       </div>
       <div className="panelSectionHeader">
         <div className="panelItem">
-          <div className="panelSectionTitle">
-            Number of Displayed Footprints
-          </div>
-          <Slider
-            id="valueSlider"
-            size="small"
-            valueLabelDisplay="auto"
-            onChange={handleLimitChange}
-            value={limitVal}
-            max={100}
-            defaultValue={10}
-          />
+          <FormControl>
+            <Select
+              sx={css.thinSelect}
+              size="small"
+              value={props.currentStep}
+              onChange={handleLimitChange}
+              >
+              <MenuItem value={1}>1</MenuItem>
+              <MenuItem value={2}>2</MenuItem>
+              <MenuItem value={5}>5</MenuItem>
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={15}>15</MenuItem>
+              <MenuItem value={20}>20</MenuItem>
+              <MenuItem value={30}>30</MenuItem>
+              <MenuItem value={50}>50</MenuItem>
+              <MenuItem value={100}>100</MenuItem>
+            </Select>
+            {/* <FormHelperText>Footprints per Request</FormHelperText> */}
+          </FormControl>
+          <span style={{lineHeight: "28px"}}>
+            Footprints per Request
+          </span>
         </div>
       </div>
       <div className="panelSectionHeader">
         <div className="panelItem">
           <Pagination
             id="pagination"
-            count={maxPages}
+            page={props.currentPage}
+            count={Math.ceil(props.maxFootprintsMatched/props.currentStep)}
             size="small"
+            shape="rounded"
+            variant="outlined"
             onChange={handlePageChange}
           />
         </div>
-      </div>
-      <div className="panelSectionHeader">
-        <div className="panelItem">
-          Displaying {numberReturned} of {maxNumberFootprints} Results
-        </div>
-      </div>
-      <div style={applyChipVisStyle}>
-        <Chip
-          id="applyChip"
-          label={chipMessage}
-          icon={<FlagIcon />}
-          onClick={handleApply}
-          variant="outlined"
-          clickable
-        />
       </div>
     </div>
   );
