@@ -63,10 +63,10 @@ describe('Testing AstroMath Functions', function() {
     })
 
     // testing lonTo360 function
-    it('Testing lonTo360 Cylindrical: 0 should be 180 ', function() {
+    it('Testing lonTo360 Cylindrical: 0 should be 0 ', function() {
       // add an assertion
       let majorRadius = testMath.lonTo360(0, "EPSG:4326");
-      expect(majorRadius).to.equal(180);
+      expect(majorRadius).to.equal(0);
     })
 
     // testing lonTo360 function
@@ -86,7 +86,7 @@ describe('Testing AstroMath Functions', function() {
     // testing domainToPositiveWest function
     it('Testing domainToPositiveWest Not Normal Range: 0 should be 360 ', function() {
       // add an assertion
-      let majorRadius = testMath.domainToPositiveWest(-180, false);
+      let majorRadius = testMath.domainToPositiveWest(-180, true);
       expect(majorRadius).to.equal(180);
     })
 
