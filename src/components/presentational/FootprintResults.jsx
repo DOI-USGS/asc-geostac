@@ -9,9 +9,6 @@ import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import TravelExploreIcon from '@mui/icons-material/TravelExplore'; // Footprints
 
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-
 // geotiff thumbnail viewer... Should we be using DisplayGeoTiff.jsx instead?
 import GeoTiffViewer from "../../js/geoTiffViewer.js";
 
@@ -148,30 +145,6 @@ function FootprintCard(props){
     </Card>
   );
 }
-
-
-/**
- * Controls css styling for this component using js to css
- */
-let css = {
-  root: {
-    backgroundColor: "#f8f9fa",
-    overflow: "hidden",
-    display: "flex",
-    alignItems: "flex-start",
-    flexDirection: "column",
-    padding: 0,
-    borderLeft: "2px solid lightgray",
-  },
-  multilineSelect: {
-    fontSize: "12px",
-    lineHeight: "15px",
-    fontWeight: "bold",
-    "& .MuiInputBase-input": {
-      whiteSpace: "unset"
-    }
-  }
-};
 
 /**
  * Component that lets user view list of current footprints
@@ -348,10 +321,10 @@ export default function FootprintResults(props) {
   }
 
   return (
-    <div style={css.root} className="scroll-parent">
-      <div className="resultHeader">
+    <div id="footprintResults" className="scroll-parent">
+      <div id="resultHeader" className="resultPane">
         <span id="panelSectionTitle">Footprint Results</span>
-        <span className="resultHeaderCheck">
+        <span id="resultHeaderCheck">
           <Checkbox
             onChange={props.changeLayout}
             icon={<CloseFullscreenIcon />}
@@ -372,34 +345,53 @@ export default function FootprintResults(props) {
         <FilterTooStrict/>
       : hasFootprints ? 
         <React.Fragment>
-          <div className="resultHeader">
-            <FormControl>
-              <Select
-                sx={css.multilineSelect}
-                size="small"
-                defaultValue={currentCollection ?? ""}
-                onChange={handleCollectionChange}
-                >
-                {props.target.collections.map(collection => (
-                  <MenuItem key={collection.id} value={collection.id}>{collection.title}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <div id="collectionSelectPane" className="resultPane">
+            <Select
+              className="multilineSelect"
+              size="small"
+              defaultValue={currentCollection ?? ""}
+              onChange={handleCollectionChange}
+              >
+              {props.target.collections.map(collection => (
+                <MenuItem key={collection.id} value={collection.id}>{collection.title}</MenuItem>
+              ))}
+            </Select>
           </div>
-          <div>
-            <span style={{margin:10}}>
-              {getCurrentCollection().features.length} of {getCurrentCollection().numberMatched} Footprints Loaded.
-            </span>
+          <div id="xLoadedPane" className="resultPane">
+            {getCurrentCollection().features.length} of {getCurrentCollection().numberMatched} footprints loaded.
           </div>
-          <div className="resultsList">
+          <div id="resultsList">
             <List sx={{maxWidth: 265, paddingTop: 0}}>
               {getCurrentCollection().features.map(feature => (
                 <FootprintCard feature={feature} key={feature.id}/>
               ))}
             </List>
           </div>
-          <div className="resultHeader">
-            <Button variant="outlined">Load {props.currentStep} More</Button>
+          <div id="resultLoader" className="resultPane">
+            <div id="loadMore">
+              <Button variant="outlined" size="small" id="loadMoreButton">Load More</Button>
+            </div>
+            <div id="xPerRequest">
+              <div>
+                <Select
+                  id="xPerRequestSelect"
+                  className="thinSelect"
+                  size="small"
+                  value={props.currentStep}
+                  // onChange={handleLimitChange}
+                  >
+                  <MenuItem value={5}>5</MenuItem>
+                  <MenuItem value={10}>10</MenuItem>
+                  <MenuItem value={50}>50</MenuItem>
+                  <MenuItem value={100}>100</MenuItem>
+                </Select>
+              </div>
+              <div>
+                <label style={{marginRight: "5px"}} htmlFor="xPerRequestSelect">
+                  per <br/> request
+                </label>
+              </div>
+            </div>
           </div>
         </React.Fragment>
       :

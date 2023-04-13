@@ -303,26 +303,64 @@ Controls the CSS for projection buttons when there is no available projection
   margin-bottom: -10px;
 }
 
-.resultHeader {
+/*
+ * Results Panel
+ */
+
+#footprintResults {
+  background-color: #f8f9fa;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 0;
+  border-left: 2px solid lightgray;
+}
+
+.resultPane {
   flex-shrink: 0;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-content: baseline;
-  font-family: sans-serif;
+  font: 14px sans-serif;
+  color: dimgray;
+  padding: 10px 10px 2px 10px;
+  width: 280px;
+}
+
+#resultHeader {
+  color: black;
   font-weight: bold;
-  padding: 10px;
-  width: 275px;
+  font-family: "Helvetica Neue", "Helvetica" ,"Roboto", "Arial", sans-serif;
+  font-size: 100%;
 }
 
-.resultHeaderCheck {
+#resultHeaderCheck {
   justify-content: flex-end;
-  margin-top: -10px;
+  margin-top: -12px;
   margin-bottom: -10px;
-  margin-right: 10px;
 }
 
-.resultsList {
+#collectionSelectPane {
+  padding-right: 15px;
+}
+
+#collectionSelectPane .multilineSelect {
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: bold;
+}
+
+.multilineSelect .MuiInputBase-input {
+  white-space: unset !important;
+}
+
+#xLoadedPane {
+  padding-bottom: 4px;
+}
+
+#resultsList {
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   overflow-y: scroll;
 }
@@ -360,6 +398,36 @@ Controls the CSS for projection buttons when there is no available projection
 .resultImg {
   max-width: 32px;
   max-height: 96px;
+}
+
+#resultLoader {
+  padding: 10px;
+  border-top: 1px solid lightgrey;
+}
+
+#loadMore {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#loadMoreButton {
+  margin-right: 8px;
+}
+
+#xPerRequest {
+  display: flex;
+  flex-direction: row;
+}
+
+#xPerRequest .thinSelect {
+  margin-right: 7px;
+}
+
+.thinSelect .MuiInputBase-input {
+  padding: 4px 9px 4px 9px;
+  color: dimgrey;
 }
 
 summary {
