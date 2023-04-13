@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Checkbox from "@mui/material/Checkbox";
-import {Card, CardContent, CardActions, Skeleton, Chip, Stack, List, ListItemButton, ListItemText, Collapse, Divider, ListSubheader} from "@mui/material";
+import {Card, CardContent, CardActions, Skeleton, Chip, Stack, List, ListItemButton, ListItemText, Collapse, Divider, ListSubheader, Select, FormControl, MenuItem, Button} from "@mui/material";
 
 // icons
 import PreviewIcon from "@mui/icons-material/Preview";
@@ -51,6 +51,7 @@ function LoadingFootprints() {
   );
 }
 
+// Shown when there are no collections available on the current target.
 function NoFootprints(){
   return(
     <div style={{padding: 10, maxWidth: 268}}>
@@ -64,6 +65,7 @@ function NoFootprints(){
   );
 }
 
+// Shown when collections are available but no footprints were returned for current filter.
 function FilterTooStrict(){
   return(
     <div style={{padding: 10, maxWidth: 268}}>
@@ -82,6 +84,8 @@ function FilterTooStrict(){
   );
 }
 
+// A small card with an images and a few key data points
+// shown as the result for a footprint.
 function FootprintCard(props){
 
   // Metadata Popup
@@ -159,6 +163,14 @@ let css = {
     padding: 0,
     borderLeft: "2px solid lightgray",
   },
+  multilineSelect: {
+    fontSize: "12px",
+    lineHeight: "15px",
+    fontWeight: "bold",
+    "& .MuiInputBase-input": {
+      whiteSpace: "unset"
+    }
+  }
 };
 
 /**
@@ -177,6 +189,8 @@ export default function FootprintResults(props) {
   const [hasFootprints, setHasFootprints] = React.useState(true);
 
   const [openCollection, setOpenCollection] = React.useState([]);
+  const [currentPage, setCurrentPage] = React.useState(0);
+  const [currentCollection, setCurrentCollection] = React.useState(props.target.collections.length > 0 ? props.target.collections[0].id : "");  
 
   function handleOpenCollection(index){
     const nextOpenCollection = openCollection.map((isOpen, curIndex) => {
@@ -187,6 +201,12 @@ export default function FootprintResults(props) {
     });
     setOpenCollection(nextOpenCollection);
   }
+
+  const handleCollectionChange = (event, value) => {
+    setCurrentCollection(value.props.value);
+  };
+
+  const getCurrentCollection = () => featureCollections.find(obj => obj.id === currentCollection)
 
   useEffect(() => {
 
@@ -271,6 +291,22 @@ export default function FootprintResults(props) {
         return myCollections;
       }
 
+      function updateCollections(newResults) {
+        if(featureCollections.length > 0) {
+          let myCollections = featureCollections;
+          for(let i = 0; i < newResults.length; i++) {
+            if (newResults[i].numberReturned > 0) {
+              myCollections[i].features.push(...newResults[i].features)
+              console.log(myCollections[i].features.length)
+            }
+          }
+          setFeatureCollections(myCollections);
+        }
+        else {
+          setFeatureCollections(newResults);
+        }
+      }
+
       // Send to Leaflet
       window.postMessage(["setQuery", props.queryString], "*");
 
@@ -279,7 +315,8 @@ export default function FootprintResults(props) {
         let myFeatureCollections = await fetchAndWait()
 
         // Set relevant properties based on features received
-        setFeatureCollections(myFeatureCollections);
+        updateCollections(myFeatureCollections);
+        //setFeatureCollections(myFeatureCollections);
         setHasFootprints(myFeatureCollections.length > 0);
         setIsLoading(false);
 
@@ -328,56 +365,43 @@ export default function FootprintResults(props) {
           />
         </span>
       </div>
+      
       {isLoading ? 
         <LoadingFootprints/>
       : noFootprintsReturned ?
         <FilterTooStrict/>
-      : hasFootprints ?   
-        <div className="resultsList">
-          <List sx={{maxWidth: 265, paddingTop: 0}}>
-            {featureCollections.map((collection, collectionIndex) => (
-              <React.Fragment key={collection.id}>
-                {collection.features.length > 0 ? 
-                <>
-                  <ListItemButton onClick={() => handleOpenCollection(collectionIndex)}>
-                    <ListItemText
-                      sx={{marginTop: 0, marginBottom: 0}}
-                      primary={
-                        <p style={{fontSize: "12px", lineHeight: "15px", fontWeight: "bold", marginTop: 1, marginBottom: 1}}>{collection.title}</p>
-                      } secondary={
-                        <span className="collectionStatExpander">
-                          <span>{
-                            ((props.currentPage-1)*props.currentStep + 1) + "-"
-                            + ((props.currentPage-1)*props.currentStep + collection.numberReturned)
-                            + " of " + collection.numberMatched + " footprints"}</span>
-                          <span className="flatExpander">{openCollection[collectionIndex] ? <ExpandLess /> : <ExpandMore />}</span>
-                        </span>
-                      }/>
-                  </ListItemButton>
-                  <Collapse in={openCollection[collectionIndex]}>
-                    <Divider/>
-                    <ListSubheader sx={{
-                        overflow:"hidden", 
-                        whiteSpace:"nowrap", 
-                        backgroundColor:"rgb(248, 249, 250) none repeat scroll 0% 0%",
-                        fontSize: "12px",
-                        lineHeight: "24px",
-                        borderBottom: "1px solid lightgrey",
-                        boxShadow: "0px 1px 2px lightgrey"
-                      }}>
-                        {collection.title}
-                      </ListSubheader>
-                    {collection.features.map((feature) => (
-                      <FootprintCard feature={feature} title={collection.title} key={feature.id}/>
-                    ))}
-                  </Collapse>
-                </>
-                : null }
-                <Divider/>
-              </React.Fragment>
-            ))}
-          </List>
-        </div>
+      : hasFootprints ? 
+        <React.Fragment>
+          <div className="resultHeader">
+            <FormControl>
+              <Select
+                sx={css.multilineSelect}
+                size="small"
+                defaultValue={currentCollection ?? ""}
+                onChange={handleCollectionChange}
+                >
+                {props.target.collections.map(collection => (
+                  <MenuItem key={collection.id} value={collection.id}>{collection.title}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>
+          <div>
+            <span style={{margin:10}}>
+              {getCurrentCollection().features.length} of {getCurrentCollection().numberMatched} Footprints Loaded.
+            </span>
+          </div>
+          <div className="resultsList">
+            <List sx={{maxWidth: 265, paddingTop: 0}}>
+              {getCurrentCollection().features.map(feature => (
+                <FootprintCard feature={feature} key={feature.id}/>
+              ))}
+            </List>
+          </div>
+          <div className="resultHeader">
+            <Button variant="outlined">Load {props.currentStep} More</Button>
+          </div>
+        </React.Fragment>
       :
         <NoFootprints/>
       }

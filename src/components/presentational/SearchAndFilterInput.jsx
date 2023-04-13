@@ -24,7 +24,7 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 // No. of Footprints, pagination
 import Pagination from "@mui/material/Pagination";
 
-import { FormHelperText } from "@mui/material";
+import { Divider, FormHelperText } from "@mui/material";
 
 /**
  * Controls css styling for this component using js to css
@@ -73,6 +73,7 @@ let css = {
       padding: "2px 32px 2px 8px",
     }
   }
+  
 };
 
 /**
@@ -107,33 +108,6 @@ export default function SearchAndFilterInput(props) {
   // Pagination
   const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(10);
   const [numberReturned, setNumberReturned] = React.useState(10);
-
-  // const handleApply = () => {
-  //   setTimeout(() => {
-  //     setMaxPages(getMaxNumberPages);
-  //     setNumberReturned(getNumberReturned);
-  //     setMaxNumberFootprints(getNumberMatched);
-  //   }, 3000);
-  // };
-
-  // Clear all values
-  const handleClear = () => {
-    setSortVal("");
-    setSortAscCheckVal(false);
-    setAreaCheckVal(false);
-    setKeywordCheckVal(false);
-    setKeywordTextVal("");
-    setDateCheckVal(false);
-    setDateFromVal(null);
-    setDateToVal(null);
-    props.setCurrentStep(10);
-    //setMaxPages(1);
-    setMaxNumberFootprints(0);
-    setNumberReturned(0);
-    //// Uncomment to close details on clear
-    // keywordDetails.current.open = false;
-    // dateDetails.current.open = false;
-  };
 
   const buildQueryString = () => {
     let myQueryString = "?";
@@ -208,20 +182,6 @@ export default function SearchAndFilterInput(props) {
     setAreaCheckVal(event.target.checked);
   };
 
-  // Keyword
-  const handleKeywordCheckChange = (event) => {
-    setKeywordCheckVal(event.target.checked);
-    if (event.target.checked === true) {
-      if (keywordDetails.current.open === false) {
-        keywordDetails.current.open = true;
-      }
-    }
-  };
-  const handleKeywordChange = (event) => {
-    setKeywordTextVal(event.target.value);
-    setKeywordCheckVal(true);
-  };
-
   // Date
   const handleDateCheckChange = (event) => {
     setDateCheckVal(event.target.checked);
@@ -293,28 +253,7 @@ export default function SearchAndFilterInput(props) {
   return (
     <div style={css.container}>
       <div className="panelSection panelHeader">Filter Results</div>
-      {/* <div className="panelSection">
-        <ButtonGroup>
-          <Button
-            id="applyButton"
-            variant="contained"
-            startIcon={<FilterAltIcon />}
-            onClick={handleApply}
-            sx={css.button}
-          >
-            Apply
-          </Button>
-          <Button
-            id="clearButton"
-            variant="contained"
-            endIcon={<DeleteForeverIcon />}
-            onClick={handleClear}
-            sx={css.buttonRemove}
-          >
-            Clear
-          </Button>
-        </ButtonGroup>
-      </div>
+      {/* 
 
       <div className="panelSection">
         <FormControl sx={{ minWidth: 170 }}>
@@ -353,11 +292,11 @@ export default function SearchAndFilterInput(props) {
         </div>
       </div>
 
-      <div className="panelSection panelHeader">Filter By...</div> */}
+      */}
 
       <div className="panelSection">
         <div className="panelSectionHeader">
-          <div className="panelSectionTitle">Selected Area</div>
+          <div className="panelSectionTitle">Selected Area Only</div>
           <div className="panelSectionCheck">
             <Checkbox
               id="areaCheckBox"
@@ -367,39 +306,6 @@ export default function SearchAndFilterInput(props) {
           </div>
         </div>
       </div>
-
-      {/* <div className="panelSection">
-        <details ref={keywordDetails}>
-          <summary>
-            <div className="panelSectionHeader">
-              <div className="panelSectionTitle">Keyword</div>
-              <div className="panelSectionCheck">
-                <Checkbox
-                  checked={keywordCheckVal}
-                  onChange={handleKeywordCheckChange}
-                  id="keywordCheckBox"
-                />
-              </div>
-            </div>
-          </summary>
-          <div className="panelItem">
-            <TextField
-              sx={css.textbox}
-              value={keywordTextVal}
-              variant="outlined"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              id="keywordTextBox"
-              name="fname"
-              type="text"
-              autoComplete="off"
-              size="small"
-              onChange={handleKeywordChange}
-            />
-          </div>
-        </details>
-      </div> */}
 
       <div className="panelSection">
         <details ref={dateDetails}>
@@ -452,13 +358,8 @@ export default function SearchAndFilterInput(props) {
               value={props.currentStep}
               onChange={handleLimitChange}
               >
-              <MenuItem value={1}>1</MenuItem>
-              <MenuItem value={2}>2</MenuItem>
               <MenuItem value={5}>5</MenuItem>
               <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={15}>15</MenuItem>
-              <MenuItem value={20}>20</MenuItem>
-              <MenuItem value={30}>30</MenuItem>
               <MenuItem value={50}>50</MenuItem>
               <MenuItem value={100}>100</MenuItem>
             </Select>
