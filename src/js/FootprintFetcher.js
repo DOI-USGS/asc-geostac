@@ -5,7 +5,7 @@
 export default async function FetchFootprints(targetCollections, collectionId, queryString){
 
     // Find the collection to search based on ID
-    let myCollection = targetCollections.find(collection => collection.id = collectionId);
+    let myCollection = targetCollections.find(collection => collection.id === collectionId);
 
     // Find the items link from this collection
     let itemsUrl = myCollection.links.find(link => link.rel === "items").href;

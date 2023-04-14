@@ -170,13 +170,25 @@ export default function FootprintResults(props) {
   const [step, setStep] = React.useState(10);
   const [collectionId, setCollectionId] = React.useState(props.target.collections.length > 0 ? props.target.collections[0].id : "");
   const [features, setFeatures] = React.useState([]);
+  const [matched, setMatched] = React.useState(0);
 
   const handleStepChange = (event, value) => {
     setStep(value.props.value);
+    
+    // TODO: load different between currently loaded footprints and next even step
   }
 
   const handleCollectionChange = (event, value) => {
-    setCollectionId(value.props.value);
+    let myCollectionId = value.props.value;
+    let myFeatureCollection = featureCollections.find(collection => collection.id === value.props.value);
+    let myFeatures = myFeatureCollection.features;
+    let myMatched = myFeatureCollection.numberMatched;
+    let myPage = myFeatures.length/step;
+
+    setCollectionId(myCollectionId);
+    setFeatures(myFeatures);
+    setPage(myPage);
+    setMatched(myMatched);
   };
 
   const getCurrentCollection = () => featureCollections.find(obj => obj.id === collectionId)
@@ -185,8 +197,7 @@ export default function FootprintResults(props) {
   // Triggered by "Load More" Button
   async function loadMoreFootprints () {
 
-    //setIsLoading(true);
-
+    // Set paging/step info to add to end of query string
     let pageInfo = "page=" + (page + 1) + "&";
     if (step != 10){
       pageInfo += "limit=" + step + "&"
@@ -195,6 +206,7 @@ export default function FootprintResults(props) {
     // fetch and await new footprints
     let newFeatures = await FetchFootprints(props.target.collections, collectionId, props.queryString + pageInfo);
     
+    // If any features are returned, add them to currecnt collection
     if(newFeatures.length > 0) {
       let myCollections = featureCollections;
       myCollections
@@ -202,10 +214,14 @@ export default function FootprintResults(props) {
         .features.push(...newFeatures);
 
       setFeatureCollections(myCollections);
-      setFeatures(myCollections.find(collection => collection.id === collectionId).features)
+
+      let myFeatureCollection = myCollections.find(collection => collection.id === collectionId);
+
+      setFeatures(myFeatureCollection.features);
+      setMatched(myFeatureCollection.numberMatched);
+      setPage(page + 1);
     }
-    setPage(page + 1);
-    //setIsLoading(false);
+    
   }
 
   useEffect(() => {
@@ -305,6 +321,7 @@ export default function FootprintResults(props) {
         // Set relevant properties based on features received
         setFeatureCollections(myFeatureCollections);
         setFeatures(myFeatureCollections.find(collection => collection.id === collectionId).features)
+        setMatched(myFeatureCollections.find(collection => collection.id === collectionId).numberMatched)
         setHasFootprints(myFeatureCollections.length > 0);
         setIsLoading(false);
 
@@ -353,7 +370,7 @@ export default function FootprintResults(props) {
           <Select
             className="multilineSelect"
             size="small"
-            defaultValue={collectionId ?? ""}
+            value={collectionId}
             onChange={handleCollectionChange}
             >
             {props.target.collections.map(collection => (
@@ -369,7 +386,7 @@ export default function FootprintResults(props) {
       : hasFootprints ? 
         <React.Fragment>
           <div id="xLoadedPane" className="resultPane">
-            {features.length} of {getCurrentCollection().numberMatched} footprints loaded.
+            {features.length} of {matched} footprints loaded.
           </div>
           <div id="resultsList">
             <List sx={{maxWidth: 265, paddingTop: 0}}>
