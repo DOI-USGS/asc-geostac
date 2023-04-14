@@ -15,9 +15,8 @@ import GeoTiffViewer from "../../js/geoTiffViewer.js";
 // Footprint Fetch logic
 import FetchFootprints from "../../js/FootprintFetcher.js";
 
-/**
- * Skeleton to show when footprints are loading
- */
+
+/** Skeleton to show when footprints are loading */
 function LoadingFootprints() {
   
   return (
@@ -56,6 +55,7 @@ function LoadingFootprints() {
   );
 }
 
+
 // Shown when there are no collections available on the current target.
 function NoFootprints(){
   return(
@@ -69,6 +69,7 @@ function NoFootprints(){
     </div>
   );
 }
+
 
 // Shown when collections are available but no footprints were returned for current filter.
 function FilterTooStrict(){
@@ -88,6 +89,7 @@ function FilterTooStrict(){
     </div>
   );
 }
+
 
 // A small card with an images and a few key data points
 // shown as the result for a footprint.
@@ -151,15 +153,14 @@ function FootprintCard(props){
   );
 }
 
+
 /**
  * Component that lets user view list of current footprints
- *
  * @component
- * @example
- * <FootprintResults />
- *
  */
 export default function FootprintResults(props) {
+
+  console.log("props.target", props.target);
 
   const [featureCollections, setFeatureCollections] = React.useState([]);
 
@@ -172,12 +173,44 @@ export default function FootprintResults(props) {
   const [features, setFeatures] = React.useState([]);
   const [matched, setMatched] = React.useState(0);
 
-  const handleStepChange = (event, value) => {
-    setStep(value.props.value);
-    
-    // TODO: load different between currently loaded footprints and next even step
+  /** When the step amount is changed, determines the next page number based on features
+   *  loaded and the new step amound and loads the footprints inbetween (if any). */
+  const handleStepChange = async (event, value) => {
+
+    let myStep = value.props.value;
+    let myPage = Math.ceil(features.length/myStep);
+    let skip = features.length % myStep; // Offset of features already loaded.
+    let fullQuery = "";
+    let newFeatures = [];
+    let myFeatureCollection = {}
+
+    // If the new step amount is offset from the number of features loaded...
+    if (skip !== 0) 
+    {
+      fullQuery = queryWithPage(props.queryString, myPage, myStep); // build query, then fetch
+      newFeatures = await FetchFootprints(props.target.collections, collectionId, fullQuery);
+
+      // If any features are returned, add the remainder needed to the current collection
+      if (newFeatures.length > 0) {
+        let myCollections = featureCollections;
+        myCollections
+          .find(collection => collection.id === collectionId)
+          .features.push(...newFeatures.slice(skip, newFeatures.length));
+
+        setFeatureCollections(myCollections);
+
+        myFeatureCollection = myCollections.find(collection => collection.id === collectionId);
+
+        setFeatures(myFeatureCollection.features);
+      }
+    }
+    setPage(myPage);
+    setStep(myStep);
   }
 
+
+  /** Sets states needed to display the new collection 
+    * when the collection is changed from the dropdown */
   const handleCollectionChange = (event, value) => {
     let myCollectionId = value.props.value;
     let myFeatureCollection = featureCollections.find(collection => collection.id === value.props.value);
@@ -191,23 +224,33 @@ export default function FootprintResults(props) {
     setMatched(myMatched);
   };
 
-  const getCurrentCollection = () => featureCollections.find(obj => obj.id === collectionId)
 
-  // Fetch the next page of footprints and add them to the current collection
-  // Triggered by "Load More" Button
-  async function loadMoreFootprints () {
-
-    // Set paging/step info to add to end of query string
-    let pageInfo = "page=" + (page + 1) + "&";
-    if (step != 10){
-      pageInfo += "limit=" + step + "&"
+  /**
+   * Adds page and limit info to a query string.
+   * @param {string} myQuery - The query without page and limit defined
+   * @param {int} myPage - The page number
+   * @param {int} myStep - How many footprints to load per page
+   * @returns {string} An query with page and limit info added.
+   */
+  const queryWithPage = (myQuery, myPage, myStep) => {
+    let pageInfo = "page=" + myPage + "&";
+    if (myStep != 10){
+      pageInfo += "limit=" + myStep + "&"
     }
-  
-    // fetch and await new footprints
-    let newFeatures = await FetchFootprints(props.target.collections, collectionId, props.queryString + pageInfo);
+    return myQuery + pageInfo;
+  }
+
+  /** Fetches the next page of footprints ands add them to the current collection.
+    * Triggered by "Load More" Button. Async. */
+  const loadMoreFootprints = async () => {
+
+    let newPage = page + 1;
+    let pagedQuery = queryWithPage(props.queryString, newPage, step);
+    let newFeatures = await FetchFootprints(props.target.collections, collectionId, pagedQuery);
+    let myFeatureCollection = {};
     
     // If any features are returned, add them to currecnt collection
-    if(newFeatures.length > 0) {
+    if (newFeatures.length > 0) {
       let myCollections = featureCollections;
       myCollections
         .find(collection => collection.id === collectionId)
@@ -215,15 +258,15 @@ export default function FootprintResults(props) {
 
       setFeatureCollections(myCollections);
 
-      let myFeatureCollection = myCollections.find(collection => collection.id === collectionId);
+      myFeatureCollection = myCollections.find(collection => collection.id === collectionId);
 
       setFeatures(myFeatureCollection.features);
-      setMatched(myFeatureCollection.numberMatched);
-      setPage(page + 1);
+      setPage(newPage);
     }
-    
   }
 
+  /** Listens for the target name or incoming query string to change,
+   *  and fetches/sets new collection info/footprints/features when they do. */
   useEffect(() => {
 
     // If target has collections (of footprints)
@@ -329,7 +372,7 @@ export default function FootprintResults(props) {
         for(const collection of myFeatureCollections) {
           myMaxFootprintsMatched = Math.max(myMaxFootprintsMatched, collection.numberMatched);
         }
-        props.setMaxFootprintsMatched(myMaxFootprintsMatched);
+        // props.setMaxFootprintsMatched(myMaxFootprintsMatched);
 
         // Send to Leaflet
         window.postMessage(["setFeatureCollections", myFeatureCollections], "*");

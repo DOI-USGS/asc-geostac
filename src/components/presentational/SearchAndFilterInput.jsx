@@ -1,9 +1,4 @@
 import React, { useEffect } from "react";
-// Apply and Clear Buttons
-import ButtonGroup from "@mui/material/ButtonGroup";
-import Button from "@mui/material/Button";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
 // Keyword Filter
 import TextField from "@mui/material/TextField";
 // CSS
@@ -148,10 +143,12 @@ export default function SearchAndFilterInput(props) {
     }
 
     // Sorting... Not supported by the API?
-    const sortAscDesc = sortAscCheckVal ? "asc" : "desc";
-    if (sortVal === "date" || sortVal === "location") {
-      console.log("Warning: Sorting not Supported!");
-      // myQueryString += 'sort=[{field:datetime,direction:' + sortAscDesc + '}]&'
+    let sortAscDesc = '-'
+    if (sortAscCheckVal) {
+      sortAscDesc = '';
+    }
+    if (sortVal === "id" || sortVal === "properties.datetime" || sortVal === "properties.proj:bbox") {
+      myQueryString += 'sortby=' + sortAscDesc + sortVal + '&';
     }
 
     // Area
@@ -191,26 +188,10 @@ export default function SearchAndFilterInput(props) {
     setDateCheckVal(true);
   };
 
-  // limit
-  const handleLimitChange = (event, value) => {
-    props.setCurrentStep(value.props.value);
-  };
-
-  // Pagination
-  const handlePageChange = (event, value) => {
-    props.setCurrentPage(value);
-  };
-
-  // resets pagination and limit when switching targets
-  useEffect(() => {
-    props.setCurrentPage(1);
-    props.setCurrentStep(10);
-  }, [props.target.name]);
-
   // Listen for any state change (input) and update the query string based on it
   useEffect(() => {
     buildQueryString();
-  }, [sortVal, sortAscCheckVal, areaCheckVal, areaTextVal, keywordCheckVal, keywordTextVal, dateCheckVal, dateFromVal, dateToVal, props.currentStep, props.currentPage]);
+  }, [sortVal, sortAscCheckVal, areaCheckVal, areaTextVal, dateCheckVal, dateFromVal, dateToVal]);
 
   const onBoxDraw = event => {
     if(typeof event.data == "object" && event.data[0] === "setWkt"){
@@ -237,7 +218,6 @@ export default function SearchAndFilterInput(props) {
   return (
     <div style={css.container}>
       <div className="panelSection panelHeader">Filter Results</div>
-      {/* 
 
       <div className="panelSection">
         <FormControl sx={{ minWidth: 170 }}>
@@ -252,11 +232,10 @@ export default function SearchAndFilterInput(props) {
             onChange={handleSortChange}
             size="small"
           >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            <MenuItem value={"date"}>Date</MenuItem>
-            <MenuItem value={"location"}>Location</MenuItem>
+            <MenuItem value=""> <em> None </em> </MenuItem>
+            <MenuItem value={"id"}> ID </MenuItem>
+            <MenuItem value={"properties.datetime"}> Date </MenuItem>
+            <MenuItem value={"properties.proj:bbox"}> Location </MenuItem>
           </Select>
         </FormControl>
         <div className="panelSortAscCheck">
@@ -275,8 +254,6 @@ export default function SearchAndFilterInput(props) {
           />
         </div>
       </div>
-
-      */}
 
       <div className="panelSection">
         <div className="panelSectionHeader">

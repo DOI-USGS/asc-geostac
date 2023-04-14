@@ -1,8 +1,12 @@
 
-/**
- * @param 
+/** Identifies a collection (from those passed in) based on id and fetches footprints from that collection according to query
+ * @param {array} targetCollections - An array of all collections for the current target.
+ * @param {string} collectionId - The id of the collection to fetch from.
+ * @param {string} queryString - The query to narrow the results returned from the collection.
  */
 export default async function FetchFootprints(targetCollections, collectionId, queryString){
+
+    console.info("targetCollections", targetCollections);
 
     // Find the collection to search based on ID
     let myCollection = targetCollections.find(collection => collection.id === collectionId);
