@@ -363,6 +363,7 @@ Controls the CSS for projection buttons when there is no available projection
 #resultsList {
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   overflow-y: scroll;
+  width: 280px;
 }
 
 .resultContainer {

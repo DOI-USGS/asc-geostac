@@ -21,33 +21,38 @@ import FetchFootprints from "../../js/FootprintFetcher.js";
 function LoadingFootprints() {
   
   return (
-    <div className="resultsList">
-      { Array(8).fill(null).map((_, i) => (
-        <Card sx={{ width: 250, margin: 1}} key={i}>
-          <CardContent sx={{padding: 0.9, paddingBottom: 0}}>
-            <div className="resultContainer">
-              <div className="resultImgDiv">
-                <Skeleton variant="rectangular" width={32} height={32}/>
+    <React.Fragment>
+      <div id="xLoadedPane" className="resultPane">
+        <Skeleton width={180}/>
+      </div>
+      <div id="resultsList">
+        { Array(8).fill(null).map((_, i) => (
+          <Card sx={{ width: 250, margin: 1}} key={i}>
+            <CardContent sx={{padding: 1.2, paddingBottom: 0}}>
+              <div className="resultContainer">
+                <div className="resultImgDiv">
+                  <Skeleton variant="rectangular" width={32} height={32}/>
+                </div>
+                <div className="resultData">
+                  <Skeleton width={150}/>
+                  <Skeleton width={150}/>
+                  <Skeleton width={150}/>
+                </div>
               </div>
-              <div className="resultData">
-                <Skeleton/>
-                <Skeleton/>
-                <Skeleton/>
+            </CardContent>
+            <CardActions>
+              <div className="resultLinks">
+                <Stack direction="row" spacing={1} sx={{marginTop:1}}>
+                  <Skeleton variant="rounded" width={100} height={20} sx={{borderRadius:5}}/>
+                  <Skeleton variant="rounded" width={100} height={20} sx={{borderRadius:5}}/>
+                </Stack>
               </div>
-            </div>
-          </CardContent>
-          <CardActions>
-            <div className="resultLinks">
-              <Stack direction="row" spacing={1} sx={{marginTop:1}}>
-                <Skeleton variant="rounded" width={100} height={20} sx={{borderRadius:5}}/>
-                <Skeleton variant="rounded" width={100} height={20} sx={{borderRadius:5}}/>
-              </Stack>
-            </div>
-          </CardActions>
-        </Card>
-        
-      ))}
-    </div>
+            </CardActions>
+          </Card>
+          
+        ))}
+      </div>
+    </React.Fragment>
   );
 }
 
@@ -109,9 +114,6 @@ function FootprintCard(props){
             <img className="resultImg" src={props.feature.assets.thumbnail.href} />
           </div>
           <div className="resultData">
-            {/* <div className="resultSub">
-              <strong>Collection:</strong>&nbsp;{props.feature.collection}
-            </div> */}
             <div className="resultSub">
               <strong>ID:</strong>&nbsp;{props.feature.id}
             </div>
@@ -164,53 +166,46 @@ export default function FootprintResults(props) {
   const [isLoading, setIsLoading] = React.useState(true);
   const [hasFootprints, setHasFootprints] = React.useState(true);
 
-  const [openCollection, setOpenCollection] = React.useState([]);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [currentStep, setCurrentStep] = React.useState(10);
-  const [currentCollection, setCurrentCollection] = React.useState(props.target.collections.length > 0 ? props.target.collections[0].id : "");  
+  const [page, setPage] = React.useState(1);
+  const [step, setStep] = React.useState(10);
+  const [collectionId, setCollectionId] = React.useState(props.target.collections.length > 0 ? props.target.collections[0].id : "");
+  const [features, setFeatures] = React.useState([]);
 
   const handleStepChange = (event, value) => {
-    setCurrentStep(value.props.value);
-  }
-
-  function handleOpenCollection(index){
-    const nextOpenCollection = openCollection.map((isOpen, curIndex) => {
-      if (index === curIndex) {
-        return !isOpen;
-      }
-      return isOpen;
-    });
-    setOpenCollection(nextOpenCollection);
+    setStep(value.props.value);
   }
 
   const handleCollectionChange = (event, value) => {
-    setCurrentCollection(value.props.value);
+    setCollectionId(value.props.value);
   };
 
-  const getCurrentCollection = () => featureCollections.find(obj => obj.id === currentCollection)
+  const getCurrentCollection = () => featureCollections.find(obj => obj.id === collectionId)
 
+  // Fetch the next page of footprints and add them to the current collection
+  // Triggered by "Load More" Button
   async function loadMoreFootprints () {
 
-    setIsLoading(true);
+    //setIsLoading(true);
 
-    let pageInfo = "page=" + (currentPage + 1) + "&";
-    if (currentStep != 10){
-      pageInfo += "limit=" + currentStep + "&"
+    let pageInfo = "page=" + (page + 1) + "&";
+    if (step != 10){
+      pageInfo += "limit=" + step + "&"
     }
   
     // fetch and await new footprints
-    let newFeatures = await FetchFootprints(props.target.collections, currentCollection, props.queryString + pageInfo);
+    let newFeatures = await FetchFootprints(props.target.collections, collectionId, props.queryString + pageInfo);
     
     if(newFeatures.length > 0) {
       let myCollections = featureCollections;
       myCollections
-        .find(collection => collection.id === currentCollection)
+        .find(collection => collection.id === collectionId)
         .features.push(...newFeatures);
 
       setFeatureCollections(myCollections);
+      setFeatures(myCollections.find(collection => collection.id === collectionId).features)
     }
-    setCurrentPage(currentPage + 1);
-    setIsLoading(false);
+    setPage(page + 1);
+    //setIsLoading(false);
   }
 
   useEffect(() => {
@@ -239,7 +234,7 @@ export default function FootprintResults(props) {
       props.setCollectionUrls(itemCollectionData);
 
       // TODO: USE THIS EXTERNAL LOGIC
-      FetchFootprints(props.target.collections, currentCollection, props.queryString);
+      FetchFootprints(props.target.collections, collectionId, props.queryString);
 
       // Promise tracking
       let fetchPromise = {};
@@ -309,13 +304,9 @@ export default function FootprintResults(props) {
 
         // Set relevant properties based on features received
         setFeatureCollections(myFeatureCollections);
+        setFeatures(myFeatureCollections.find(collection => collection.id === collectionId).features)
         setHasFootprints(myFeatureCollections.length > 0);
         setIsLoading(false);
-
-
-        if(myFeatureCollections.length > openCollection.length){
-          setOpenCollection(Array(myFeatureCollections.length).fill(true));
-        }        
 
         let myMaxFootprintsMatched = 0;
         for(const collection of myFeatureCollections) {
@@ -357,71 +348,74 @@ export default function FootprintResults(props) {
           />
         </span>
       </div>
-      
+      {hasFootprints &&
+        <div id="collectionSelectPane" className="resultPane">
+          <Select
+            className="multilineSelect"
+            size="small"
+            defaultValue={collectionId ?? ""}
+            onChange={handleCollectionChange}
+            >
+            {props.target.collections.map(collection => (
+              <MenuItem key={collection.id} value={collection.id}>{collection.title}</MenuItem>
+            ))}
+          </Select>
+        </div>
+      }
       {isLoading ? 
         <LoadingFootprints/>
       : noFootprintsReturned ?
         <FilterTooStrict/>
       : hasFootprints ? 
         <React.Fragment>
-          <div id="collectionSelectPane" className="resultPane">
-            <Select
-              className="multilineSelect"
-              size="small"
-              defaultValue={currentCollection ?? ""}
-              onChange={handleCollectionChange}
-              >
-              {props.target.collections.map(collection => (
-                <MenuItem key={collection.id} value={collection.id}>{collection.title}</MenuItem>
-              ))}
-            </Select>
-          </div>
           <div id="xLoadedPane" className="resultPane">
-            {getCurrentCollection().features.length} of {getCurrentCollection().numberMatched} footprints loaded.
+            {features.length} of {getCurrentCollection().numberMatched} footprints loaded.
           </div>
           <div id="resultsList">
             <List sx={{maxWidth: 265, paddingTop: 0}}>
-              {getCurrentCollection().features.map(feature => (
+              {features.map(feature => (
                 <FootprintCard feature={feature} key={feature.id}/>
               ))}
             </List>
           </div>
-          <div id="resultLoader" className="resultPane">
-            <div id="loadMore">
-              <Button
-                id="loadMoreButton"
-                onClick={loadMoreFootprints}
-                variant="outlined"
-                size="small"
-              >
-                Load More
-              </Button>
-            </div>
-            <div id="xPerRequest">
-              <div>
-                <Select
-                  id="xPerRequestSelect"
-                  className="thinSelect"
-                  size="small"
-                  value={currentStep}
-                  onChange={handleStepChange}
-                  >
-                  <MenuItem value={5}>5</MenuItem>
-                  <MenuItem value={10}>10</MenuItem>
-                  <MenuItem value={50}>50</MenuItem>
-                  <MenuItem value={100}>100</MenuItem>
-                </Select>
-              </div>
-              <div>
-                <label style={{marginRight: "5px"}} htmlFor="xPerRequestSelect">
-                  per <br/> request
-                </label>
-              </div>
-            </div>
-          </div>
         </React.Fragment>
       :
         <NoFootprints/>
+      }
+      { hasFootprints &&
+        <div id="resultLoader" className="resultPane">
+          <div id="loadMore">
+            <Button
+              id="loadMoreButton"
+              onClick={loadMoreFootprints}
+              variant="outlined"
+              size="small"
+            >
+              Load More
+            </Button>
+          </div>
+          <div id="xPerRequest">
+            <div>
+              <Select
+                id="xPerRequestSelect"
+                className="thinSelect"
+                size="small"
+                value={step}
+                onChange={handleStepChange}
+                >
+                <MenuItem value={5}>5</MenuItem>
+                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={50}>50</MenuItem>
+                <MenuItem value={100}>100</MenuItem>
+              </Select>
+            </div>
+            <div>
+              <label style={{marginRight: "5px"}} htmlFor="xPerRequestSelect">
+                per <br/> request
+              </label>
+            </div>
+          </div>
+        </div>
       }
     </div>
   );
