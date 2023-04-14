@@ -419,6 +419,7 @@ Controls the CSS for projection buttons when there is no available projection
 #xPerRequest {
   display: flex;
   flex-direction: row;
+  padding-right: 7px;
 }
 
 #xPerRequest .thinSelect {

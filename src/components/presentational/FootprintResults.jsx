@@ -12,6 +12,9 @@ import TravelExploreIcon from '@mui/icons-material/TravelExplore'; // Footprints
 // geotiff thumbnail viewer... Should we be using DisplayGeoTiff.jsx instead?
 import GeoTiffViewer from "../../js/geoTiffViewer.js";
 
+// Footprint Fetch logic
+import FetchFootprints from "../../js/FootprintFetcher.js";
+
 /**
  * Skeleton to show when footprints are loading
  */
@@ -162,8 +165,13 @@ export default function FootprintResults(props) {
   const [hasFootprints, setHasFootprints] = React.useState(true);
 
   const [openCollection, setOpenCollection] = React.useState([]);
-  const [currentPage, setCurrentPage] = React.useState(0);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [currentStep, setCurrentStep] = React.useState(10);
   const [currentCollection, setCurrentCollection] = React.useState(props.target.collections.length > 0 ? props.target.collections[0].id : "");  
+
+  const handleStepChange = (event, value) => {
+    setCurrentStep(value.props.value);
+  }
 
   function handleOpenCollection(index){
     const nextOpenCollection = openCollection.map((isOpen, curIndex) => {
@@ -181,6 +189,30 @@ export default function FootprintResults(props) {
 
   const getCurrentCollection = () => featureCollections.find(obj => obj.id === currentCollection)
 
+  async function loadMoreFootprints () {
+
+    setIsLoading(true);
+
+    let pageInfo = "page=" + (currentPage + 1) + "&";
+    if (currentStep != 10){
+      pageInfo += "limit=" + currentStep + "&"
+    }
+  
+    // fetch and await new footprints
+    let newFeatures = await FetchFootprints(props.target.collections, currentCollection, props.queryString + pageInfo);
+    
+    if(newFeatures.length > 0) {
+      let myCollections = featureCollections;
+      myCollections
+        .find(collection => collection.id === currentCollection)
+        .features.push(...newFeatures);
+
+      setFeatureCollections(myCollections);
+    }
+    setCurrentPage(currentPage + 1);
+    setIsLoading(false);
+  }
+
   useEffect(() => {
 
     // If target has collections (of footprints)
@@ -190,12 +222,7 @@ export default function FootprintResults(props) {
       setIsLoading(true);
       setHasFootprints(true);
 
-      // Promise tracking
-      let fetchPromise = {};
-      let jsonPromise = {};
-      // Result
-      let jsonRes = {};
-
+      // set link information
       let itemCollectionData = [];
       for(const collection of props.target.collections) {
         // Get "items" link for each collection
@@ -208,8 +235,17 @@ export default function FootprintResults(props) {
         });
       }
 
-      // For Query Console
+      // For Query Console (query console needs the link info we just set)
       props.setCollectionUrls(itemCollectionData);
+
+      // TODO: USE THIS EXTERNAL LOGIC
+      FetchFootprints(props.target.collections, currentCollection, props.queryString);
+
+      // Promise tracking
+      let fetchPromise = {};
+      let jsonPromise = {};
+      // Result
+      let jsonRes = {};
 
       // Get ready to fetch
       for(const itemCollectionUrl of itemCollectionData) {
@@ -264,22 +300,6 @@ export default function FootprintResults(props) {
         return myCollections;
       }
 
-      function updateCollections(newResults) {
-        if(featureCollections.length > 0) {
-          let myCollections = featureCollections;
-          for(let i = 0; i < newResults.length; i++) {
-            if (newResults[i].numberReturned > 0) {
-              myCollections[i].features.push(...newResults[i].features)
-              console.log(myCollections[i].features.length)
-            }
-          }
-          setFeatureCollections(myCollections);
-        }
-        else {
-          setFeatureCollections(newResults);
-        }
-      }
-
       // Send to Leaflet
       window.postMessage(["setQuery", props.queryString], "*");
 
@@ -288,8 +308,7 @@ export default function FootprintResults(props) {
         let myFeatureCollections = await fetchAndWait()
 
         // Set relevant properties based on features received
-        updateCollections(myFeatureCollections);
-        //setFeatureCollections(myFeatureCollections);
+        setFeatureCollections(myFeatureCollections);
         setHasFootprints(myFeatureCollections.length > 0);
         setIsLoading(false);
 
@@ -369,7 +388,14 @@ export default function FootprintResults(props) {
           </div>
           <div id="resultLoader" className="resultPane">
             <div id="loadMore">
-              <Button variant="outlined" size="small" id="loadMoreButton">Load More</Button>
+              <Button
+                id="loadMoreButton"
+                onClick={loadMoreFootprints}
+                variant="outlined"
+                size="small"
+              >
+                Load More
+              </Button>
             </div>
             <div id="xPerRequest">
               <div>
@@ -377,8 +403,8 @@ export default function FootprintResults(props) {
                   id="xPerRequestSelect"
                   className="thinSelect"
                   size="small"
-                  value={props.currentStep}
-                  // onChange={handleLimitChange}
+                  value={currentStep}
+                  onChange={handleStepChange}
                   >
                   <MenuItem value={5}>5</MenuItem>
                   <MenuItem value={10}>10</MenuItem>

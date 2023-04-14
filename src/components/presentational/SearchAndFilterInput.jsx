@@ -111,12 +111,6 @@ export default function SearchAndFilterInput(props) {
 
   const buildQueryString = () => {
     let myQueryString = "?";
-
-    // Page Number
-    if (props.currentPage != 1) myQueryString += "page=" + props.currentPage + "&";
-  
-    // Number of footprints requested per request
-    if (props.currentStep != 10) myQueryString += "limit=" + props.currentStep + "&"
     
     // Date
     if (dateCheckVal) {
@@ -152,9 +146,6 @@ export default function SearchAndFilterInput(props) {
 
       myQueryString += "datetime=" + fromDate + "/" + toDate + "&";
     }
-
-    // Keyword
-    if(keywordCheckVal) myQueryString += "keywords=[" + keywordTextVal.split(" ") + "]&";
 
     // Sorting... Not supported by the API?
     const sortAscDesc = sortAscCheckVal ? "asc" : "desc";
@@ -231,20 +222,13 @@ export default function SearchAndFilterInput(props) {
 
   useEffect(() => {
     window.addEventListener("message", onBoxDraw);
-
-    return () => {
-      window.removeEventListener("message", onBoxDraw);
-    }
+    return () => window.removeEventListener("message", onBoxDraw);
   }, []);
 
   /* Control IDs for reference:
-  applyButton
-  clearButton
   sortBySelect
   sortAscCheckBox
   areaCheckBox
-  keywordCheckBox
-  keywordTextBox
   dateCheckBox
   dateFromPicker
   dateToPicker
@@ -348,40 +332,6 @@ export default function SearchAndFilterInput(props) {
             </LocalizationProvider>
           </div>
         </details>
-      </div>
-      <div className="panelSectionHeader">
-        <div className="panelItem">
-          <FormControl>
-            <Select
-              sx={css.thinSelect}
-              size="small"
-              value={props.currentStep}
-              onChange={handleLimitChange}
-              >
-              <MenuItem value={5}>5</MenuItem>
-              <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={50}>50</MenuItem>
-              <MenuItem value={100}>100</MenuItem>
-            </Select>
-            {/* <FormHelperText>Footprints per Request</FormHelperText> */}
-          </FormControl>
-          <span style={{lineHeight: "28px"}}>
-            Footprints per Request
-          </span>
-        </div>
-      </div>
-      <div className="panelSectionHeader">
-        <div className="panelItem">
-          <Pagination
-            id="pagination"
-            page={props.currentPage}
-            count={Math.ceil(props.maxFootprintsMatched/props.currentStep)}
-            size="small"
-            shape="rounded"
-            variant="outlined"
-            onChange={handlePageChange}
-          />
-        </div>
       </div>
     </div>
   );
