@@ -17,9 +17,9 @@ clone_github:
     script:
         - echo $SOURCE_REPOSITORY
         - git config --global http.sslVerify false # Epic....
-        - rm -rf FoundationalDataProducts  # Needed to allow multiple CI runs
-        - git clone --mirror $SOURCE_REPOSITORY FoundationalDataProducts
-        - cd FoundationalDataProducts
+        - rm -rf asc-geostac  # Needed to allow multiple CI runs
+        - git clone --mirror $SOURCE_REPOSITORY asc-geostac
+        - cd asc-geostac
         - git remote remove origin
         - git remote add origin $DESTINATION_REPOSITORY
         - git push -f --prune --all
