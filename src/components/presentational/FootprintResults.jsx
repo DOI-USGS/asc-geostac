@@ -13,7 +13,7 @@ import TravelExploreIcon from '@mui/icons-material/TravelExplore'; // Footprints
 import GeoTiffViewer from "../../js/geoTiffViewer.js";
 
 // Footprint Fetch logic
-import { FetchFootprints, FetchObjects } from "../../js/FootprintFetcher.js";
+import { FetchFootprints, FetchObjects, FetchStepRemainder} from "../../js/FootprintFetcher.js";
 
 
 /** Skeleton to show when footprints are loading */
@@ -160,85 +160,43 @@ function FootprintCard(props){
  */
 export default function FootprintResults(props) {
 
-  console.log("props.target", props.target);
-
-  const [featureCollections, setFeatureCollections] = React.useState([]);
+  const [featureCollections, setFeatureCollections] = React.useState({});
 
   const [isLoading, setIsLoading] = React.useState(true);
   const [hasFootprints, setHasFootprints] = React.useState(true);
 
-  const [page, setPage] = React.useState(1);
+  const [numFeatures, setNumFeatures] = React.useState(10);
   const [step, setStep] = React.useState(10);
   const [collectionId, setCollectionId] = React.useState(props.target.collections.length > 0 ? props.target.collections[0].id : "");
-  const [features, setFeatures] = React.useState([]);
   const [matched, setMatched] = React.useState(0);
+
+  const addFeatures = (newFeatures, key) => {
+    let myFeatureCollections = featureCollections;
+    myFeatureCollections[key].features.push(...newFeatures);
+    setFeatureCollections(myFeatureCollections);
+    setNumFeatures(myFeatureCollections[key].features.length);
+  }
 
   /** When the step amount is changed, determines the next page number based on features
    *  loaded and the new step amound and loads the footprints inbetween (if any). */
   const handleStepChange = async (event, value) => {
 
     let myStep = value.props.value;
-    let myPage = Math.ceil(features.length/myStep);
-    let skip = features.length % myStep; // Offset of features already loaded.
-    let fullQuery = "";
-    let newFeatures = [];
-    let myFeatureCollection = {}
-
-    // If the new step amount is offset from the number of features loaded...
-    if (skip !== 0) 
-    {
-      fullQuery = queryWithPage(props.queryString, myPage, myStep); // build query, then fetch
-      newFeatures = await FetchFootprints(props.target.collections, collectionId, fullQuery);
-
-      // If any features are returned, add the remainder needed to the current collection
-      if (newFeatures.length > 0) {
-        let myCollections = featureCollections;
-        myCollections
-          .find(collection => collection.id === collectionId)
-          .features.push(...newFeatures.slice(skip, newFeatures.length));
-
-        setFeatureCollections(myCollections);
-
-        myFeatureCollection = myCollections.find(collection => collection.id === collectionId);
-
-        setFeatures(myFeatureCollection.features);
-      }
-    }
-    setPage(myPage);
+    addFeatures(await FetchStepRemainder(featureCollections[collectionId], myStep), collectionId);
     setStep(myStep);
   }
 
 
   /** Sets states needed to display the new collection 
     * when the collection is changed from the dropdown */
-  const handleCollectionChange = (event, value) => {
-    let myCollectionId = value.props.value;
-    let myFeatureCollection = featureCollections.find(collection => collection.id === value.props.value);
-    let myFeatures = myFeatureCollection.features;
-    let myMatched = myFeatureCollection.numberMatched;
-    let myPage = myFeatures.length/step;
-
-    setCollectionId(myCollectionId);
-    setFeatures(myFeatures);
-    setPage(myPage);
-    setMatched(myMatched);
+  const handleCollectionChange = async (event, value) => {
+    let newCollectionId = value.props.value;
+    
+    addFeatures(await FetchStepRemainder(featureCollections[newCollectionId], step), newCollectionId);
+    
+    setCollectionId(newCollectionId);
+    setMatched(featureCollections[newCollectionId].numberMatched);
   };
-
-
-  /**
-   * Adds page and limit info to a query string.
-   * @param {string} myQuery - The query without page and limit defined
-   * @param {int} myPage - The page number
-   * @param {int} myStep - How many footprints to load per page
-   * @returns {string} An query with page and limit info added.
-   */
-  const queryWithPage = (myQuery, myPage, myStep) => {
-    let pageInfo = "page=" + myPage + "&";
-    if (myStep != 10){
-      pageInfo += "limit=" + myStep + "&"
-    }
-    return myQuery + pageInfo;
-  }
 
   /**
    * @async 
@@ -246,24 +204,12 @@ export default function FootprintResults(props) {
    * Triggered by "Load More" Button. */
   const loadMoreFootprints = async () => {
 
-    let newPage = page + 1;
-    let pagedQuery = queryWithPage(props.queryString, newPage, step);
-    let newFeatures = await FetchFootprints(props.target.collections, collectionId, pagedQuery);
-    let myFeatureCollection = {};
+    let newPage = numFeatures/step + 1;
+    let newFeatures = await FetchFootprints(featureCollections[collectionId], newPage, step);
     
     // If any features are returned, add them to currecnt collection
     if (newFeatures.length > 0) {
-      let myCollections = featureCollections;
-      myCollections
-        .find(collection => collection.id === collectionId)
-        .features.push(...newFeatures);
-
-      setFeatureCollections(myCollections);
-
-      myFeatureCollection = myCollections.find(collection => collection.id === collectionId);
-
-      setFeatures(myFeatureCollection.features);
-      setPage(newPage);
+      addFeatures(newFeatures, collectionId);
     }
   }
 
@@ -279,124 +225,51 @@ export default function FootprintResults(props) {
       setHasFootprints(true);
 
       let collectionUrls = {};
-
       for (const collection of props.target.collections) {
         let itemsUrl = collection.links.find(link => link.rel === "items").href;
-        collectionUrls[collection.id] = itemsUrl;
+        collectionUrls[collection.id] = itemsUrl + props.queryString;
       }
 
       (async () => {
-        let objs = await FetchObjects(collectionUrls);
-        console.info("multiple collections", objs);
-      })();
-      
+        let collections = await FetchObjects(collectionUrls);
 
-      // OLD BELOW HERE
+        let tempCollections = [];
 
-      // set link information
-      let itemCollectionData = [];
-
-      for(const collection of props.target.collections) {
-        // Get "items" link for each collection
-        let itemsUrl = collection.links.find(link => link.rel === "items").href;
-        itemCollectionData.push({
-          "itemsUrl" : itemsUrl,
-          "itemsUrlWithQuery" : itemsUrl + props.queryString,
-          "id" : collection.id,
-          "title" : collection.title
-        });
-      }
-
-      // Promise tracking
-      let fetchPromise = {};
-      let jsonPromise = {};
-      // Result
-      let jsonRes = {};
-
-      // Get ready to fetch
-      for(const itemCollectionUrl of itemCollectionData) {
-        fetchPromise[itemCollectionUrl.itemsUrlWithQuery] = "Not Started";
-        jsonPromise[itemCollectionUrl.itemsUrlWithQuery] = "Not Started";
-        jsonRes[itemCollectionUrl.itemsUrlWithQuery] = [];
-      }
-
-      // Fetch JSON and read into object
-      async function startFetch(targetUrl) {
-          fetchPromise[targetUrl] = fetch(
-            targetUrl
-          ).then((res)=>{
-              jsonPromise[targetUrl] = res.json().then((jsonData)=>{
-                  jsonRes[targetUrl] = jsonData;
-              }).catch((err)=>{
-                  console.log(err);
-              });
-          }).catch((err) => {
-              console.log(err);
-          });
-      }
-
-      // To be executed after Fetch has been started, wait for fetch to finish
-      async function awaitFetch(targetUrl) {
-        await fetchPromise[targetUrl];
-        await jsonPromise[targetUrl];
-      } 
-
-      async function fetchAndWait() {
-        // Start fetching
-        for(const itemCollectionUrl of itemCollectionData) {
-          startFetch(itemCollectionUrl.itemsUrlWithQuery);
+        // Add extra properties to each collection
+        for(const key in collections){
+          collections[key].id = key;
+          collections[key].title = props.target.collections.find(collection => collection.id === key).title;
+          collections[key].url = collectionUrls[key];
+          tempCollections.push(collections[key]);
         }
 
-        // Wait for completion
-        for(const itemCollectionUrl of itemCollectionData) {
-          await awaitFetch(itemCollectionUrl.itemsUrlWithQuery);
+        let myId = collectionId;
+        if (!collections[myId]) {
+          myId = props.target.collections[0].id;
+          setCollectionId(myId);
         }
         
-        // Extract footprints into array
-        let myCollections = [];
-        for(const itemCollectionUrl of itemCollectionData) {
-          // Add info to returned item collection from top level collection data.
-          jsonRes[itemCollectionUrl.itemsUrlWithQuery].id = itemCollectionUrl.id;
-          jsonRes[itemCollectionUrl.itemsUrlWithQuery].title = itemCollectionUrl.title;
-          jsonRes[itemCollectionUrl.itemsUrlWithQuery].itemsUrl = itemCollectionUrl.itemsUrl;
-          jsonRes[itemCollectionUrl.itemsUrlWithQuery].itemsUrlWithQuery = itemCollectionUrl.itemsUrlWithQuery;
-          myCollections.push(jsonRes[itemCollectionUrl.itemsUrlWithQuery]);
-        }
-
-        return myCollections;
-      }
-
-      (async () => {
-        // Wait for features to be fetched and parsed
-        let myFeatureCollections = await fetchAndWait()
-
         // Set relevant properties based on features received
-        setFeatureCollections(myFeatureCollections);
-        setFeatures(myFeatureCollections.find(collection => collection.id === collectionId).features)
-        setMatched(myFeatureCollections.find(collection => collection.id === collectionId).numberMatched)
-        setHasFootprints(myFeatureCollections.length > 0);
+        setFeatureCollections(collections);
+        setMatched(collections[myId].numberMatched);
+        setNumFeatures(collections[myId].features.length);
+        setHasFootprints(Object.keys(collections).length > 0);
         setIsLoading(false);
 
-        let myMaxFootprintsMatched = 0;
-        for(const collection of myFeatureCollections) {
-          myMaxFootprintsMatched = Math.max(myMaxFootprintsMatched, collection.numberMatched);
-        }
-        // props.setMaxFootprintsMatched(myMaxFootprintsMatched);
-
         // Send to Leaflet
-        window.postMessage(["setFeatureCollections", myFeatureCollections], "*");
+        window.postMessage(["setFeatureCollections", tempCollections], "*");
       })();
 
     } else {
-      setIsLoading(false);
       setHasFootprints(false);
+      setIsLoading(false);
     }
 
   }, [props.target.name, props.queryString]);
 
   let noFootprintsReturned = true;
-  for(const collection of featureCollections){
-    if(collection.numberReturned > 0) noFootprintsReturned = false;
+  for(const key in featureCollections){
+    if(featureCollections[key].numberReturned > 0) noFootprintsReturned = false;
   }
 
   return (
@@ -438,53 +311,54 @@ export default function FootprintResults(props) {
       : hasFootprints ? 
         <React.Fragment>
           <div id="xLoadedPane" className="resultPane">
-            {features.length} of {matched} footprints loaded.
+            {numFeatures} of {matched} footprints loaded.
           </div>
           <div id="resultsList">
             <List sx={{maxWidth: 265, paddingTop: 0}}>
-              {features.map(feature => (
+              {featureCollections[collectionId].features.map(feature => (
                 <FootprintCard feature={feature} key={feature.id}/>
               ))}
             </List>
           </div>
+        
+          <div id="resultLoader" className="resultPane">
+            <div id="loadMore">
+              <Button
+                id="loadMoreButton"
+                onClick={loadMoreFootprints}
+                variant="outlined"
+                size="small"
+                disabled={numFeatures >= matched}
+              >
+                Load More
+              </Button>
+            </div>
+            <div id="xPerRequest">
+              <div>
+                <Select
+                  id="xPerRequestSelect"
+                  className="thinSelect"
+                  size="small"
+                  value={step}
+                  onChange={handleStepChange}
+                  >
+                  <MenuItem value={5}>5</MenuItem>
+                  <MenuItem value={10}>10</MenuItem>
+                  <MenuItem value={50}>50</MenuItem>
+                  <MenuItem value={100}>100</MenuItem>
+                </Select>
+              </div>
+              <div>
+                <label style={{marginRight: "5px"}} htmlFor="xPerRequestSelect">
+                  per <br/> request
+                </label>
+              </div>
+            </div>
+          </div>
+
         </React.Fragment>
       :
         <NoFootprints/>
-      }
-      { hasFootprints &&
-        <div id="resultLoader" className="resultPane">
-          <div id="loadMore">
-            <Button
-              id="loadMoreButton"
-              onClick={loadMoreFootprints}
-              variant="outlined"
-              size="small"
-            >
-              Load More
-            </Button>
-          </div>
-          <div id="xPerRequest">
-            <div>
-              <Select
-                id="xPerRequestSelect"
-                className="thinSelect"
-                size="small"
-                value={step}
-                onChange={handleStepChange}
-                >
-                <MenuItem value={5}>5</MenuItem>
-                <MenuItem value={10}>10</MenuItem>
-                <MenuItem value={50}>50</MenuItem>
-                <MenuItem value={100}>100</MenuItem>
-              </Select>
-            </div>
-            <div>
-              <label style={{marginRight: "5px"}} htmlFor="xPerRequestSelect">
-                per <br/> request
-              </label>
-            </div>
-          </div>
-        </div>
       }
     </div>
   );

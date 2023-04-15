@@ -152,7 +152,10 @@ export default function SearchAndFilterInput(props) {
     }
 
     // Area
-    if(areaCheckVal && areaTextVal !== "") myQueryString += areaTextVal; // Add an & if not last
+    if(areaCheckVal && areaTextVal !== "") myQueryString += areaTextVal;
+
+    // clear tailing &s
+    if(myQueryString.slice(-1) === '&') myQueryString = myQueryString.slice(0, -1)
 
     props.setQueryString(myQueryString);
   }

@@ -4,15 +4,8 @@ export async function FetchObjects(objInfo) {
 
     // function overload handling
     if(typeof objInfo === "string"){
-        objInfo = { "untitled" : objInfo };
+        objInfo = { "defaultKey" : objInfo };
         inputWasSingleString = true;
-    }
-    else if (typeof objInfo === "object") {
-
-    }
-    else {
-        console.error("Unsupported type for FetchObjects()", typeof objInfo);
-        return -1;
     }
 
     // Promise Tracking
@@ -45,26 +38,46 @@ export async function FetchObjects(objInfo) {
         await jsonPromise[key];
     }
 
-    // Once we're done waiting, this should contain our footprints
-    if(inputWasSingleString) return jsonRes["untitled"];
+    // After waiting, this contains footprints
+    if(inputWasSingleString) return jsonRes["defaultKey"];
     else return jsonRes;
 }
 
 /** Identifies a collection (from those passed in) based on id and fetches footprints from that collection according to query
  * @async
- * @param {array} targetCollections - An array of all collections for the current target.
+ * @param {array} collection - A collection with a url property.
  * @param {string} collectionId - The id of the collection to fetch from.
  * @param {string} queryString - The query to narrow the results returned from the collection.
  */
-export async function FetchFootprints(targetCollections, collectionId, queryString){
+export async function FetchFootprints(collection, page, step){
 
-    // Find the collection to search based on ID
-    let myCollection = targetCollections.find(collection => collection.id === collectionId);
+    let pageInfo = "";
+    if(collection.url.slice(-1) !== "?") {
+        pageInfo += "&"
+    }
+    pageInfo += "page=" + page;
+    if (step != 10){
+      pageInfo += "&limit=" + step;
+    }
 
-    // Find the items link from this collection
-    let itemsUrl = myCollection.links.find(link => link.rel === "items").href;
-
-    let jsonRes = await FetchObjects(itemsUrl + queryString);
-    console.info(jsonRes)
+    let jsonRes = await FetchObjects(collection.url + pageInfo);
     return jsonRes.features;
 }
+
+export async function FetchStepRemainder(featureCollection, myStep){
+    let myPage = Math.ceil(featureCollection.features.length / myStep);
+    let skip = featureCollection.features.length % myStep;
+    let newFeatures = [];
+
+    console.info("skip", skip);
+
+    if (skip !== 0) {
+      newFeatures = await FetchFootprints(featureCollection, myPage, myStep);
+
+      // If any features are returned, add the remainder needed to the current collection
+      if (newFeatures.length > 0) {
+        return newFeatures.slice(skip, newFeatures.length);
+      }
+    }
+    return newFeatures;
+  }
