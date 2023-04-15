@@ -127,7 +127,7 @@ export default L.Map.AstroMap = L.Map.extend({
    * @param {object} featureCollections - Feature Collections
    *
    */
-  loadFeatureCollections: function(featureCollections) {
+  loadFeatureCollections: function(collectionsObj) {
 
     // show thumbnail on map when clicked - use stac-layer for this?
     function handleClick(e) {
@@ -144,7 +144,14 @@ export default L.Map.AstroMap = L.Map.extend({
       */
     } 
 
-    if (featureCollections != undefined) {
+    let featureCollections = []
+
+    for(const key in collectionsObj) {
+      featureCollections.push(collectionsObj[key]);
+    }
+
+
+    if (featureCollections != []) {
       
         // Init _geoLayers, at the length of one layer per collection
       this._geoLayers = new Array(featureCollections.length);
@@ -158,7 +165,7 @@ export default L.Map.AstroMap = L.Map.extend({
             // Add each _geoLayer that has footprints to the FootprintCollection object.
             // The collection title is used as the property name, and it
             // shows up as the layer title when added to the Leaflet control
-        if(featureCollections[i].numberReturned > 0) {
+        if(featureCollections[i].features.length > 0) {
           this._footprintCollection[featureCollections[i].title] = this._geoLayers[i];
         }
             // Delete layers with no Footprints

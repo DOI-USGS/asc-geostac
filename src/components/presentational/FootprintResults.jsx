@@ -175,6 +175,9 @@ export default function FootprintResults(props) {
     myFeatureCollections[key].features.push(...newFeatures);
     setFeatureCollections(myFeatureCollections);
     setNumFeatures(myFeatureCollections[key].features.length);
+
+    // Send to Leaflet
+    window.postMessage(["setFeatureCollections", myFeatureCollections], "*");
   }
 
   /** When the step amount is changed, determines the next page number based on features
@@ -239,16 +242,14 @@ export default function FootprintResults(props) {
       (async () => {
         let collections = await FetchObjects(collectionUrls);
 
-        let tempCollections = [];
-
         // Add extra properties to each collection
         for(const key in collections){
           collections[key].id = key;
           collections[key].title = props.target.collections.find(collection => collection.id === key).title;
           collections[key].url = collectionUrls[key];
-          tempCollections.push(collections[key]);
         }
 
+        // Updates collectionId if switching to a new set of collections (new target)
         let myId = collectionId;
         if (!collections[myId]) {
           myId = props.target.collections[0].id;
@@ -263,7 +264,7 @@ export default function FootprintResults(props) {
         setIsLoading(false);
 
         // Send to Leaflet
-        window.postMessage(["setFeatureCollections", tempCollections], "*");
+        window.postMessage(["setFeatureCollections", collections], "*");
       })();
 
     } else {
