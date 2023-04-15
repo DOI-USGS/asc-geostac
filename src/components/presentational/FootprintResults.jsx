@@ -224,10 +224,16 @@ export default function FootprintResults(props) {
       setIsLoading(true);
       setHasFootprints(true);
 
+      let pageInfo = "";
+      if (step != 10){
+        if(props.queryString.slice(-1) !== '?') pageInfo += "&";
+        pageInfo += "limit=" + step;
+      }
+
       let collectionUrls = {};
       for (const collection of props.target.collections) {
         let itemsUrl = collection.links.find(link => link.rel === "items").href;
-        collectionUrls[collection.id] = itemsUrl + props.queryString;
+        collectionUrls[collection.id] = itemsUrl + props.queryString + pageInfo;
       }
 
       (async () => {
