@@ -295,7 +295,7 @@ export default function FootprintResults(props) {
           <Select
             className="multilineSelect"
             size="small"
-            value={collectionId}
+            value={props.target.collections.find(col => col.id === collectionId) ? collectionId : ""}
             onChange={handleCollectionChange}
             >
             {props.target.collections.map(collection => (
