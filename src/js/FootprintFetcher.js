@@ -1,38 +1,36 @@
-export async function FetchObjects(objInfo, key="id", location="url") {
+export async function FetchObjects(objInfo) {
 
     let inputWasSingleString = false;
 
     // function overload handling
     if(typeof objInfo === "string"){
-        objInfo = [objInfo];
+        objInfo = { "untitled" : objInfo };
         inputWasSingleString = true;
-    }
-    else if (typeof objInfo === "array") {
-        console.log("Array!");
     }
     else if (typeof objInfo === "object") {
 
     }
     else {
-        console.error("Unknown Type!", typeof objInfo);
+        console.error("Unsupported type for FetchObjects()", typeof objInfo);
+        return -1;
     }
 
     // Promise Tracking
-    let fetchPromise = [];
-    let jsonPromise = [];
+    let fetchPromise = {};
+    let jsonPromise = {};
     // Result
-    let jsonRes = [];
+    let jsonRes = {};
 
 
     // For each url given
-    for(let i = 0; i < objInfo.length; i++) {
+    for(const key in objInfo) {
 
         // Fetch JSON from url and read into object
-        fetchPromise[i] = fetch(
-            objInfo[i]
+        fetchPromise[key] = fetch(
+            objInfo[key]
         ).then((res)=>{
-            jsonPromise[i] = res.json().then((jsonData)=>{
-                jsonRes[i] = jsonData;
+            jsonPromise[key] = res.json().then((jsonData)=>{
+                jsonRes[key] = jsonData;
             }).catch((err)=>{
                 console.log(err);
             });
@@ -42,13 +40,13 @@ export async function FetchObjects(objInfo, key="id", location="url") {
     }
 
     // Wait for each query to complete
-    for(let i = 0; i < objInfo.length; i++){
-        await fetchPromise[i];
-        await jsonPromise[i];
+    for(const key in objInfo){
+        await fetchPromise[key];
+        await jsonPromise[key];
     }
 
     // Once we're done waiting, this should contain our footprints
-    if(inputWasSingleString) return jsonRes[0];
+    if(inputWasSingleString) return jsonRes["untitled"];
     else return jsonRes;
 }
 

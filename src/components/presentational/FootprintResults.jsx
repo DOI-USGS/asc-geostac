@@ -278,6 +278,21 @@ export default function FootprintResults(props) {
       setIsLoading(true);
       setHasFootprints(true);
 
+      let collectionUrls = {};
+
+      for (const collection of props.target.collections) {
+        let itemsUrl = collection.links.find(link => link.rel === "items").href;
+        collectionUrls[collection.id] = itemsUrl;
+      }
+
+      (async () => {
+        let objs = await FetchObjects(collectionUrls);
+        console.info("multiple collections", objs);
+      })();
+      
+
+      // OLD BELOW HERE
+
       // set link information
       let itemCollectionData = [];
 
