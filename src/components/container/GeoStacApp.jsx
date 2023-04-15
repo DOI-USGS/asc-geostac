@@ -16,7 +16,6 @@ export default function GeoStacApp(props) {
   const [targetPlanet, setTargetPlanet] = React.useState(props.mapList.systems[4].bodies[0]);
 
   const [queryString, setQueryString] = React.useState("?");
-  const [collectionUrls, setCollectionUrls] = React.useState([]);
 
   /**
    * Handles target body selection
@@ -40,13 +39,11 @@ export default function GeoStacApp(props) {
           </div>
           <QueryConsole
             queryString={queryString}
-            setQueryString={setQueryString}
-            collectionUrls={collectionUrls}/>
+            setQueryString={setQueryString}/>
         </div>
         <Sidebar
           queryString={queryString}
           setQueryString={setQueryString}
-          setCollectionUrls={setCollectionUrls}
           target={targetPlanet}
         />
       </div>

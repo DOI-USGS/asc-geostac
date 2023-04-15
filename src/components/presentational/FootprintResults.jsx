@@ -13,7 +13,7 @@ import TravelExploreIcon from '@mui/icons-material/TravelExplore'; // Footprints
 import GeoTiffViewer from "../../js/geoTiffViewer.js";
 
 // Footprint Fetch logic
-import FetchFootprints from "../../js/FootprintFetcher.js";
+import { FetchFootprints, FetchObjects } from "../../js/FootprintFetcher.js";
 
 
 /** Skeleton to show when footprints are loading */
@@ -240,8 +240,10 @@ export default function FootprintResults(props) {
     return myQuery + pageInfo;
   }
 
-  /** Fetches the next page of footprints ands add them to the current collection.
-    * Triggered by "Load More" Button. Async. */
+  /**
+   * @async 
+   * Fetches the next page of footprints ands add them to the current collection.
+   * Triggered by "Load More" Button. */
   const loadMoreFootprints = async () => {
 
     let newPage = page + 1;
@@ -278,9 +280,10 @@ export default function FootprintResults(props) {
 
       // set link information
       let itemCollectionData = [];
+
       for(const collection of props.target.collections) {
         // Get "items" link for each collection
-        let itemsUrl = collection.links.find(obj => obj.rel === "items").href;
+        let itemsUrl = collection.links.find(link => link.rel === "items").href;
         itemCollectionData.push({
           "itemsUrl" : itemsUrl,
           "itemsUrlWithQuery" : itemsUrl + props.queryString,
@@ -288,12 +291,6 @@ export default function FootprintResults(props) {
           "title" : collection.title
         });
       }
-
-      // For Query Console (query console needs the link info we just set)
-      props.setCollectionUrls(itemCollectionData);
-
-      // TODO: USE THIS EXTERNAL LOGIC
-      FetchFootprints(props.target.collections, collectionId, props.queryString);
 
       // Promise tracking
       let fetchPromise = {};
@@ -353,9 +350,6 @@ export default function FootprintResults(props) {
 
         return myCollections;
       }
-
-      // Send to Leaflet
-      window.postMessage(["setQuery", props.queryString], "*");
 
       (async () => {
         // Wait for features to be fetched and parsed

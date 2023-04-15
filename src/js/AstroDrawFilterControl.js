@@ -64,33 +64,16 @@ export default L.Control.AstroDrawFilterControl = L.Control.Draw.extend({
         }
       }
     }
-    this.queryTextBox = L.DomUtil.get("query-textarea");
 
     this.wkt = new Wkt.Wkt();
     this.myLayer = L.Proj.geoJson().addTo(map);
 
     // Add listener for window message from FootprintResults.jsx, which has Feature Collections
     L.DomEvent.on(window, "message", this.refreshFeatures, this);
-    L.DomEvent.on(L.DomUtil.get("copyCodeButton"), "click", this.copyToClipboard, this);
-
 
     map.on("draw:created", this.shapesToWKT, this);
 
     return container;
-  },
-
-  /**
-  * @function AstroDrawFilterControl.copyToClipboard
-  * @description Copies query string in the query console to clipboard
-  */
-  copyToClipboard: function(){
-    /* Get the text field */
-    var copyText = document.getElementById("query-textarea");
-
-    copyText.select();
-    copyText.setSelectionRange(0, 99999); /* For mobile devices */
-
-    navigator.clipboard.writeText(copyText.value);
   },
 
   /**

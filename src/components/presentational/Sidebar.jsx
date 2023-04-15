@@ -83,8 +83,7 @@ export default function Sidebar(props) {
         <FootprintResults 
           target={props.target} 
           queryString={props.queryString} 
-          changeLayout={handlePanelLayout} 
-          setCollectionUrls={props.setCollectionUrls}
+          changeLayout={handlePanelLayout}
         />
       </InPortal>
     </>
