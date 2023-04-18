@@ -47,8 +47,8 @@ export default L.LayerCollection = L.Class.extend({
         String(layer["url"]) + "?map=" + String(layer["map"]),
         {
           layers: String(layer["layer"]),
-          noWrap: true,
-          bounds: [[[-90, 360], [90, 0]]]
+          // noWrap: true,
+          // bounds: [[[-90, 360], [90, 0]]]
         }
       );
       let name = String(layer["displayname"]);
@@ -70,8 +70,8 @@ export default L.LayerCollection = L.Class.extend({
           layers: String(layer["layer"]),
           transparent: true,
           format: "image/png",
-          noWrap: true,
-          bounds: [[-90, 360], [90, 0]]
+          // noWrap: true,
+          // bounds: [[-90, 360], [90, 0]]
         }
       );
       let name = String(layer["displayname"]);
@@ -123,9 +123,9 @@ export default L.LayerCollection = L.Class.extend({
             layers: String(layer["layer"]),
             transparent: true,
             format: "image/png",
-            noWrap: true,
+            // noWrap: true,
             minZoom: 4,
-            bounds: [[-90, 360], [90, 0]]
+            // bounds: [[-90, 360], [90, 0]]
 
           }
         );

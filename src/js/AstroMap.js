@@ -32,7 +32,8 @@ export default L.Map.AstroMap = L.Map.extend({
     zoom: 1,
     maxZoom: 8,
     attributionControl: false,
-    zoomControl: false
+    zoomControl: false,
+    worldCopyJump: true
   },
 
   initialize: function(mapDiv, target, jsonMaps, options) {
@@ -144,7 +145,24 @@ export default L.Map.AstroMap = L.Map.extend({
       */
     } 
 
-    let featureCollections = []
+    let featureCollections = [];
+    let colors = [
+      "#17A398",
+      "#EE6C4D",
+      "#662C91",
+      "#F3DE2C",
+      "#33312E",
+      "#0267C1"
+    ];
+    let lightcolors = [
+      "#3DE3D5",
+      "#F49C86",
+      "#9958CC",
+      "#F7E96F",
+      "#2A9BFD",
+      "#DDDDDD"
+    ]
+    let testFlag = [true, true, true, true, true, true];
 
     for(const key in collectionsObj) {
       featureCollections.push(collectionsObj[key]);
@@ -174,12 +192,39 @@ export default L.Map.AstroMap = L.Map.extend({
         }
 
             // Add each feature to _geoLayers.
+            // Clone to east and west once.
             // _geoLayers is the footprint outlines shown on the map
         for(const feature of featureCollections[i].features) {
+          let westCopy = structuredClone(feature);
+          let eastCopy = structuredClone(feature);
+
+          if(feature.geometry.coordinates[0][0].length === 2){
+            westCopy.geometry.coordinates[0] = feature.geometry.coordinates[0].map(c => [c[0]-360, c[1]]);
+            eastCopy.geometry.coordinates[0] = feature.geometry.coordinates[0].map(c => [c[0]+360, c[1]]);
+          }
+          else {
+            westCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]-360, c[1]]);
+            eastCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]+360, c[1]]);
+          }
+          
           this._geoLayers[i].addData(feature);
+          this._geoLayers[i].addData(westCopy);
+          this._geoLayers[i].addData(eastCopy);
         }
+        
+        // Set a color for each layer
+        this._geoLayers[i].eachLayer(
+          (layer) => {
+            layer.setStyle({
+              fillColor: colors[i],
+              fillOpacity: 0.6, 
+              color: lightcolors[i]
+            })
+          }
+        );
+
       }
-      
+
       this._footprintControl = L.control                          // 1. Make a leaflet control
       .layers(null, this._footprintCollection, {collapsed: true}) // 2. Add the footprint collections to the control as layers
       .addTo(this)                                                // 3. Add the control to leaflet.

@@ -92,12 +92,10 @@ export default function QueryConsole(props) {
 
   return (
     <div id="query-console-container">
-      <div id="query-console-collapsed" onClick={handleOpenCloseConsole}>
-        <span id="query-console-title">
+        <span id="query-console-title" onClick={handleOpenCloseConsole}>
           {showConsole ? <ExpandMoreIcon /> : <ExpandLessIcon />}
           Query Console
         </span>
-      </div>
       <Collapse id="query-console-expanded" in={showConsole}>
           <div id="query-textarea-container">
             <textarea 

@@ -1,7 +1,9 @@
 import React from "react";
 import SearchAndFilterInput from "./SearchAndFilterInput.jsx";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import FootprintResults from "./FootprintResults.jsx";
+import { Tab, Tabs, Collapse } from "@mui/material";
 import {
   createHtmlPortalNode,
   InPortal,
@@ -9,21 +11,17 @@ import {
 } from "react-reverse-portal";
 
 const css = {
-  expanded: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "flex-start",
-    background: "#f8f9fa",
-  },
   stacked: {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
     background: "#f8f9fa",
-  },
-  hidden: {
-    display: "none",
-  },
+    minHeight: 0,
+    "& .MuiCollapse-wrapperInner": { 
+      display: "flex",
+      flexDirection: "column"
+    }
+  }
 };
 
 /**
@@ -38,54 +36,29 @@ export default function Sidebar(props) {
 
   // Layout
   const [showSidePanel, setShowSidePanel] = React.useState(true);
-  const [expandResults, setExpandResults] = React.useState(true);
  
   const showHideSort = () => {
     setShowSidePanel(!showSidePanel);
   };
 
-  const handlePanelLayout = (event) => {
-    setExpandResults((expandResults) => !expandResults);
-  };
-
-  const footprintResultPortalNode = React.useMemo(
-    () =>
-      createHtmlPortalNode({
-        attributes: {
-          style: "min-height: 0; display: flex;",
-        },
-      }),
-    []
-  );
-
   return (
     <>
       <div id="right-bar" className="scroll-parent">
         <div id="sidebar-collapsed" onClick={showHideSort}>
-          <ArrowLeftIcon />
-          Sort and Filter
-          <ArrowLeftIcon />
+          {showSidePanel ? <ArrowLeftIcon /> : <ArrowRightIcon/>}
+          Footprints
+          {showSidePanel ? <ArrowLeftIcon /> : <ArrowRightIcon/>}
         </div>
-        <div
-          style={showSidePanel ? css.stacked : css.hidden}
-          className="scroll-parent"
-        >
+        <Collapse orientation="horizontal" sx={css.stacked} in={showSidePanel}>
           <SearchAndFilterInput
             setQueryString={props.setQueryString}
           />
-          {!expandResults && <OutPortal node={footprintResultPortalNode} />}
-        </div>
-        {expandResults && showSidePanel && (
-          <OutPortal node={footprintResultPortalNode} />
-        )}
+          <FootprintResults 
+            target={props.target} 
+            queryString={props.queryString}
+          />
+        </Collapse>
       </div>
-      <InPortal node={footprintResultPortalNode}>
-        <FootprintResults 
-          target={props.target} 
-          queryString={props.queryString} 
-          changeLayout={handlePanelLayout}
-        />
-      </InPortal>
     </>
   );
 }

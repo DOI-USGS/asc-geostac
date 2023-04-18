@@ -127,26 +127,6 @@ a:link {
 }
 
 /*
- * Credits Bar
- */
-
-#credits-bar {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-}
-
-.credit-item {
-  background: #f8f9fa;
-  color: #343a40;
-  border: 5px #ff0000;
-  flex-grow: 1;
-  align-content: center;
-  text-align: center;
-}
-
-/*
  * Toolbar
  */
 
@@ -174,20 +154,13 @@ a:link {
   flex-direction: column;
 }
 
-#query-console-collapsed {
-  line-height: 32px;
-  text-align: left;
-  padding-left: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-content: baseline;
-  cursor: pointer;
-}
-
 #query-console-title {
   font-weight: 600;
   display: inline-flex;
   align-items: center;
+  line-height: 32px;
+  padding-left: 10px;
+  cursor: pointer;
 }
 
 #query-function {
@@ -253,31 +226,33 @@ Controls the CSS for projection buttons when there is no available projection
 }
 
 .panelSection {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   padding: 10px;
 }
 
 .panelHeader {
-  font-family: sans-serif;
+  color: black;
   font-weight: bold;
-  padding: 10px;
-  display: block;
+  font-family: "Helvetica Neue", "Helvetica" ,"Roboto", "Arial", sans-serif;
+  font-size: 100%;
+}
+
+.panelBar {
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
 }
 
 .panelSectionHeader {
-  display: inline;
   font-family: sans-serif;
 }
 
 .panelItem {
   margin-top: 10px;
   margin-bottom: 5px;
-  margin-right: 10px;
-  margin-left: 10px;
 }
 
-.panelSectionTitle {
-  display: inline;
+.clickable {
+  cursor: pointer;
 }
 
 .panelSectionCheck {
@@ -292,17 +267,6 @@ Controls the CSS for projection buttons when there is no available projection
   margin-right: -10px;
 }
 
-.collectionStatExpander {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.flatExpander {
-  margin-top: -4px;
-  margin-bottom: -10px;
-}
-
 /*
  * Results Panel
  */
@@ -314,7 +278,6 @@ Controls the CSS for projection buttons when there is no available projection
   align-items: flex-start;
   flex-direction: column;
   padding: 0;
-  border-left: 2px solid lightgray;
 }
 
 .resultPane {
