@@ -33,7 +33,8 @@ export default L.Map.AstroMap = L.Map.extend({
     maxZoom: 8,
     attributionControl: false,
     zoomControl: false,
-    worldCopyJump: true
+    worldCopyJump: true // Jumps back to the other side of the map if the 
+                        // user scrolls too far, as if the map is wrapping.
   },
 
   initialize: function(mapDiv, target, jsonMaps, options) {
@@ -145,7 +146,7 @@ export default L.Map.AstroMap = L.Map.extend({
       */
     } 
 
-    let featureCollections = [];
+    // Will we need more than 6 colors for more than 6 different collections?
     let colors = [
       "#17A398",
       "#EE6C4D",
@@ -162,8 +163,10 @@ export default L.Map.AstroMap = L.Map.extend({
       "#2A9BFD",
       "#DDDDDD"
     ]
-    let testFlag = [true, true, true, true, true, true];
 
+    // initialize featureCollection as an array
+    // (convert obj passed from FootprintResults.jsx)
+    let featureCollections = [];
     for(const key in collectionsObj) {
       featureCollections.push(collectionsObj[key]);
     }
@@ -194,10 +197,15 @@ export default L.Map.AstroMap = L.Map.extend({
             // Add each feature to _geoLayers.
             // Clone to east and west once.
             // _geoLayers is the footprint outlines shown on the map
+
+        // For each feature
         for(const feature of featureCollections[i].features) {
+
+          // Clone it
           let westCopy = structuredClone(feature);
           let eastCopy = structuredClone(feature);
-
+          
+          // Shift clones to the west and east 360 degrees, for a wrapping effect
           if(feature.geometry.coordinates[0][0].length === 2){
             westCopy.geometry.coordinates[0] = feature.geometry.coordinates[0].map(c => [c[0]-360, c[1]]);
             eastCopy.geometry.coordinates[0] = feature.geometry.coordinates[0].map(c => [c[0]+360, c[1]]);
@@ -207,21 +215,25 @@ export default L.Map.AstroMap = L.Map.extend({
             eastCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]+360, c[1]]);
           }
           
+          // Add to this._geoLayers (L.geoJSON Layers).
+          // This is the footprint outlines shown on the map.
           this._geoLayers[i].addData(feature);
           this._geoLayers[i].addData(westCopy);
           this._geoLayers[i].addData(eastCopy);
         }
         
-        // Set a color for each layer
-        this._geoLayers[i].eachLayer(
-          (layer) => {
-            layer.setStyle({
+        // If there are any defined colors left,
+        // Set color for each layer in each collection
+        // (distinct color per collection).
+        if(i < colors.length) {
+          this._geoLayers[i].eachLayer(layer => 
+            {layer.setStyle({
               fillColor: colors[i],
-              fillOpacity: 0.6, 
+              fillOpacity: 0.4, 
               color: lightcolors[i]
-            })
-          }
-        );
+            })}
+          );
+        }
 
       }
 
