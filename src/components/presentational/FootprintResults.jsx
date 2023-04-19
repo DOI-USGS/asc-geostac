@@ -36,13 +36,12 @@ export default function FootprintResults(props) {
     setNumFeatures(myFeatureCollections[key].features.length);
 
     // Send to Leaflet
-    window.postMessage(["setFeatureCollections", myFeatureCollections], "*");
+    window.postMessage(["addFeaturesToCollection", key, newFeatures], "*");
   }
 
   /** When the step amount is changed, determines the next page number based on features
    *  loaded and the new step amound and loads the footprints inbetween (if any). */
   const handleStepChange = async (event, value) => {
-
     let myStep = value.props.value;
     addFeatures(await FetchStepRemainder(featureCollections[collectionId], myStep), collectionId);
     setStep(myStep);
@@ -58,6 +57,9 @@ export default function FootprintResults(props) {
     
     setCollectionId(newCollectionId);
     setMatched(featureCollections[newCollectionId].numberMatched);
+
+    // Send to Leaflet
+    window.postMessage(["setVisibleCollections", newCollectionId], "*");
   };
 
   /**
@@ -123,7 +125,7 @@ export default function FootprintResults(props) {
         setIsLoading(false);
 
         // Send to Leaflet
-        window.postMessage(["setFeatureCollections", collections], "*");
+        window.postMessage(["setFeatureCollections", myId, collections], "*");
       })();
 
     } else {

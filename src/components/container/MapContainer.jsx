@@ -14,24 +14,15 @@ import AstroControlManager from "../../js/AstroControlManager";
 export default function MapContainer(props) {
   
   const [oldTarget, setOldTarget] = React.useState("");
-
-  /**
-   * Invoked when the component is successfully mounted to the DOM, then
-   * handles all of the map intialization and creation.
-   */
-  useEffect( () => {
-    let map = new AstroMap("map-container", props.target, props.astroWebMaps, {});
-    let controlManager = new AstroControlManager(map);
-    controlManager.addTo(map);
-    setOldTarget(props.target)
-  }, []);
+  const [map, setMap] = React.useState("");
 
   /**
    * Invoked after the component's state has changed when the
    * target selector passes down a new target name from props.
    */
   useEffect( () => {
-    if (props.target != oldTarget ) {
+    
+    if(oldTarget !== ""){
       // remove old map container and append new container to its parent
       let oldContainer = document.getElementById("map-container");
       let parent = oldContainer.parentNode;
@@ -47,13 +38,20 @@ export default function MapContainer(props) {
         .classList.remove("disabled");
       document.getElementById("projectionSouthPole").classList.remove("disabled");
 
-      // create new map with updated target
-      let map = new AstroMap("map-container", props.target, props.astroWebMaps, {});
-      let controlManager = new AstroControlManager(map);
-      controlManager.addTo(map);
-      setOldTarget(props.target)
+      // remove the old message listener so footprint messages aren't received multiple times.
+      map.removeListener();
     }
-  });
+
+    // create new map with updated target
+    let myMap = new AstroMap("map-container", props.target, props.astroWebMaps, {});
+    let controlManager = new AstroControlManager(myMap);
+    controlManager.addTo(myMap);
+
+    // Set into states for future reference
+    setOldTarget(props.target);
+    setMap(myMap);
+    
+  }, [props.target]);
 
   return (
     <div id="map-container" />

@@ -69,8 +69,6 @@ export async function FetchStepRemainder(featureCollection, myStep){
     let skip = featureCollection.features.length % myStep;
     let newFeatures = [];
 
-    console.info("skip", skip);
-
     if (skip !== 0) {
       newFeatures = await FetchFootprints(featureCollection, myPage, myStep);
 

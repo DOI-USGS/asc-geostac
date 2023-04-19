@@ -103,7 +103,10 @@ export default L.Map.AstroMap = L.Map.extend({
       this.setCurrentLayer(e["layer"]);
     });
 
-    // Resize Observer
+    // Add listener for window message from FootprintResults.jsx, which has Feature Collections
+    L.DomEvent.on(window, "message", this.interpretMessage, this);
+
+    // Resize Observer (so the map knows the size of the window/canvas)
     const mapDivEl = document.getElementById(mapDiv);
     const resizeObserver = new ResizeObserver(() => {
       this.invalidateSize();
@@ -122,6 +125,91 @@ export default L.Map.AstroMap = L.Map.extend({
     this.layers[name].addTo(this);
   },
 
+  interpretMessage: function(event) {
+    if(typeof event.data == "object"){
+      if (event.data[0] === "setFeatureCollections") {
+        const visibleCollectionId = event.data[1];
+        const receivedCollections = event.data[2];
+        this.refreshFeatures(visibleCollectionId, receivedCollections);
+      }
+      else if (event.data[0] === "addFeaturesToCollection") { 
+        const collectionId = event.data[1];
+        const myFeatures = event.data[2];
+        this.addFeaturesToCollection(collectionId, myFeatures);
+      }
+      else if (event.data[0] === "setVisibleCollections") { 
+        const collectionId = event.data[1];
+        this.setVisibleCollections(collectionId);
+      }
+    }
+  },
+
+  removeListener: function() {
+    L.DomEvent.off(window, "message", this.interpretMessage, this);
+  },
+
+  cloneWestEast: function(myFeatures) {
+
+    let clonedFeatures = [];
+
+    // Clone Features to west and east. For each feature...
+    for(const feature of myFeatures) {
+
+      // Clone it
+      let westCopy = structuredClone(feature);
+      let eastCopy = structuredClone(feature);
+      
+      // Shift clones to the west and east 360 degrees, for a wrapping effect
+      // Note: Only supports polygons and multipolygons... Do we have other geometry types?
+      if(feature.geometry.type === "Polygon"){
+        westCopy.geometry.coordinates[0] = feature.geometry.coordinates[0].map(c => [c[0]-360, c[1]]);
+        eastCopy.geometry.coordinates[0] = feature.geometry.coordinates[0].map(c => [c[0]+360, c[1]]);
+      }
+      else if (feature.geometry.type === "MultiPolygon") {
+        westCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]-360, c[1]]);
+        eastCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]+360, c[1]]);
+      }
+      
+      clonedFeatures.push(...[westCopy, feature, eastCopy]);
+    }
+    return clonedFeatures;
+  },
+
+  setVisibleCollections: function(collectionId){
+    for(let i = 0; i < this._geoLayers.length; i++) {
+      if(this._geoLayers[i]){
+        // Add layers to map if they should be visible
+        if(this._geoLayers[i].options.id === collectionId) { 
+          this._geoLayers[i].addTo(this);
+        } else {
+          this._geoLayers[i].removeFrom(this);
+        }
+      }
+    }
+  },
+
+  addFeaturesToCollection: function(collectionId, myFeatures) {
+    for(let i = 0; i < this._geoLayers.length; i++) {
+      if(this._geoLayers[i] && this._geoLayers[i].options.id === collectionId){
+        let wrappedFeatures = this.cloneWestEast(myFeatures);
+        this._geoLayers[i].addData(wrappedFeatures);
+      }
+    }
+  },
+
+  // show thumbnail on map when clicked - use stac-layer for this?
+  handleClick: function(e) {
+    const url_to_stac_item = e.layer.feature.links[0].href;
+    console.log (url_to_stac_item);
+    // fetch(url_to_stac_item).then(res => res.json()).then(async feature => {
+    //   const thumbnail = await L.stacLayer(feature, {displayPreview: true});
+    //   thumbnail.on("click", e => {
+    //     this.removeLayer(thumbnail);
+    //   })
+    //   thumbnail.addTo(this);
+    // });
+  },
+
   /**
    * @function AstroMap.prototype.loadFeatureCollection
    * @description Adds Feature Collections to map.
@@ -129,40 +217,24 @@ export default L.Map.AstroMap = L.Map.extend({
    * @param {object} featureCollections - Feature Collections
    *
    */
-  loadFeatureCollections: function(collectionsObj) {
-
-    // show thumbnail on map when clicked - use stac-layer for this?
-    function handleClick(e) {
-      const url_to_stac_item = e.layer.feature.links[0].href;
-      console.log (url_to_stac_item);
-      /*
-      fetch(url_to_stac_item).then(res => res.json()).then(async feature => {
-        const thumbnail = await L.stacLayer(feature, {displayPreview: true});
-        thumbnail.on("click", e => {
-          this.removeLayer(thumbnail);
-        })
-        thumbnail.addTo(this);
-      });
-      */
-    } 
+  refreshFeatures: function(visibleCollectionId, collectionsObj) {
 
     // Will we need more than 6 colors for more than 6 different collections?
-    let colors = [
-      "#17A398",
-      "#EE6C4D",
-      "#662C91",
-      "#F3DE2C",
-      "#33312E",
-      "#0267C1"
-    ];
-    let lightcolors = [
-      "#3DE3D5",
-      "#F49C86",
-      "#9958CC",
-      "#F7E96F",
-      "#2A9BFD",
-      "#DDDDDD"
-    ]
+    let colors =      [ "#17A398", "#EE6C4D", "#662C91", "#F3DE2C", "#33312E", "#0267C1" ];
+    let lightcolors = [ "#3DE3D5", "#F49C86", "#9958CC", "#F7E96F", "#DDDDDD", "#2A9BFD" ];
+
+    // Old, removes separate control
+    // if(this._footprintControl) {
+    //   this._footprintControl.remove();
+    // }
+
+    // removes layers previously loaded
+    for(let i = 0; i < this._geoLayers.length; i++){
+      if(this._geoLayers[i]) {
+        L.LayerCollection.layerControl.removeLayer(this._geoLayers[i]);
+        this._geoLayers[i].clearLayers();
+      }
+    }
 
     // initialize featureCollection as an array
     // (convert obj passed from FootprintResults.jsx)
@@ -171,76 +243,56 @@ export default L.Map.AstroMap = L.Map.extend({
       featureCollections.push(collectionsObj[key]);
     }
 
-
     if (featureCollections != []) {
       
-        // Init _geoLayers, at the length of one layer per collection
+      // Init _geoLayers, at the length of one layer per collection
       this._geoLayers = new Array(featureCollections.length);
 
-        // For each Collection (and each geoLayer)
+      // For each Collection (and each geoLayer)
       for (let i = 0; i < featureCollections.length; i++) {
 
-            // Add the click handler for each Layer
-        this._geoLayers[i] = L.geoJSON().on({click: handleClick}).addTo(this);
+        let title = featureCollections[i].title;
 
-            // Add each _geoLayer that has footprints to the FootprintCollection object.
-            // The collection title is used as the property name, and it
-            // shows up as the layer title when added to the Leaflet control
+        // Add each _geoLayer that has footprints to the FootprintCollection object.
+        // The collection title is used as the property name
+        // [old] and it shows up as the layer title when added to the separate Leaflet control
         if(featureCollections[i].features.length > 0) {
-          this._footprintCollection[featureCollections[i].title] = this._geoLayers[i];
-        }
-            // Delete layers with no Footprints
-        else {
-          delete this._footprintCollection[featureCollections[i].title];
-        }
 
-            // Add each feature to _geoLayers.
-            // Clone to east and west once.
-            // _geoLayers is the footprint outlines shown on the map
+          // Set colors if available
+          let myStyle = i < colors.length ? {fillColor: colors[i], color: lightcolors[i]} : {};
 
-        // For each feature
-        for(const feature of featureCollections[i].features) {
+          // Wrap features
+          let wrappedFeatures = this.cloneWestEast(featureCollections[i].features);
 
-          // Clone it
-          let westCopy = structuredClone(feature);
-          let eastCopy = structuredClone(feature);
+          // Add features to a geoJSON layer, as _geoLayers[i]
+          this._geoLayers[i] = L.geoJSON(wrappedFeatures, {
+            id: featureCollections[i].id,
+            style: myStyle
+          })
+
+          this._geoLayers[i].on({click: this.handleClick});  // Add click listener
           
-          // Shift clones to the west and east 360 degrees, for a wrapping effect
-          if(feature.geometry.coordinates[0][0].length === 2){
-            westCopy.geometry.coordinates[0] = feature.geometry.coordinates[0].map(c => [c[0]-360, c[1]]);
-            eastCopy.geometry.coordinates[0] = feature.geometry.coordinates[0].map(c => [c[0]+360, c[1]]);
+          // Add layers to map if they should be visible
+          if(featureCollections[i].id === visibleCollectionId) { 
+            this._geoLayers[i].addTo(this);
           }
-          else {
-            westCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]-360, c[1]]);
-            eastCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]+360, c[1]]);
-          }
-          
-          // Add to this._geoLayers (L.geoJSON Layers).
-          // This is the footprint outlines shown on the map.
-          this._geoLayers[i].addData(feature);
-          this._geoLayers[i].addData(westCopy);
-          this._geoLayers[i].addData(eastCopy);
-        }
-        
-        // If there are any defined colors left,
-        // Set color for each layer in each collection
-        // (distinct color per collection).
-        if(i < colors.length) {
-          this._geoLayers[i].eachLayer(layer => 
-            {layer.setStyle({
-              fillColor: colors[i],
-              fillOpacity: 0.4, 
-              color: lightcolors[i]
-            })}
-          );
-        }
 
+          this._footprintCollection[title] = this._geoLayers[i];
+
+          // Add collections to the Overlay control
+          L.LayerCollection.layerControl.addOverlay(this._footprintCollection[title], title);
+
+        }
+        else if(this._geoLayers[i]) {
+          delete this._footprintCollection[title]; // Delete layers with no Footprints
+        }
       }
 
-      this._footprintControl = L.control                          // 1. Make a leaflet control
-      .layers(null, this._footprintCollection, {collapsed: true}) // 2. Add the footprint collections to the control as layers
-      .addTo(this)                                                // 3. Add the control to leaflet.
-                                                                  // Now the user show/hide layers (and see their titles)
+      // Add collections to a separate control
+      // this._footprintControl = L.control                          // 1. Make a leaflet control
+      // .layers(null, this._footprintCollection, {collapsed: true}) // 2. Add the footprint collections to the control as layers
+      // .addTo(this)                                                // 3. Add the control to leaflet.
+                                                                     // Now the user can show/hide layers (and see their titles)
     }
   },
 
