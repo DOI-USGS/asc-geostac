@@ -36,6 +36,8 @@ export default function Sidebar(props) {
 
   // Layout
   const [showSidePanel, setShowSidePanel] = React.useState(true);
+
+  const [filterString, setFilterString] = React.useState("?");
  
   const showHideSort = () => {
     setShowSidePanel(!showSidePanel);
@@ -51,11 +53,14 @@ export default function Sidebar(props) {
         </div>
         <Collapse orientation="horizontal" sx={css.stacked} in={showSidePanel}>
           <SearchAndFilterInput
-            setQueryString={props.setQueryString}
+            setFilterString={setFilterString}
+            targetName={props.target.name}
           />
           <FootprintResults 
             target={props.target} 
-            queryString={props.queryString}
+            filterString={filterString}
+            queryAddress={props.queryAddress}
+            setQueryAddress={props.setQueryAddress}
           />
         </Collapse>
       </div>

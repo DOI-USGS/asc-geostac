@@ -55,8 +55,7 @@ let css = {
 export default function QueryConsole(props) {
 
   const [showConsole, setShowConsole] = React.useState(false);
-  const [selectedUrl, setSelectedUrl] = React.useState("");
-  const [queryUrl, setQueryUrl] = React.useState(props.queryString);
+  const [queryUrl, setQueryUrl] = React.useState(props.queryAddress);
 
   const queryTextarea = React.useRef(null);
 
@@ -79,15 +78,12 @@ export default function QueryConsole(props) {
   }
 
   const handleRunQueryClick = () => {
-    const newQuery = queryUrl.split("?")[1];
-    if(typeof newQuery !== 'undefined'){
-      props.setQueryString("?" + queryUrl.split("?")[1]);
-    }
+    props.setQueryAddress(queryUrl);
   }
 
   useEffect(() => {
-    setQueryUrl(selectedUrl + props.queryString);
-  }, [selectedUrl, props.queryString]);
+    setQueryUrl(props.queryAddress);
+  }, [props.queryAddress]);
 
 
   return (
@@ -123,13 +119,13 @@ export default function QueryConsole(props) {
                   startIcon={<DataObjectIcon/>}>
                     Open JSON
                 </Button>
-                <Button 
+                {/* <Button 
                   onClick={handleRunQueryClick}
                   id="runQueryButton" 
                   sx={css.consoleButton} 
                   startIcon={<PlayArrowIcon />}>
                     Run STAC Query
-                </Button>
+                </Button> */}
               </ButtonGroup>
             </div>
           </div>

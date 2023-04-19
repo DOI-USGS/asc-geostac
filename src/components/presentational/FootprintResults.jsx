@@ -90,14 +90,14 @@ export default function FootprintResults(props) {
 
       let pageInfo = "";
       if (step != 10){
-        if(props.queryString.slice(-1) !== '?') pageInfo += "&";
+        if(props.filterString.slice(-1) !== '?') pageInfo += "&";
         pageInfo += "limit=" + step;
       }
 
       let collectionUrls = {};
       for (const collection of props.target.collections) {
         let itemsUrl = collection.links.find(link => link.rel === "items").href;
-        collectionUrls[collection.id] = itemsUrl + props.queryString + pageInfo;
+        collectionUrls[collection.id] = itemsUrl + props.filterString + pageInfo;
       }
 
       (async () => {
@@ -133,7 +133,25 @@ export default function FootprintResults(props) {
       setIsLoading(false);
     }
 
-  }, [props.target.name, props.queryString]);
+  }, [props.target.name, props.filterString]);
+
+  const generateQueryAddress = () => {
+    let myCollection = props.target.collections.find(collection => collection.id === collectionId);
+    let myCollectionUrl = myCollection.links.find(link => link.rel === "items").href;
+    return myCollectionUrl + props.filterString;
+  };
+
+  // Update queryAddress for query console whenever filterString or collectionId changes
+  useEffect(() => {
+    props.setQueryAddress(generateQueryAddress());
+  }, [props.filterString, collectionId]);
+
+  // Run this if query received from query console
+  // useEffect(() => {
+  //   console.info("props.queryAddress", props.queryAddress);
+  //   console.info("generateQueryAddress", generateQueryAddress());
+  // }), [props.queryAddress];
+
 
   let noFootprintsReturned = true;
   for(const key in featureCollections){

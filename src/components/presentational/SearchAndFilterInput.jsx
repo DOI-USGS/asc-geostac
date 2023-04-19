@@ -89,7 +89,7 @@ export default function SearchAndFilterInput(props) {
   }
 
   const buildQueryString = () => {
-    let myQueryString = "?";
+    let myFilterString = "?";
     
     // Date
     if (dateCheckVal) {
@@ -123,7 +123,7 @@ export default function SearchAndFilterInput(props) {
         toDate = dateToVal.toISOString();
       }
 
-      myQueryString += "datetime=" + fromDate + "/" + toDate + "&";
+      myFilterString += "datetime=" + fromDate + "/" + toDate + "&";
     }
 
     // Sorting
@@ -132,16 +132,16 @@ export default function SearchAndFilterInput(props) {
       sortAscDesc = '';
     }
     if (sortVal === "id" || sortVal === "properties.datetime" || sortVal === "properties.proj:bbox") {
-      myQueryString += 'sortby=' + sortAscDesc + sortVal + '&';
+      myFilterString += 'sortby=' + sortAscDesc + sortVal + '&';
     }
 
     // Area
-    if(areaCheckVal && areaTextVal !== "") myQueryString += areaTextVal;
+    if(areaCheckVal && areaTextVal !== "") myFilterString += areaTextVal;
 
     // clear tailing &s
-    if(myQueryString.slice(-1) === '&') myQueryString = myQueryString.slice(0, -1)
+    if(myFilterString.slice(-1) === '&') myFilterString = myFilterString.slice(0, -1)
 
-    props.setQueryString(myQueryString);
+    props.setFilterString(myFilterString);
   }
 
   // Sorting

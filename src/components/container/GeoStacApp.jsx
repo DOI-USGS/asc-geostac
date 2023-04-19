@@ -15,7 +15,9 @@ import Sidebar from "../presentational/Sidebar.jsx";
 export default function GeoStacApp(props) {
   const [targetPlanet, setTargetPlanet] = React.useState(props.mapList.systems[4].bodies[0]);
 
-  const [queryString, setQueryString] = React.useState("?");
+  const [queryAddress, setQueryAddress] = React.useState(
+    props.mapList.systems[4].bodies[0].collections[0].links.find(link => link.rel === "items").href + "?"
+  );
 
   /**
    * Handles target body selection
@@ -38,12 +40,12 @@ export default function GeoStacApp(props) {
             <MapContainer target={targetPlanet.name} astroWebMaps={props.astroWebMaps}/>
           </div>
           <QueryConsole
-            queryString={queryString}
-            setQueryString={setQueryString}/>
+            queryAddress={queryAddress}
+            setQueryAddress={setQueryAddress}/>
         </div>
         <Sidebar
-          queryString={queryString}
-          setQueryString={setQueryString}
+          queryAddress={queryAddress}
+          setQueryAddress={setQueryAddress}
           target={targetPlanet}
         />
       </div>
