@@ -29,6 +29,10 @@ export default function FootprintResults(props) {
   const [collectionId, setCollectionId] = React.useState(props.target.collections.length > 0 ? props.target.collections[0].id : "");
   const [matched, setMatched] = React.useState(0);
 
+  const [oldTargetName, setOldTargetName] = React.useState("");
+  const [oldFilterString, setOldFilterString] = React.useState("");
+
+
   const addFeatures = (newFeatures, key) => {
     let myFeatureCollections = featureCollections;
     myFeatureCollections[key].features.push(...newFeatures);
@@ -80,9 +84,22 @@ export default function FootprintResults(props) {
   /** Listens for the target name or incoming query string to change,
    *  and fetches/sets new collection info/footprints/features when they do. */
   useEffect(() => {
+    
+    // Compare new props to old ones to make sure not to do the same fetch twice
+    let targetChange = props.target.name !== oldTargetName;
+    let filterChange = props.filterString !== oldFilterString;
+    let myFilter = props.filterString;
 
-    // If target has collections (of footprints)
-    if (props.target.collections.length > 0) {
+    setOldTargetName(props.target.name);
+    setOldFilterString(props.filterString);
+
+    if(targetChange){
+      myFilter = "?";
+      setOldFilterString(myFilter);
+    }
+
+    // If target has collections (of footprints), and target or filter changed
+    if ( (targetChange || filterChange) && props.target.collections.length > 0) {
 
       // Set Loading
       setIsLoading(true);
@@ -90,14 +107,14 @@ export default function FootprintResults(props) {
 
       let pageInfo = "";
       if (step != 10){
-        if(props.filterString.slice(-1) !== '?') pageInfo += "&";
+        if(myFilter.slice(-1) !== '?') pageInfo += "&";
         pageInfo += "limit=" + step;
       }
 
       let collectionUrls = {};
       for (const collection of props.target.collections) {
         let itemsUrl = collection.links.find(link => link.rel === "items").href;
-        collectionUrls[collection.id] = itemsUrl + props.filterString + pageInfo;
+        collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
       }
 
       (async () => {
@@ -128,17 +145,24 @@ export default function FootprintResults(props) {
         window.postMessage(["setFeatureCollections", myId, collections], "*");
       })();
 
-    } else {
+    } else if (props.target.collections.length <= 0) {
       setHasFootprints(false);
       setIsLoading(false);
     }
 
-  }, [props.target.name, props.filterString]);
+  }, [props.filterString, props.target.name]);
 
   const generateQueryAddress = () => {
     let myCollection = props.target.collections.find(collection => collection.id === collectionId);
-    let myCollectionUrl = myCollection.links.find(link => link.rel === "items").href;
-    return myCollectionUrl + props.filterString;
+    if(myCollection){
+      let myCollectionUrl = myCollection.links.find(link => link.rel === "items").href;
+      return myCollectionUrl + props.filterString;
+    } else if (props.target.collections.length > 0) {
+      myCollection = props.target.collections[0];
+      let myCollectionUrl = myCollection.links.find(link => link.rel === "items").href;
+      return myCollectionUrl + props.filterString;
+    }
+    return "";
   };
 
   // Update queryAddress for query console whenever filterString or collectionId changes

@@ -68,9 +68,9 @@ let css = {
 export default function SearchAndFilterInput(props) {
 
   // Allows showing/hiding of fields
-  const [expandDate, setExpandDate] = React.useState(false);
   const [expandFilter, setExpandFilter] = React.useState(false);
-
+  const [expandDate, setExpandDate] = React.useState(false);
+  
   // Sort By
   const [sortVal, setSortVal] = React.useState("");                    // Sort By What?
   const [sortAscCheckVal, setSortAscCheckVal] = React.useState(true); // Sort Ascending or Descending
@@ -191,10 +191,31 @@ export default function SearchAndFilterInput(props) {
     }
   }
 
+  // Listener for boundary box being drawn in leaflet
   useEffect(() => {
     window.addEventListener("message", onBoxDraw);
     return () => window.removeEventListener("message", onBoxDraw);
   }, []);
+
+  // If target is changed, reset filter values;
+  useEffect(() => {
+    
+  // Sort By
+  setSortVal("");
+  setSortAscCheckVal(true);
+  
+  // Filter by X checkboxes
+  setAreaCheckVal(false);
+  setDateCheckVal(false);
+
+  // Filter by X values
+  setAreaTextVal("");    // Area (received by window message from AstroMap)
+  setDateFromVal(null); // From Date
+  setDateToVal(null);  // To Date
+
+  }, [props.targetName]);
+
+  
 
   /* Control IDs for reference:
   sortBySelect
