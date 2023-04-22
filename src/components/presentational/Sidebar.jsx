@@ -1,7 +1,9 @@
 import React from "react";
 import SearchAndFilterInput from "./SearchAndFilterInput.jsx";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
+import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import FootprintResults from "./FootprintResults.jsx";
+import { Tab, Tabs, Collapse } from "@mui/material";
 import {
   createHtmlPortalNode,
   InPortal,
@@ -9,21 +11,17 @@ import {
 } from "react-reverse-portal";
 
 const css = {
-  expanded: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "flex-start",
-    background: "#f8f9fa",
-  },
   stacked: {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
     background: "#f8f9fa",
-  },
-  hidden: {
-    display: "none",
-  },
+    minHeight: 0,
+    "& .MuiCollapse-wrapperInner": { 
+      display: "flex",
+      flexDirection: "column"
+    }
+  }
 };
 
 /**
@@ -35,72 +33,37 @@ const css = {
  * @component
  */
 export default function Sidebar(props) {
-  
-  // Page Tracking
-  const [currentStep, setCurrentStep] = React.useState(10);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [maxFootprintsMatched, setMaxFootprintsMatched] = React.useState(10);
 
   // Layout
   const [showSidePanel, setShowSidePanel] = React.useState(true);
-  const [expandResults, setExpandResults] = React.useState(true);
+
+  const [filterString, setFilterString] = React.useState("?");
  
   const showHideSort = () => {
     setShowSidePanel(!showSidePanel);
   };
 
-  const handlePanelLayout = (event) => {
-    setExpandResults((expandResults) => !expandResults);
-  };
-
-  const footprintResultPortalNode = React.useMemo(
-    () =>
-      createHtmlPortalNode({
-        attributes: {
-          style: "min-height: 0; display: flex;",
-        },
-      }),
-    []
-  );
-
   return (
     <>
       <div id="right-bar" className="scroll-parent">
         <div id="sidebar-collapsed" onClick={showHideSort}>
-          <ArrowLeftIcon />
-          Sort and Filter
-          <ArrowLeftIcon />
+          {showSidePanel ? <ArrowLeftIcon /> : <ArrowRightIcon/>}
+          Footprints
+          {showSidePanel ? <ArrowLeftIcon /> : <ArrowRightIcon/>}
         </div>
-        <div
-          style={showSidePanel ? css.stacked : css.hidden}
-          className="scroll-parent"
-        >
+        <Collapse orientation="horizontal" sx={css.stacked} in={showSidePanel}>
           <SearchAndFilterInput
-            target={props.target}
-            setQueryString={props.setQueryString}
-            currentStep={currentStep}
-            setCurrentStep={setCurrentStep}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            maxFootprintsMatched={maxFootprintsMatched}
+            setFilterString={setFilterString}
+            targetName={props.target.name}
           />
-          {!expandResults && <OutPortal node={footprintResultPortalNode} />}
-        </div>
-        {expandResults && showSidePanel && (
-          <OutPortal node={footprintResultPortalNode} />
-        )}
+          <FootprintResults 
+            target={props.target} 
+            filterString={filterString}
+            queryAddress={props.queryAddress}
+            setQueryAddress={props.setQueryAddress}
+          />
+        </Collapse>
       </div>
-      <InPortal node={footprintResultPortalNode}>
-        <FootprintResults 
-          target={props.target} 
-          queryString={props.queryString} 
-          changeLayout={handlePanelLayout} 
-          setCollectionUrls={props.setCollectionUrls}
-          currentStep={currentStep}
-          currentPage={currentPage}
-          setMaxFootprintsMatched={setMaxFootprintsMatched}
-        />
-      </InPortal>
     </>
   );
 }

@@ -1,17 +1,12 @@
 import React, { useEffect } from "react";
-// Apply and Clear Buttons
-import ButtonGroup from "@mui/material/ButtonGroup";
-import Button from "@mui/material/Button";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import FilterAltIcon from "@mui/icons-material/FilterAlt";
 // Keyword Filter
 import TextField from "@mui/material/TextField";
-// CSS
-import { alpha } from "@mui/material/styles";
 // Date Range
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // Filter By "This" checkboxes
 import Checkbox from "@mui/material/Checkbox";
 // Sort By Drop Down
@@ -21,10 +16,8 @@ import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-// No. of Footprints, pagination
-import Pagination from "@mui/material/Pagination";
 
-import { FormHelperText } from "@mui/material";
+import { Collapse, Divider } from "@mui/material";
 
 /**
  * Controls css styling for this component using js to css
@@ -38,40 +31,29 @@ let css = {
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-start",
-  },
-  textbox: {
-    backgroundColor: "#e9ecef",
-    "&:focus": {
-      borderColor: "#1971c2",
-    },
-  },
-  button: {
-    width: "auto",
-    color: "#fff",
-    backgroundColor: "#1971c2",
-    "&:hover": {
-      backgroundColor: alpha("#1971c2", 0.7),
-    },
-  },
-  buttonRemove: {
-    width: "auto",
-    color: "#fff",
-    backgroundColor: "#64748B",
-    "&:hover": {
-      backgroundColor: alpha("#64748B", 0.7),
-    },
-  },
-  title: {
-    padding: "0.2rem",
-    color: "#343a40",
-    fontSize: 18,
-    fontWeight: 600,
+    width: "280px",
+    borderBottom: "2px solid rgba(0, 0, 0, 0.12)"
   },
   thinSelect: {
     marginRight: "12px",
     "& .MuiInputBase-input": {
       padding: "2px 32px 2px 8px",
     }
+  },
+  dateInput: {
+    width: "160px"
+  },
+  toggleIconSmall: {
+    marginTop: "-5px",
+    marginLeft: "-4px",
+    marginRight: "3px",
+    marginBottom: "-6px"
+  },
+  ascDescCheckbox: {
+    color: "#64748B",
+    "&.Mui-checked": {
+      color: "#64748B",
+    },
   }
 };
 
@@ -86,63 +68,28 @@ let css = {
 export default function SearchAndFilterInput(props) {
 
   // Allows showing/hiding of fields
-  const keywordDetails = React.useRef(null);
-  const dateDetails = React.useRef(null);
-
+  const [expandFilter, setExpandFilter] = React.useState(false);
+  const [expandDate, setExpandDate] = React.useState(false);
+  
   // Sort By
   const [sortVal, setSortVal] = React.useState("");                    // Sort By What?
-  const [sortAscCheckVal, setSortAscCheckVal] = React.useState(false); // Sort Ascending or Descending
+  const [sortAscCheckVal, setSortAscCheckVal] = React.useState(true); // Sort Ascending or Descending
   
   // Filter by X checkboxes
   const [areaCheckVal, setAreaCheckVal] = React.useState(false);       // Area
-  const [keywordCheckVal, setKeywordCheckVal] = React.useState(false); // Keyword
   const [dateCheckVal, setDateCheckVal] = React.useState(false);       // Date
 
   // Filter by X values
   const [areaTextVal, setAreaTextVal] = React.useState("");       // Area (received by window message from AstroDrawFilterControl)
-  const [keywordTextVal, setKeywordTextVal] = React.useState(""); // Keyword
   const [dateFromVal, setDateFromVal] = React.useState(null);     // From Date
   const [dateToVal, setDateToVal] = React.useState(null);         // To Date
 
-  // Pagination
-  const [maxNumberFootprints, setMaxNumberFootprints] = React.useState(10);
-  const [numberReturned, setNumberReturned] = React.useState(10);
-
-  // const handleApply = () => {
-  //   setTimeout(() => {
-  //     setMaxPages(getMaxNumberPages);
-  //     setNumberReturned(getNumberReturned);
-  //     setMaxNumberFootprints(getNumberMatched);
-  //   }, 3000);
-  // };
-
-  // Clear all values
-  const handleClear = () => {
-    setSortVal("");
-    setSortAscCheckVal(false);
-    setAreaCheckVal(false);
-    setKeywordCheckVal(false);
-    setKeywordTextVal("");
-    setDateCheckVal(false);
-    setDateFromVal(null);
-    setDateToVal(null);
-    props.setCurrentStep(10);
-    //setMaxPages(1);
-    setMaxNumberFootprints(0);
-    setNumberReturned(0);
-    //// Uncomment to close details on clear
-    // keywordDetails.current.open = false;
-    // dateDetails.current.open = false;
-  };
+  const handleExpandFilterClick = () => {
+    setExpandFilter(!expandFilter);
+  }
 
   const buildQueryString = () => {
-    let myQueryString = "?";
-
-    // Page Number
-    if (props.currentPage != 1) myQueryString += "page=" + props.currentPage + "&";
-  
-    // Number of footprints requested per request
-    if (props.currentStep != 10) myQueryString += "limit=" + props.currentStep + "&"
+    let myFilterString = "?";
     
     // Date
     if (dateCheckVal) {
@@ -176,23 +123,25 @@ export default function SearchAndFilterInput(props) {
         toDate = dateToVal.toISOString();
       }
 
-      myQueryString += "datetime=" + fromDate + "/" + toDate + "&";
+      myFilterString += "datetime=" + fromDate + "/" + toDate + "&";
     }
 
-    // Keyword
-    if(keywordCheckVal) myQueryString += "keywords=[" + keywordTextVal.split(" ") + "]&";
-
-    // Sorting... Not supported by the API?
-    const sortAscDesc = sortAscCheckVal ? "asc" : "desc";
-    if (sortVal === "date" || sortVal === "location") {
-      console.log("Warning: Sorting not Supported!");
-      // myQueryString += 'sort=[{field:datetime,direction:' + sortAscDesc + '}]&'
+    // Sorting
+    let sortAscDesc = '-'
+    if (sortAscCheckVal) {
+      sortAscDesc = '';
+    }
+    if (sortVal === "id" || sortVal === "properties.datetime" || sortVal === "properties.proj:bbox") {
+      myFilterString += 'sortby=' + sortAscDesc + sortVal + '&';
     }
 
     // Area
-    if(areaCheckVal && areaTextVal !== "") myQueryString += areaTextVal; // Add an & if not last
+    if(areaCheckVal && areaTextVal !== "") myFilterString += areaTextVal;
 
-    props.setQueryString(myQueryString);
+    // clear tailing &s
+    if(myFilterString.slice(-1) === '&') myFilterString = myFilterString.slice(0, -1)
+
+    props.setFilterString(myFilterString);
   }
 
   // Sorting
@@ -208,26 +157,15 @@ export default function SearchAndFilterInput(props) {
     setAreaCheckVal(event.target.checked);
   };
 
-  // Keyword
-  const handleKeywordCheckChange = (event) => {
-    setKeywordCheckVal(event.target.checked);
-    if (event.target.checked === true) {
-      if (keywordDetails.current.open === false) {
-        keywordDetails.current.open = true;
-      }
-    }
-  };
-  const handleKeywordChange = (event) => {
-    setKeywordTextVal(event.target.value);
-    setKeywordCheckVal(true);
-  };
-
   // Date
+  const handleDateDetailsClick = () => {
+    setExpandDate(!expandDate);
+  }
   const handleDateCheckChange = (event) => {
     setDateCheckVal(event.target.checked);
     if (event.target.checked === true) {
-      if (dateDetails.current.open === false) {
-        dateDetails.current.open = true;
+      if (expandDate === false) {
+        setExpandDate(true);
       }
     }
   };
@@ -240,26 +178,10 @@ export default function SearchAndFilterInput(props) {
     setDateCheckVal(true);
   };
 
-  // limit
-  const handleLimitChange = (event, value) => {
-    props.setCurrentStep(value.props.value);
-  };
-
-  // Pagination
-  const handlePageChange = (event, value) => {
-    props.setCurrentPage(value);
-  };
-
-  // resets pagination and limit when switching targets
-  useEffect(() => {
-    props.setCurrentPage(1);
-    props.setCurrentStep(10);
-  }, [props.target.name]);
-
   // Listen for any state change (input) and update the query string based on it
   useEffect(() => {
     buildQueryString();
-  }, [sortVal, sortAscCheckVal, areaCheckVal, areaTextVal, keywordCheckVal, keywordTextVal, dateCheckVal, dateFromVal, dateToVal, props.currentStep, props.currentPage]);
+  }, [sortVal, sortAscCheckVal, areaCheckVal, areaTextVal, dateCheckVal, dateFromVal, dateToVal]);
 
   const onBoxDraw = event => {
     if(typeof event.data == "object" && event.data[0] === "setWkt"){
@@ -269,22 +191,36 @@ export default function SearchAndFilterInput(props) {
     }
   }
 
+  // Listener for boundary box being drawn in leaflet
   useEffect(() => {
     window.addEventListener("message", onBoxDraw);
-
-    return () => {
-      window.removeEventListener("message", onBoxDraw);
-    }
+    return () => window.removeEventListener("message", onBoxDraw);
   }, []);
 
+  // If target is changed, reset filter values;
+  useEffect(() => {
+    
+  // Sort By
+  setSortVal("");
+  setSortAscCheckVal(true);
+  
+  // Filter by X checkboxes
+  setAreaCheckVal(false);
+  setDateCheckVal(false);
+
+  // Filter by X values
+  setAreaTextVal("");    // Area (received by window message from AstroMap)
+  setDateFromVal(null); // From Date
+  setDateToVal(null);  // To Date
+
+  }, [props.targetName]);
+
+  
+
   /* Control IDs for reference:
-  applyButton
-  clearButton
   sortBySelect
   sortAscCheckBox
   areaCheckBox
-  keywordCheckBox
-  keywordTextBox
   dateCheckBox
   dateFromPicker
   dateToPicker
@@ -292,196 +228,110 @@ export default function SearchAndFilterInput(props) {
 
   return (
     <div style={css.container}>
-      <div className="panelSection panelHeader">Filter Results</div>
-      {/* <div className="panelSection">
-        <ButtonGroup>
-          <Button
-            id="applyButton"
-            variant="contained"
-            startIcon={<FilterAltIcon />}
-            onClick={handleApply}
-            sx={css.button}
-          >
-            Apply
-          </Button>
-          <Button
-            id="clearButton"
-            variant="contained"
-            endIcon={<DeleteForeverIcon />}
-            onClick={handleClear}
-            sx={css.buttonRemove}
-          >
-            Clear
-          </Button>
-        </ButtonGroup>
+      <div className="panelSection panelHeader panelBar clickable" onClick={handleExpandFilterClick}>
+        <span>Sort and Filter...</span>
+        <span>
+          {expandFilter ? <ExpandLessIcon sx={css.toggleIconSmall}/> : <ExpandMoreIcon sx={css.toggleIconSmall}/>}
+        </span>
       </div>
-
-      <div className="panelSection">
-        <FormControl sx={{ minWidth: 170 }}>
-          <InputLabel id="sortByLabel" size="small">
-            Sort By
-          </InputLabel>
-          <Select
-            labelId="sortByLabel"
-            label="Sort By"
-            id="sortBySelect"
-            value={sortVal}
-            onChange={handleSortChange}
-            size="small"
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            <MenuItem value={"date"}>Date</MenuItem>
-            <MenuItem value={"location"}>Location</MenuItem>
-          </Select>
-        </FormControl>
-        <div className="panelSortAscCheck">
-          <Checkbox
-            id="sortAscCheckBox"
-            checked={sortAscCheckVal}
-            onChange={handleSortAscCheckChange}
-            icon={<ArrowDownwardIcon />}
-            checkedIcon={<ArrowUpwardIcon />}
-            sx={{
-              color: "#64748B",
-              "&.Mui-checked": {
-                color: "#64748B",
-              },
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="panelSection panelHeader">Filter By...</div> */}
-
-      <div className="panelSection">
-        <div className="panelSectionHeader">
-          <div className="panelSectionTitle">Selected Area</div>
-          <div className="panelSectionCheck">
-            <Checkbox
-              id="areaCheckBox"
-              checked={areaCheckVal}
-              onChange={handleAreaCheckChange}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* <div className="panelSection">
-        <details ref={keywordDetails}>
-          <summary>
-            <div className="panelSectionHeader">
-              <div className="panelSectionTitle">Keyword</div>
-              <div className="panelSectionCheck">
-                <Checkbox
-                  checked={keywordCheckVal}
-                  onChange={handleKeywordCheckChange}
-                  id="keywordCheckBox"
-                />
-              </div>
-            </div>
-          </summary>
-          <div className="panelItem">
-            <TextField
-              sx={css.textbox}
-              value={keywordTextVal}
-              variant="outlined"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              id="keywordTextBox"
-              name="fname"
-              type="text"
-              autoComplete="off"
-              size="small"
-              onChange={handleKeywordChange}
-            />
-          </div>
-        </details>
-      </div> */}
-
-      <div className="panelSection">
-        <details ref={dateDetails}>
-          <summary>
-            <div className="panelSectionHeader">
-              <div className="panelSectionTitle">Date Range</div>
-              <div className="panelSectionCheck">
-                <Checkbox
-                  id="dateCheckBox"
-                  checked={dateCheckVal}
-                  onChange={handleDateCheckChange}
-                />
-              </div>
-            </div>
-          </summary>
-          <div className="panelItem">
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DatePicker
-                id="dateFromPicker"
-                label="From"
-                value={dateFromVal}
-                onChange={handleDateFromChange}
-                renderInput={(params) => (
-                  <TextField id="dateFromID" {...params} />
-                )}
-              />
-            </LocalizationProvider>
-          </div>
-          <div className="panelItem">
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DatePicker
-                id="dateToPicker"
-                label="To"
-                value={dateToVal}
-                onChange={handleDateToChange}
-                renderInput={(params) => (
-                  <TextField id="dateToID" {...params} />
-                )}
-              />
-            </LocalizationProvider>
-          </div>
-        </details>
-      </div>
-      <div className="panelSectionHeader">
-        <div className="panelItem">
-          <FormControl>
-            <Select
-              sx={css.thinSelect}
-              size="small"
-              value={props.currentStep}
-              onChange={handleLimitChange}
+      <Divider/>
+      <Collapse in={expandFilter}>
+        <div className="panelSection panelBar">
+          <span>
+            <FormControl sx={{ minWidth: 150 }}>
+              <InputLabel id="sortByLabel" size="small">
+                Sort By
+              </InputLabel>
+              <Select
+                labelId="sortByLabel"
+                label="Sort By"
+                id="sortBySelect"
+                value={sortVal}
+                onChange={handleSortChange}
+                size="small"
               >
-              <MenuItem value={1}>1</MenuItem>
-              <MenuItem value={2}>2</MenuItem>
-              <MenuItem value={5}>5</MenuItem>
-              <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={15}>15</MenuItem>
-              <MenuItem value={20}>20</MenuItem>
-              <MenuItem value={30}>30</MenuItem>
-              <MenuItem value={50}>50</MenuItem>
-              <MenuItem value={100}>100</MenuItem>
-            </Select>
-            {/* <FormHelperText>Footprints per Request</FormHelperText> */}
-          </FormControl>
-          <span style={{lineHeight: "28px"}}>
-            Footprints per Request
+                <MenuItem value=""> <em> None </em> </MenuItem>
+                <MenuItem value={"id"}> ID </MenuItem>
+                <MenuItem value={"properties.datetime"}> Date </MenuItem>
+                <MenuItem value={"properties.proj:bbox"}> Location </MenuItem>
+              </Select>
+            </FormControl>
+          </span>
+          <span className="panelSortAscCheck">
+            <Checkbox
+              id="sortAscCheckBox"
+              checked={sortAscCheckVal}
+              onChange={handleSortAscCheckChange}
+              icon={<ArrowDownwardIcon />}
+              checkedIcon={<ArrowUpwardIcon />}
+              sx={css.ascDescCheckbox}
+            />
           </span>
         </div>
-      </div>
-      <div className="panelSectionHeader">
-        <div className="panelItem">
-          <Pagination
-            id="pagination"
-            page={props.currentPage}
-            count={Math.ceil(props.maxFootprintsMatched/props.currentStep)}
-            size="small"
-            shape="rounded"
-            variant="outlined"
-            onChange={handlePageChange}
-          />
+
+        <Divider/>
+
+        <div className="panelSection">
+          <div className="panelSectionHeader panelBar">
+            <span className="panelSectionTitle">Selected Area</span>
+            <span className="panelSectionCheck">
+              <Checkbox
+                id="areaCheckBox"
+                checked={areaCheckVal}
+                onChange={handleAreaCheckChange}
+              />
+            </span>
+          </div>
         </div>
-      </div>
+
+        <Divider/>
+
+        <div className="panelSection">
+          <div className="panelSectionHeader panelBar">
+            <span className="clickable" onClick={handleDateDetailsClick}>
+              <span className="clickable" onClick={handleDateDetailsClick}>
+                {expandDate ? <ExpandLessIcon sx={css.toggleIconSmall}/> : <ExpandMoreIcon sx={css.toggleIconSmall}/>}
+              </span>
+              Date Range
+            </span>
+            <span className="panelSectionCheck">
+              <Checkbox
+                id="dateCheckBox"
+                checked={dateCheckVal}
+                onChange={handleDateCheckChange}
+              />
+            </span>
+          </div>
+          <Collapse in={expandDate}>
+            <div className="panelItem">
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  id="dateFromPicker"
+                  label="From"
+                  value={dateFromVal}
+                  onChange={handleDateFromChange}
+                  renderInput={(params) => (
+                    <TextField sx={css.dateInput} size="small" id="dateFromID" {...params} />
+                  )}
+                />
+              </LocalizationProvider>
+            </div>
+            <div className="panelItem">
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  id="dateToPicker"
+                  label="To"
+                  value={dateToVal}
+                  onChange={handleDateToChange}
+                  renderInput={(params) => (
+                    <TextField sx={css.dateInput} size="small" id="dateToID" {...params} />
+                  )}
+                />
+              </LocalizationProvider>
+            </div>
+          </Collapse>
+        </div>
+      </Collapse>
     </div>
   );
 }

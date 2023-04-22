@@ -64,33 +64,13 @@ export default L.Control.AstroDrawFilterControl = L.Control.Draw.extend({
         }
       }
     }
-    this.queryTextBox = L.DomUtil.get("query-textarea");
 
     this.wkt = new Wkt.Wkt();
     this.myLayer = L.Proj.geoJson().addTo(map);
 
-    // Add listener for window message from FootprintResults.jsx, which has Feature Collections
-    L.DomEvent.on(window, "message", this.refreshFeatures, this);
-    L.DomEvent.on(L.DomUtil.get("copyCodeButton"), "click", this.copyToClipboard, this);
-
-
     map.on("draw:created", this.shapesToWKT, this);
 
     return container;
-  },
-
-  /**
-  * @function AstroDrawFilterControl.copyToClipboard
-  * @description Copies query string in the query console to clipboard
-  */
-  copyToClipboard: function(){
-    /* Get the text field */
-    var copyText = document.getElementById("query-textarea");
-
-    copyText.select();
-    copyText.setSelectionRange(0, 99999); /* For mobile devices */
-
-    navigator.clipboard.writeText(copyText.value);
   },
 
   /**
@@ -157,26 +137,4 @@ export default L.Control.AstroDrawFilterControl = L.Control.Draw.extend({
     let queryString = "bbox=" + bboxArr;
     return queryString;
   },
-
-  /**
-   * @function refreshFeatures
-   * @description Clears map and shows features revceived via window message event.
-   *
-   * @param {object} event - The window message event received.
-   */
-  refreshFeatures: function(event) {
-    if(typeof event.data == "object" && event.data[0] === "setFeatureCollections") {
-      const receivedCollections = event.data[1];
-
-      // re render map
-      if(this._map._footprintControl) {
-        this._map._footprintControl.remove();
-      }
-      
-      for(let i = 0; i < this._map._geoLayers.length; i++){
-        this._map._geoLayers[i].clearLayers();
-      }
-      this._map.loadFeatureCollections(receivedCollections);
-    }
-  }
 });

@@ -1,383 +1,256 @@
 import React, { useEffect } from "react";
-import Checkbox from "@mui/material/Checkbox";
-import {Card, CardContent, CardActions, Skeleton, Chip, Stack, List, ListItemButton, ListItemText, Collapse, Divider, ListSubheader} from "@mui/material";
+import { List, Select, MenuItem, Button, Checkbox} from "@mui/material";
 
 // icons
-import PreviewIcon from "@mui/icons-material/Preview";
-import LaunchIcon from "@mui/icons-material/Launch";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
-import TravelExploreIcon from '@mui/icons-material/TravelExplore'; // Footprints
 
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
+// Child Components
+import { LoadingFootprints, NoFootprints, FilterTooStrict, FootprintCard } from "./ResultsAccessories.jsx";
 
-// geotiff thumbnail viewer... Should we be using DisplayGeoTiff.jsx instead?
-import GeoTiffViewer from "../../js/geoTiffViewer.js";
-
-/**
- * Skeleton to show when footprints are loading
- */
-function LoadingFootprints() {
-  
-  return (
-    <div className="resultsList">
-      { Array(8).fill(null).map((_, i) => (
-        <Card sx={{ width: 250, margin: 1}} key={i}>
-          <CardContent sx={{padding: 0.9, paddingBottom: 0}}>
-            <div className="resultContainer">
-              <div className="resultImgDiv">
-                <Skeleton variant="rectangular" width={32} height={32}/>
-              </div>
-              <div className="resultData">
-                <Skeleton/>
-                <Skeleton/>
-                <Skeleton/>
-              </div>
-            </div>
-          </CardContent>
-          <CardActions>
-            <div className="resultLinks">
-              <Stack direction="row" spacing={1} sx={{marginTop:1}}>
-                <Skeleton variant="rounded" width={100} height={20} sx={{borderRadius:5}}/>
-                <Skeleton variant="rounded" width={100} height={20} sx={{borderRadius:5}}/>
-              </Stack>
-            </div>
-          </CardActions>
-        </Card>
-        
-      ))}
-    </div>
-  );
-}
-
-function NoFootprints(){
-  return(
-    <div style={{padding: 10, maxWidth: 268}}>
-      <p>
-        This target has no footprints. To find 
-        footprints, go to the dropdown menu 
-        in the upper left and pick a target 
-        body with the <TravelExploreIcon sx={{fontSize: 16, verticalAlign: "middle"}}/> icon next to it.
-      </p>
-    </div>
-  );
-}
-
-function FilterTooStrict(){
-  return(
-    <div style={{padding: 10, maxWidth: 268}}>
-      <p>
-        No footprints match this filter.
-      </p>
-      <p>
-        To find more footprints: 
-      </p>
-      <ul>
-        <li>Uncheck current filters</li>
-        <li>Draw a larger search area</li>
-        <li>Enter a wider date range to filter by</li>
-      </ul>
-    </div>
-  );
-}
-
-function FootprintCard(props){
-
-  // Metadata Popup
-  const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
-  const showMetadata = (value) => () => {
-    geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
-    geoTiffViewer.changeMetaData(
-      value.collection,
-      value.id,
-      value.properties.datetime,
-      value.assets
-    );
-    geoTiffViewer.openModal();
-  };
-
-  return(
-    <Card sx={{ width: 250, margin: 1}}>
-      <CardContent sx={{padding: 1.2, paddingBottom: 0}}>
-        <div className="resultContainer" >
-          <div className="resultImgDiv">
-            <img className="resultImg" src={props.feature.assets.thumbnail.href} />
-          </div>
-          <div className="resultData">
-            {/* <div className="resultSub">
-              <strong>Collection:</strong>&nbsp;{props.feature.collection}
-            </div> */}
-            <div className="resultSub">
-              <strong>ID:</strong>&nbsp;{props.feature.id}
-            </div>
-            <div className="resultSub">
-              <strong>Date:</strong>&nbsp;{props.feature.properties.datetime}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-      <CardActions>
-        <div className="resultLinks">
-          <Stack direction="row" spacing={1}>
-            <Chip
-              label="Metadata"
-              icon={<PreviewIcon />}
-              size="small"
-              onClick={showMetadata(props.feature)}
-              variant="outlined"
-              clickable
-            />
-            <Chip
-              label="STAC Browser"
-              icon={<LaunchIcon />}
-              size="small"
-              component="a"
-              href={`https://stac.astrogeology.usgs.gov/browser-dev/#/collections/${props.feature.collection}/items/${props.feature.id}`}
-              target="_blank"
-              variant="outlined"
-              clickable
-            />
-          </Stack>
-        </div>
-      </CardActions>
-    </Card>
-  );
-}
+// Footprint Fetch logic
+import { FetchFootprints, FetchObjects, FetchStepRemainder} from "../../js/FootprintFetcher.js";
 
 
-/**
- * Controls css styling for this component using js to css
- */
-let css = {
-  root: {
-    backgroundColor: "#f8f9fa",
-    overflow: "hidden",
-    display: "flex",
-    alignItems: "flex-start",
-    flexDirection: "column",
-    padding: 0,
-    borderLeft: "2px solid lightgray",
-  },
-};
 
 /**
  * Component that lets user view list of current footprints
- *
  * @component
- * @example
- * <FootprintResults />
- *
  */
 export default function FootprintResults(props) {
 
-  const [featureCollections, setFeatureCollections] = React.useState([]);
+  const [featureCollections, setFeatureCollections] = React.useState({});
 
   const [isLoading, setIsLoading] = React.useState(true);
   const [hasFootprints, setHasFootprints] = React.useState(true);
 
-  const [openCollection, setOpenCollection] = React.useState([]);
+  const [numFeatures, setNumFeatures] = React.useState(10);
+  const [step, setStep] = React.useState(10);
+  const [collectionId, setCollectionId] = React.useState(props.target.collections.length > 0 ? props.target.collections[0].id : "");
+  const [matched, setMatched] = React.useState(0);
 
-  function handleOpenCollection(index){
-    const nextOpenCollection = openCollection.map((isOpen, curIndex) => {
-      if (index === curIndex) {
-        return !isOpen;
-      }
-      return isOpen;
-    });
-    setOpenCollection(nextOpenCollection);
+  const [oldTargetName, setOldTargetName] = React.useState("");
+  const [oldFilterString, setOldFilterString] = React.useState("");
+
+
+  const addFeatures = (newFeatures, key) => {
+    let myFeatureCollections = featureCollections;
+    myFeatureCollections[key].features.push(...newFeatures);
+    setFeatureCollections(myFeatureCollections);
+    setNumFeatures(myFeatureCollections[key].features.length);
+
+    // Send to Leaflet
+    window.postMessage(["addFeaturesToCollection", key, newFeatures], "*");
   }
 
-  useEffect(() => {
+  /** When the step amount is changed, determines the next page number based on features
+   *  loaded and the new step amound and loads the footprints inbetween (if any). */
+  const handleStepChange = async (event, value) => {
+    let myStep = value.props.value;
+    addFeatures(await FetchStepRemainder(featureCollections[collectionId], myStep), collectionId);
+    setStep(myStep);
+  }
 
-    // If target has collections (of footprints)
-    if (props.target.collections.length > 0) {
+
+  /** Sets states needed to display the new collection 
+    * when the collection is changed from the dropdown */
+  const handleCollectionChange = async (event, value) => {
+    let newCollectionId = value.props.value;
+    
+    addFeatures(await FetchStepRemainder(featureCollections[newCollectionId], step), newCollectionId);
+    
+    setCollectionId(newCollectionId);
+    setMatched(featureCollections[newCollectionId].numberMatched);
+
+    // Send to Leaflet
+    window.postMessage(["setVisibleCollections", newCollectionId], "*");
+  };
+
+  /**
+   * @async 
+   * Fetches the next page of footprints ands add them to the current collection.
+   * Triggered by "Load More" Button. */
+  const loadMoreFootprints = async () => {
+
+    let newPage = numFeatures/step + 1;
+    let newFeatures = await FetchFootprints(featureCollections[collectionId], newPage, step);
+    
+    // If any features are returned, add them to currecnt collection
+    if (newFeatures.length > 0) {
+      addFeatures(newFeatures, collectionId);
+    }
+  }
+
+  /** Listens for the target name or incoming query string to change,
+   *  and fetches/sets new collection info/footprints/features when they do. */
+  useEffect(() => {
+    
+    // Compare new props to old ones to make sure not to do the same fetch twice
+    let targetChange = props.target.name !== oldTargetName;
+    let filterChange = props.filterString !== oldFilterString;
+    let myFilter = props.filterString;
+
+    setOldTargetName(props.target.name);
+    setOldFilterString(props.filterString);
+
+    if(targetChange){
+      myFilter = "?";
+      setOldFilterString(myFilter);
+    }
+
+    // If target has collections (of footprints), and target or filter changed
+    if ( (targetChange || filterChange) && props.target.collections.length > 0) {
 
       // Set Loading
       setIsLoading(true);
       setHasFootprints(true);
 
-      // Promise tracking
-      let fetchPromise = {};
-      let jsonPromise = {};
-      // Result
-      let jsonRes = {};
-
-      let itemCollectionData = [];
-      for(const collection of props.target.collections) {
-        // Get "items" link for each collection
-        let itemsUrl = collection.links.find(obj => obj.rel === "items").href;
-        itemCollectionData.push({
-          "itemsUrl" : itemsUrl,
-          "itemsUrlWithQuery" : itemsUrl + props.queryString,
-          "id" : collection.id,
-          "title" : collection.title
-        });
+      let pageInfo = "";
+      if (step != 10){
+        if(myFilter.slice(-1) !== '?') pageInfo += "&";
+        pageInfo += "limit=" + step;
       }
 
-      // For Query Console
-      props.setCollectionUrls(itemCollectionData);
-
-      // Get ready to fetch
-      for(const itemCollectionUrl of itemCollectionData) {
-        fetchPromise[itemCollectionUrl.itemsUrlWithQuery] = "Not Started";
-        jsonPromise[itemCollectionUrl.itemsUrlWithQuery] = "Not Started";
-        jsonRes[itemCollectionUrl.itemsUrlWithQuery] = [];
+      let collectionUrls = {};
+      for (const collection of props.target.collections) {
+        let itemsUrl = collection.links.find(link => link.rel === "items").href;
+        collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
       }
-
-      // Fetch JSON and read into object
-      async function startFetch(targetUrl) {
-          fetchPromise[targetUrl] = fetch(
-            targetUrl
-          ).then((res)=>{
-              jsonPromise[targetUrl] = res.json().then((jsonData)=>{
-                  jsonRes[targetUrl] = jsonData;
-              }).catch((err)=>{
-                  console.log(err);
-              });
-          }).catch((err) => {
-              console.log(err);
-          });
-      }
-
-      // To be executed after Fetch has been started, wait for fetch to finish
-      async function awaitFetch(targetUrl) {
-        await fetchPromise[targetUrl];
-        await jsonPromise[targetUrl];
-      } 
-
-      async function fetchAndWait() {
-        // Start fetching
-        for(const itemCollectionUrl of itemCollectionData) {
-          startFetch(itemCollectionUrl.itemsUrlWithQuery);
-        }
-
-        // Wait for completion
-        for(const itemCollectionUrl of itemCollectionData) {
-          await awaitFetch(itemCollectionUrl.itemsUrlWithQuery);
-        }
-        
-        // Extract footprints into array
-        let myCollections = [];
-        for(const itemCollectionUrl of itemCollectionData) {
-          // Add info to returned item collection from top level collection data.
-          jsonRes[itemCollectionUrl.itemsUrlWithQuery].id = itemCollectionUrl.id;
-          jsonRes[itemCollectionUrl.itemsUrlWithQuery].title = itemCollectionUrl.title;
-          jsonRes[itemCollectionUrl.itemsUrlWithQuery].itemsUrl = itemCollectionUrl.itemsUrl;
-          jsonRes[itemCollectionUrl.itemsUrlWithQuery].itemsUrlWithQuery = itemCollectionUrl.itemsUrlWithQuery;
-          myCollections.push(jsonRes[itemCollectionUrl.itemsUrlWithQuery]);
-        }
-
-        return myCollections;
-      }
-
-      // Send to Leaflet
-      window.postMessage(["setQuery", props.queryString], "*");
 
       (async () => {
-        // Wait for features to be fetched and parsed
-        let myFeatureCollections = await fetchAndWait()
+        let collections = await FetchObjects(collectionUrls);
 
+        // Add extra properties to each collection
+        for(const key in collections){
+          collections[key].id = key;
+          collections[key].title = props.target.collections.find(collection => collection.id === key).title;
+          collections[key].url = collectionUrls[key];
+        }
+
+        // Updates collectionId if switching to a new set of collections (new target)
+        let myId = collectionId;
+        if (!collections[myId]) {
+          myId = props.target.collections[0].id;
+          setCollectionId(myId);
+        }
+        
         // Set relevant properties based on features received
-        setFeatureCollections(myFeatureCollections);
-        setHasFootprints(myFeatureCollections.length > 0);
+        setFeatureCollections(collections);
+        setMatched(collections[myId].numberMatched);
+        setNumFeatures(collections[myId].features.length);
+        setHasFootprints(Object.keys(collections).length > 0);
         setIsLoading(false);
 
-
-        if(myFeatureCollections.length > openCollection.length){
-          setOpenCollection(Array(myFeatureCollections.length).fill(true));
-        }        
-
-        let myMaxFootprintsMatched = 0;
-        for(const collection of myFeatureCollections) {
-          myMaxFootprintsMatched = Math.max(myMaxFootprintsMatched, collection.numberMatched);
-        }
-        props.setMaxFootprintsMatched(myMaxFootprintsMatched);
-
         // Send to Leaflet
-        window.postMessage(["setFeatureCollections", myFeatureCollections], "*");
+        window.postMessage(["setFeatureCollections", myId, collections], "*");
       })();
 
-    } else {
-      setIsLoading(false);
+    } else if (props.target.collections.length <= 0) {
       setHasFootprints(false);
+      setIsLoading(false);
     }
 
-  }, [props.target.name, props.queryString]);
+  }, [props.filterString, props.target.name]);
+
+  const generateQueryAddress = () => {
+    let myCollection = props.target.collections.find(collection => collection.id === collectionId);
+    if(myCollection){
+      let myCollectionUrl = myCollection.links.find(link => link.rel === "items").href;
+      return myCollectionUrl + props.filterString;
+    } else if (props.target.collections.length > 0) {
+      myCollection = props.target.collections[0];
+      let myCollectionUrl = myCollection.links.find(link => link.rel === "items").href;
+      return myCollectionUrl + props.filterString;
+    }
+    return "";
+  };
+
+  // Update queryAddress for query console whenever filterString or collectionId changes
+  useEffect(() => {
+    props.setQueryAddress(generateQueryAddress());
+  }, [props.filterString, collectionId]);
+
+  // Run this if query received from query console
+  // useEffect(() => {
+  //   console.info("props.queryAddress", props.queryAddress);
+  //   console.info("generateQueryAddress", generateQueryAddress());
+  // }), [props.queryAddress];
+
 
   let noFootprintsReturned = true;
-  for(const collection of featureCollections){
-    if(collection.numberReturned > 0) noFootprintsReturned = false;
+  for(const key in featureCollections){
+    if(featureCollections[key].numberReturned > 0) noFootprintsReturned = false;
   }
 
   return (
-    <div style={css.root} className="scroll-parent">
-      <div className="resultHeader">
-        <span id="panelSectionTitle">Footprint Results</span>
-        <span className="resultHeaderCheck">
-          <Checkbox
-            onChange={props.changeLayout}
-            icon={<CloseFullscreenIcon />}
-            checkedIcon={<OpenInFullIcon />}
-            sx={{
-              color: "#64748B",
-              "&.Mui-checked": {
-                color: "#64748B",
-              },
-            }}
-          />
-        </span>
-      </div>
+    <div id="footprintResults" className="scroll-parent">
+      {hasFootprints &&
+        <div id="collectionSelectPane" className="resultPane">
+          <Select
+            className="multilineSelect"
+            size="small"
+            value={props.target.collections.find(col => col.id === collectionId) ? collectionId : ""}
+            onChange={handleCollectionChange}
+            >
+            {props.target.collections.map(collection => (
+              <MenuItem key={collection.id} value={collection.id}>{collection.title}</MenuItem>
+            ))}
+          </Select>
+        </div>
+      }
       {isLoading ? 
         <LoadingFootprints/>
       : noFootprintsReturned ?
         <FilterTooStrict/>
-      : hasFootprints ?   
-        <div className="resultsList">
-          <List sx={{maxWidth: 265, paddingTop: 0}}>
-            {featureCollections.map((collection, collectionIndex) => (
-              <React.Fragment key={collection.id}>
-                {collection.features.length > 0 ? 
-                <>
-                  <ListItemButton onClick={() => handleOpenCollection(collectionIndex)}>
-                    <ListItemText
-                      sx={{marginTop: 0, marginBottom: 0}}
-                      primary={
-                        <p style={{fontSize: "12px", lineHeight: "15px", fontWeight: "bold", marginTop: 1, marginBottom: 1}}>{collection.title}</p>
-                      } secondary={
-                        <span className="collectionStatExpander">
-                          <span>{
-                            ((props.currentPage-1)*props.currentStep + 1) + "-"
-                            + ((props.currentPage-1)*props.currentStep + collection.numberReturned)
-                            + " of " + collection.numberMatched + " footprints"}</span>
-                          <span className="flatExpander">{openCollection[collectionIndex] ? <ExpandLess /> : <ExpandMore />}</span>
-                        </span>
-                      }/>
-                  </ListItemButton>
-                  <Collapse in={openCollection[collectionIndex]}>
-                    <Divider/>
-                    <ListSubheader sx={{
-                        overflow:"hidden", 
-                        whiteSpace:"nowrap", 
-                        backgroundColor:"rgb(248, 249, 250) none repeat scroll 0% 0%",
-                        fontSize: "12px",
-                        lineHeight: "24px",
-                        borderBottom: "1px solid lightgrey",
-                        boxShadow: "0px 1px 2px lightgrey"
-                      }}>
-                        {collection.title}
-                      </ListSubheader>
-                    {collection.features.map((feature) => (
-                      <FootprintCard feature={feature} title={collection.title} key={feature.id}/>
-                    ))}
-                  </Collapse>
-                </>
-                : null }
-                <Divider/>
-              </React.Fragment>
-            ))}
-          </List>
-        </div>
+      : hasFootprints ? 
+        <React.Fragment>
+          <div id="xLoadedPane" className="resultPane">
+            {numFeatures} of {matched} footprints loaded.
+          </div>
+          <div id="resultsList">
+            <List sx={{maxWidth: 265, paddingTop: 0}}>
+              {featureCollections[collectionId].features.map(feature => (
+                <FootprintCard feature={feature} key={feature.id}/>
+              ))}
+            </List>
+          </div>
+        
+          <div id="resultLoader" className="resultPane">
+            <div id="loadMore">
+              <Button
+                id="loadMoreButton"
+                onClick={loadMoreFootprints}
+                variant="outlined"
+                size="small"
+                disabled={numFeatures >= matched}
+              >
+                Load More
+              </Button>
+            </div>
+            <div id="xPerRequest">
+              <div>
+                <Select
+                  id="xPerRequestSelect"
+                  className="thinSelect"
+                  size="small"
+                  value={step}
+                  onChange={handleStepChange}
+                  >
+                  <MenuItem value={5}>5</MenuItem>
+                  <MenuItem value={10}>10</MenuItem>
+                  <MenuItem value={50}>50</MenuItem>
+                  <MenuItem value={100}>100</MenuItem>
+                </Select>
+              </div>
+              <div>
+                <label style={{marginRight: "5px"}} htmlFor="xPerRequestSelect">
+                  per <br/> request
+                </label>
+              </div>
+            </div>
+          </div>
+
+        </React.Fragment>
       :
         <NoFootprints/>
       }

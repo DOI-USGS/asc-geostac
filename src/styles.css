@@ -127,26 +127,6 @@ a:link {
 }
 
 /*
- * Credits Bar
- */
-
-#credits-bar {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-}
-
-.credit-item {
-  background: #f8f9fa;
-  color: #343a40;
-  border: 5px #ff0000;
-  flex-grow: 1;
-  align-content: center;
-  text-align: center;
-}
-
-/*
  * Toolbar
  */
 
@@ -174,20 +154,13 @@ a:link {
   flex-direction: column;
 }
 
-#query-console-collapsed {
-  line-height: 32px;
-  text-align: left;
-  padding-left: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-content: baseline;
-  cursor: pointer;
-}
-
 #query-console-title {
   font-weight: 600;
   display: inline-flex;
   align-items: center;
+  line-height: 32px;
+  padding-left: 10px;
+  cursor: pointer;
 }
 
 #query-function {
@@ -253,31 +226,33 @@ Controls the CSS for projection buttons when there is no available projection
 }
 
 .panelSection {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   padding: 10px;
 }
 
 .panelHeader {
-  font-family: sans-serif;
+  color: black;
   font-weight: bold;
-  padding: 10px;
-  display: block;
+  font-family: "Helvetica Neue", "Helvetica" ,"Roboto", "Arial", sans-serif;
+  font-size: 100%;
+}
+
+.panelBar {
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
 }
 
 .panelSectionHeader {
-  display: inline;
   font-family: sans-serif;
 }
 
 .panelItem {
   margin-top: 10px;
   margin-bottom: 5px;
-  margin-right: 10px;
-  margin-left: 10px;
 }
 
-.panelSectionTitle {
-  display: inline;
+.clickable {
+  cursor: pointer;
 }
 
 .panelSectionCheck {
@@ -292,39 +267,66 @@ Controls the CSS for projection buttons when there is no available projection
   margin-right: -10px;
 }
 
-.collectionStatExpander {
+/*
+ * Results Panel
+ */
+
+#footprintResults {
+  background-color: #f8f9fa;
+  overflow: hidden;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 0;
 }
 
-.flatExpander {
-  margin-top: -4px;
-  margin-bottom: -10px;
-}
-
-.resultHeader {
+.resultPane {
   flex-shrink: 0;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-content: baseline;
-  font-family: sans-serif;
+  font: 14px sans-serif;
+  color: dimgray;
+  padding: 10px 10px 2px 10px;
+  width: 280px;
+}
+
+#resultHeader {
+  color: black;
   font-weight: bold;
-  padding: 10px;
-  width: 275px;
+  font-family: "Helvetica Neue", "Helvetica" ,"Roboto", "Arial", sans-serif;
+  font-size: 100%;
 }
 
-.resultHeaderCheck {
+#resultHeaderCheck {
   justify-content: flex-end;
-  margin-top: -10px;
+  margin-top: -12px;
   margin-bottom: -10px;
-  margin-right: 10px;
 }
 
-.resultsList {
+#collectionSelectPane {
+  padding-right: 15px;
+}
+
+#collectionSelectPane .multilineSelect {
+  font-size: 12px;
+  line-height: 15px;
+  font-weight: bold;
+}
+
+.multilineSelect .MuiInputBase-input {
+  white-space: unset !important;
+}
+
+#xLoadedPane {
+  padding-bottom: 4px;
+}
+
+#resultsList {
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   overflow-y: scroll;
+  width: 280px;
 }
 
 .resultContainer {
@@ -360,6 +362,37 @@ Controls the CSS for projection buttons when there is no available projection
 .resultImg {
   max-width: 32px;
   max-height: 96px;
+}
+
+#resultLoader {
+  padding: 10px;
+  border-top: 1px solid lightgrey;
+}
+
+#loadMore {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#loadMoreButton {
+  margin-right: 8px;
+}
+
+#xPerRequest {
+  display: flex;
+  flex-direction: row;
+  padding-right: 7px;
+}
+
+#xPerRequest .thinSelect {
+  margin-right: 7px;
+}
+
+.thinSelect .MuiInputBase-input {
+  padding: 4px 9px 4px 9px;
+  color: dimgrey;
 }
 
 summary {

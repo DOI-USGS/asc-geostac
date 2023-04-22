@@ -6,7 +6,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Collapse, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import DataObjectIcon from "@mui/icons-material/DataObject";
+import Collapse from "@mui/material/Collapse";
 
 
 let css = {
@@ -53,10 +54,10 @@ let css = {
  */
 export default function QueryConsole(props) {
 
-
   const [showConsole, setShowConsole] = React.useState(false);
-  const [selectedUrl, setSelectedUrl] = React.useState("");
-  const [queryUrl, setQueryUrl] = React.useState(props.queryString);
+  const [queryUrl, setQueryUrl] = React.useState(props.queryAddress);
+
+  const queryTextarea = React.useRef(null);
 
   const handleTextChange = (event) => {
     setQueryUrl(event.target.value);
@@ -66,70 +67,66 @@ export default function QueryConsole(props) {
     setShowConsole(!showConsole);
   }
 
-  const handleSelectedUrlChange = (event) => {
-    setSelectedUrl(event.target.value);
+  const handleCopyClick = () => {
+    // queryTextarea.current.select();
+    // queryTextarea.current.setSelectionRange(0, 99999); /* For mobile devices */
+    navigator.clipboard.writeText(queryUrl);
+  }
+
+  const handleJsonClick = () => {
+    window.open(queryUrl);
   }
 
   const handleRunQueryClick = () => {
-    const newQuery = queryUrl.split("?")[1];
-    if(typeof newQuery !== 'undefined'){
-      props.setQueryString("?" + queryUrl.split("?")[1]);
-    }
+    props.setQueryAddress(queryUrl);
   }
 
   useEffect(() => {
-    setQueryUrl(selectedUrl + props.queryString);
-  }, [selectedUrl, props.queryString]);
+    setQueryUrl(props.queryAddress);
+  }, [props.queryAddress]);
 
 
   return (
     <div id="query-console-container">
-      <div id="query-console-collapsed" onClick={handleOpenCloseConsole}>
-        <span id="query-console-title">
+        <span id="query-console-title" onClick={handleOpenCloseConsole}>
           {showConsole ? <ExpandMoreIcon /> : <ExpandLessIcon />}
           Query Console
         </span>
-      </div>
       <Collapse id="query-console-expanded" in={showConsole}>
           <div id="query-textarea-container">
             <textarea 
               value={queryUrl} 
               onChange={handleTextChange} 
               id="query-textarea" 
+              ref={queryTextarea}
               placeholder="> Type Query Here">
             </textarea>
             <div id="query-command-bar">
-              <FormControl>
-                <InputLabel size="small" sx={css.consoleSelectLabel}>Set Collection...</InputLabel>
-                  <Select 
-                    labelId="collection-select" 
-                    size="small" 
-                    sx={css.consoleSelect}
-                    value={selectedUrl}
-                    onChange={handleSelectedUrlChange}
-                  >
-                    <MenuItem value="">
-                      <em>None</em>
-                    </MenuItem>
-                    {props.collectionUrls.map((myUrl) => (
-                      <MenuItem value={myUrl.itemsUrl} key={myUrl.title}>{myUrl.title}</MenuItem>
-                    ))}
-                  </Select>
-                <ButtonGroup
-                  orientation="vertical"
-                  size="small"
-                  variant="contained">
-                  
-                  <Button id="copyCodeButton" sx={css.consoleButton} startIcon={<ContentCopyIcon />}>Copy Code</Button>
-                  <Button 
-                    onClick={handleRunQueryClick}
-                    id="runQueryButton" 
-                    sx={css.consoleButton} 
-                    startIcon={<PlayArrowIcon />}>
-                      Run STAC Query
-                  </Button>
-                </ButtonGroup>
-              </FormControl>
+              <ButtonGroup
+                orientation="vertical"
+                size="small"
+                variant="contained">
+                <Button
+                  onClick={handleCopyClick}
+                  id="copyCodeButton" 
+                  sx={css.consoleButton} 
+                  startIcon={<ContentCopyIcon />}>
+                    Copy Code
+                </Button>
+                <Button
+                  onClick={handleJsonClick}
+                  sx={css.consoleButton}
+                  startIcon={<DataObjectIcon/>}>
+                    Open JSON
+                </Button>
+                {/* <Button 
+                  onClick={handleRunQueryClick}
+                  id="runQueryButton" 
+                  sx={css.consoleButton} 
+                  startIcon={<PlayArrowIcon />}>
+                    Run STAC Query
+                </Button> */}
+              </ButtonGroup>
             </div>
           </div>
       </Collapse>
