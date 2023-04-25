@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main  # Set a branch to deploy
-  pull_request:
-  repository_dispatch:
-    types: [automated_deploy]
 
 jobs:
   deploy:
