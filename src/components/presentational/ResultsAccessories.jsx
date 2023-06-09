@@ -134,7 +134,7 @@ export function FootprintCard(props){
               icon={<LaunchIcon />}
               size="small"
               component="a"
-              href={`https://stac.astrogeology.usgs.gov/browser-dev/#/collections/${props.feature.collection}/items/${props.feature.id}`}
+              href={`https://stac.astrogeology.usgs.gov/browser-dev/#/api/collections/${props.feature.collection}/items/${props.feature.id}`}
               target="_blank"
               variant="outlined"
               clickable
