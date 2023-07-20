@@ -58,7 +58,7 @@ export default function FootprintResults(props) {
     let newCollectionId = value.props.value;
     
     addFeatures(await FetchStepRemainder(featureCollections[newCollectionId], step), newCollectionId);
-    
+
     setCollectionId(newCollectionId);
     setMatched(featureCollections[newCollectionId].numberMatched);
 
@@ -113,8 +113,20 @@ export default function FootprintResults(props) {
 
       let collectionUrls = {};
       for (const collection of props.target.collections) {
-        let itemsUrl = collection.links.find(link => link.rel === "items").href;
-        collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
+
+        let isInStacAPI = collection.hasOwnProperty("stac_version");
+
+        if(isInStacAPI)
+        {
+          let itemsUrl = collection.links.find(link => link.rel === "items").href;
+          collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
+        }
+        else
+        {
+          let itemsUrl = collection.links.find(link => link.rel === "items").href;
+          collectionUrls[collection.id] = itemsUrl + pageInfo;
+        }
+
       }
 
       (async () => {

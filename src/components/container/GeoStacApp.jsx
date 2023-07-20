@@ -13,11 +13,12 @@ import Sidebar from "../presentational/Sidebar.jsx";
  * @component
  */
 export default function GeoStacApp(props) {
-  const [targetPlanet, setTargetPlanet] = React.useState(props.mapList.systems[4].bodies[0]);
+  let [targetPlanet, setTargetPlanet] = React.useState(props.mapList.systems[4].bodies[0]);
 
-  const [queryAddress, setQueryAddress] = React.useState(
-    props.mapList.systems[4].bodies[0].collections[0].links.find(link => link.rel === "items").href + "?"
-  );
+  // make sure its a stac item for appending stuff
+  let [queryAddress, setQueryAddress] = React.useState(
+    props.mapList.systems[4].bodies[0].collections[0].links.find(link => link.rel === "items").href + "?");
+
 
   /**
    * Handles target body selection

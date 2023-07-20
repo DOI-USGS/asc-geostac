@@ -13,6 +13,9 @@ export default async function Initialize(){
     const stacApiCollections = 
         "https://stac.astrogeology.usgs.gov/api/collections";
 
+    const pygeoApiCollections = 
+        "https://astrogeology.usgs.gov/pygeoapi/collections";
+
     // Async tracking
     let fetchStatus = {};
     let fetchPromise = {};
@@ -34,6 +37,11 @@ export default async function Initialize(){
     fetchPromise[stacApiCollections] = "Not Started";
     jsonPromise[stacApiCollections] = "Not Started";
     mapsJson[stacApiCollections] = [];
+
+    fetchStatus[pygeoApiCollections] = "Not Started";
+    fetchPromise[pygeoApiCollections] = "Not Started";
+    jsonPromise[pygeoApiCollections] = "Not Started";
+    mapsJson[pygeoApiCollections] = [];
 
     // Fetch JSON and read into object
     async function ensureFetched(targetUrl) {
@@ -57,7 +65,7 @@ export default async function Initialize(){
     }
 
     // Combine data from Astro Web Maps and STAC API into one new object
-    function organizeData(astroWebMaps, stacApiCollections) {
+    function organizeData(astroWebMaps, stacApiCollections, pygeoApiCollections) {
         
         // Initialize Objects
         let mapList = { "systems" : [] };
@@ -66,6 +74,8 @@ export default async function Initialize(){
         // Check for Planets that have STAC footprints from the STAC API
         for (let i = 0; i < stacApiCollections.collections.length; i++) {
             let stacTarget = stacApiCollections.collections[i].summaries["ssys:targets"][0].toLowerCase();
+
+            // pushes stacTarget onto the stacList if the target isn't already in the list
             if(!stacList.find(targetBody => targetBody == stacTarget)){
                 stacList.push(stacTarget.toLowerCase());
             }
@@ -82,11 +92,11 @@ export default async function Initialize(){
                     "bodies" : []
                 })
             }
-            
+
             // Index of System
             let sysIndex = mapList.systems.map(sys => sys.name).indexOf(target.system);
 
-            // ID the system
+            // ID the system. This seems to get the main planet of the system.
             if (target.naif % 100 === 99){
                 mapList.systems[sysIndex].naif = target.naif;
             }
@@ -103,6 +113,16 @@ export default async function Initialize(){
                     for (const collection of stacApiCollections.collections){
                         if (target.name == collection.summaries["ssys:targets"][0].toUpperCase()) {
                             myCollections.push(collection);
+                        }
+                    }
+                    for (const pycollection of pygeoApiCollections.collections){
+
+                        // view the collection as GEOJSON
+                        let target_name = pycollection.id.split('/')[0];
+
+                        if (target.name == target_name.toUpperCase()) {
+                            pycollection.links[9].href = "https://astrogeology.usgs.gov/pygeoapi" + pycollection.links[9].href;
+                            myCollections.push(pycollection);
                         }
                     }
                 }
@@ -189,7 +209,7 @@ export default async function Initialize(){
                 return valA - valB;
             })
         }
-        
+
         return mapList;
     }
 
@@ -198,12 +218,14 @@ export default async function Initialize(){
         // Start fetching from AWM and STAC API concurrently
         ensureFetched(astroWebMaps);
         ensureFetched(stacApiCollections);
+        ensureFetched(pygeoApiCollections);
 
         // Wait for both to complete before moving on
         await ensureFetched(astroWebMaps);
         await ensureFetched(stacApiCollections);
+        await ensureFetched(pygeoApiCollections);
 
-        return organizeData(mapsJson[astroWebMaps], mapsJson[stacApiCollections]);
+        return organizeData(mapsJson[astroWebMaps], mapsJson[stacApiCollections], mapsJson[pygeoApiCollections]);
     }
 
     aggregateMapList = await getStacAndAstroWebMapsData();

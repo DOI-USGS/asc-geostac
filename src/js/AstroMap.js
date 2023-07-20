@@ -38,6 +38,7 @@ export default L.Map.AstroMap = L.Map.extend({
   },
 
   initialize: function(mapDiv, target, jsonMaps, options) {
+
     this._mapDiv = mapDiv;
     this._target = target;
     this._jsonMaps = jsonMaps;
@@ -272,6 +273,7 @@ export default L.Map.AstroMap = L.Map.extend({
 
           this._geoLayers[i].on({click: this.handleClick});  // Add click listener
           
+
           // Add layers to map if they should be visible
           if(featureCollections[i].id === visibleCollectionId) { 
             this._geoLayers[i].addTo(this);
