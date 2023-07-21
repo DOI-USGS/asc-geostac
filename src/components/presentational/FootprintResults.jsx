@@ -112,7 +112,7 @@ export default function FootprintResults(props) {
       }
 
       let collectionUrls = {};
-      for (const collection of props.target.collections) {}
+      for (const collection of props.target.collections) {
 
         let isInStacAPI = collection.hasOwnProperty("stac_version");
 
