@@ -112,21 +112,18 @@ export default function FootprintResults(props) {
       }
 
       let collectionUrls = {};
-      for (const collection of props.target.collections) {
+      for (const collection of props.target.collections) {}
 
         let isInStacAPI = collection.hasOwnProperty("stac_version");
 
-        if(isInStacAPI)
-        {
+        if(isInStacAPI) {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
           collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
         }
-        else
-        {
+        else {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
           collectionUrls[collection.id] = itemsUrl + pageInfo;
         }
-
       }
 
       (async () => {
