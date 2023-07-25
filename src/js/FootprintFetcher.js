@@ -50,7 +50,7 @@ export async function FetchObjects(objInfo) {
  * @param {string} queryString - The query to narrow the results returned from the collection.
  */
 export async function FetchFootprints(collection, page, step){
-
+    let offsetMulitiplier;
     let pageInfo = "";
     if(collection.url.slice(-1) !== "?") {
         pageInfo += "&"
@@ -59,6 +59,16 @@ export async function FetchFootprints(collection, page, step){
     if (step != 10){
       pageInfo += "&limit=" + step;
     }
+
+    // check for pyGeo API
+    if (!collection.url.includes('stac')) 
+    {
+        offsetMulitiplier = (page * 10 - 10);
+        pageInfo = "&offset=" + offsetMulitiplier;
+    }
+    
+    offsetMulitiplier = 0;
+    
 
     let jsonRes = await FetchObjects(collection.url + pageInfo);
     return jsonRes.features;
