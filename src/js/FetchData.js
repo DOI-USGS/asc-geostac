@@ -13,7 +13,7 @@ export default async function Initialize(){
     const stacApiCollections = 
         "https://stac.astrogeology.usgs.gov/api/collections";
 
-    const pygeoApiCollections = 
+    const vectorApiCollections = 
         "https://astrogeology.usgs.gov/pygeoapi/collections";
 
     // Async tracking
@@ -38,10 +38,10 @@ export default async function Initialize(){
     jsonPromise[stacApiCollections] = "Not Started";
     mapsJson[stacApiCollections] = [];
 
-    fetchStatus[pygeoApiCollections] = "Not Started";
-    fetchPromise[pygeoApiCollections] = "Not Started";
-    jsonPromise[pygeoApiCollections] = "Not Started";
-    mapsJson[pygeoApiCollections] = [];
+    fetchStatus[vectorApiCollections] = "Not Started";
+    fetchPromise[vectorApiCollections] = "Not Started";
+    jsonPromise[vectorApiCollections] = "Not Started";
+    mapsJson[vectorApiCollections] = [];
 
     // Fetch JSON and read into object
     async function ensureFetched(targetUrl) {
@@ -65,7 +65,7 @@ export default async function Initialize(){
     }
 
     // Combine data from Astro Web Maps and STAC API into one new object
-    function organizeData(astroWebMaps, stacApiCollections, pygeoApiCollections) {
+    function organizeData(astroWebMaps, stacApiCollections, vectorApiCollections) {
         
         // Initialize Objects
         let mapList = { "systems" : [] };
@@ -115,16 +115,14 @@ export default async function Initialize(){
                             myCollections.push(collection);
                         }
                     }
-                    for (const pycollection of pygeoApiCollections.collections){
-
+                    for (const pycollection of vectorApiCollections.collections){
                         // view the collection as GEOJSON
                         let target_name = pycollection.id.split('/')[0];
-
                         if (target.name == target_name.toUpperCase()) {
                             pycollection.links[9].href = "https://astrogeology.usgs.gov/pygeoapi" + pycollection.links[9].href;
-                            myCollections.push(pycollection);
-                        }
-                    }
+                            myCollections.push(pycollection); 
+                        } 
+                    } 
                 }
 
                 // Add a body data entry
@@ -218,14 +216,14 @@ export default async function Initialize(){
         // Start fetching from AWM and STAC API concurrently
         ensureFetched(astroWebMaps);
         ensureFetched(stacApiCollections);
-        ensureFetched(pygeoApiCollections);
+        ensureFetched(vectorApiCollections);
 
         // Wait for both to complete before moving on
         await ensureFetched(astroWebMaps);
         await ensureFetched(stacApiCollections);
-        await ensureFetched(pygeoApiCollections);
+        await ensureFetched(vectorApiCollections);
 
-        return organizeData(mapsJson[astroWebMaps], mapsJson[stacApiCollections], mapsJson[pygeoApiCollections]);
+        return organizeData(mapsJson[astroWebMaps], mapsJson[stacApiCollections], mapsJson[vectorApiCollections]);
     }
 
     aggregateMapList = await getStacAndAstroWebMapsData();
