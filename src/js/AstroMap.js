@@ -200,8 +200,8 @@ export default L.Map.AstroMap = L.Map.extend({
 
   // show thumbnail on map when clicked - use stac-layer for this?
   handleClick: function(e) {
-    const url_to_stac_item = e.layer.feature.links[0].href;
-    console.log (url_to_stac_item);
+    //const url_to_stac_item = e.layer.feature.links[0].href;
+    //console.log (url_to_stac_item);
     // fetch(url_to_stac_item).then(res => res.json()).then(async feature => {
     //   const thumbnail = await L.stacLayer(feature, {displayPreview: true});
     //   thumbnail.on("click", e => {
@@ -261,7 +261,7 @@ export default L.Map.AstroMap = L.Map.extend({
 
           // Set colors if available
           let myStyle = i < colors.length ? {fillColor: colors[i], color: lightcolors[i]} : {};
-
+          
           // Wrap features
           let wrappedFeatures = this.cloneWestEast(featureCollections[i].features);
 

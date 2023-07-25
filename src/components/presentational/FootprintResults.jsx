@@ -113,18 +113,33 @@ export default function FootprintResults(props) {
 
       let collectionUrls = {};
       for (const collection of props.target.collections) {
-
+        
+        
         let isInStacAPI = collection.hasOwnProperty("stac_version");
+        
+        let isInPyAPI = collection.hasOwnProperty("itemType");
+        
+        // check for pygeo api
+        if (isInPyAPI)
+        {
+          // change filter for the pygeo api
+          myFilter = "&limit=" + step;
+        }
 
-        if(isInStacAPI)
+        // check for both API's
+        if(isInStacAPI || isInPyAPI)
         {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
+
           collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
+
+          
         }
         else
         {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
           collectionUrls[collection.id] = itemsUrl + pageInfo;
+          
         }
 
       }
@@ -152,6 +167,8 @@ export default function FootprintResults(props) {
         setNumFeatures(collections[myId].features.length);
         setHasFootprints(Object.keys(collections).length > 0);
         setIsLoading(false);
+
+       
 
         // Send to Leaflet
         window.postMessage(["setFeatureCollections", myId, collections], "*");

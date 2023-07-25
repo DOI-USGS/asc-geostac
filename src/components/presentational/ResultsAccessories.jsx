@@ -88,25 +88,77 @@ export function FilterTooStrict(){
 // shown as the result for a footprint.
 export function FootprintCard(props){
 
-  // Metadata Popup
+  //initialize variables 
+  let ThumbnailLink = '';
+  let modifiedProductId = '';
+  let BrowserLink = '';
+  let showMetadata;
+  
+   // Metadata Popup
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
-  const showMetadata = (value) => () => {
-    geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
+
+  
+
+
+  // Check for pyGeo API vs raster API
+ 
+  // Check if "assets" is available before accessing it
+  if (props.feature.assets && props.feature.assets.thumbnail && props.feature.assets.thumbnail.href) 
+  {
+    // set Thumbnail link
+    ThumbnailLink = props.feature.assets.thumbnail.href;
+
+    BrowserLink = 'https://stac.astrogeology.usgs.gov/browser-dev/#/api/collections/' + props.feature.collection + '/items/' + props.feature.id;
+    
+    // display meta data for STAC api
+     showMetadata = (value) => () => {
+      geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
+      geoTiffViewer.changeMetaData(
+        value.collection,
+        value.id,
+        value.properties.datetime,
+        value.assets
+      );
+      geoTiffViewer.openModal();
+    }; 
+
+    
+  } 
+  else 
+  {
+
+    // Switch the id and date and link
+    props.feature.id = props.feature.properties.productid;
+
+    props.feature.properties.datetime = props.feature.properties.createdate;
+
+    modifiedProductId = props.feature.id.replace(/_RED|_COLOR/g, '');
+
+    ThumbnailLink = 'https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_012600_012699/' + modifiedProductId + '/' + props.feature.id + '.thumb.jpg';
+
+    BrowserLink = props.feature.properties.produrl;
+
+    //display different modal for PyGeo API
+    showMetadata = (value) => () => {
+    geoTiffViewer.displayGeoTiff(ThumbnailLink);
     geoTiffViewer.changeMetaData(
-      value.collection,
-      value.id,
+      value.properties.datasetid,
+      value.properties.productid,
       value.properties.datetime,
-      value.assets
+      value.links
     );
     geoTiffViewer.openModal();
   };
+  }
+  
+
 
   return(
     <Card sx={{ width: 250, margin: 1}}>
       <CardContent sx={{padding: 1.2, paddingBottom: 0}}>
         <div className="resultContainer" >
           <div className="resultImgDiv">
-            <img className="resultImg" src={props.feature.assets.thumbnail.href} />
+            <img className="resultImg" src={ThumbnailLink} />
           </div>
           <div className="resultData">
             <div className="resultSub">
@@ -130,11 +182,11 @@ export function FootprintCard(props){
               clickable
             />
             <Chip
-              label="STAC Browser"
+              label="Browser"
               icon={<LaunchIcon />}
               size="small"
               component="a"
-              href={`https://stac.astrogeology.usgs.gov/browser-dev/#/api/collections/${props.feature.collection}/items/${props.feature.id}`}
+              href={BrowserLink}
               target="_blank"
               variant="outlined"
               clickable
