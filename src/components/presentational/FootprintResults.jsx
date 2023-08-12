@@ -75,7 +75,7 @@ export default function FootprintResults(props) {
     let newPage = numFeatures/step + 1;
     let newFeatures = await FetchFootprints(featureCollections[collectionId], newPage, step);
     
-    // If any features are returned, add them to currecnt collection
+    // If any features are returned, add them to current collection
     if (newFeatures.length > 0) {
       addFeatures(newFeatures, collectionId);
     }
