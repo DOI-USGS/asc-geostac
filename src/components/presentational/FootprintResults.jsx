@@ -126,22 +126,15 @@ export default function FootprintResults(props) {
           myFilter = "&limit=" + step;
         }
 
-        // check for both API's
-        if(isInStacAPI || isInPyAPI)
-        {
+        if(isInStacAPI) {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
-
           collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
-
-          
         }
-        else
-        {
+        else {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
           collectionUrls[collection.id] = itemsUrl + pageInfo;
           
         }
-
       }
 
       (async () => {
