@@ -126,7 +126,7 @@ export default function FootprintResults(props) {
           myFilter = "&limit=" + step;
         }
 
-        if(isInStacAPI) {
+        if(isInStacAPI || isInPyAPI) {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
           collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
         }
