@@ -50,6 +50,7 @@ export async function FetchObjects(objInfo) {
  * @param {string} queryString - The query to narrow the results returned from the collection.
  */
 export async function FetchFootprints(collection, page, step){
+    let collectionUrl;
     let offsetMulitiplier;
     let pageInfo = "";
     if(collection.url.slice(-1) !== "?") {
@@ -63,12 +64,69 @@ export async function FetchFootprints(collection, page, step){
     // check for pyGeo API
     if (!collection.url.includes('stac')) 
     {
-        offsetMulitiplier = (page * 10 - 10);
+
+        // set offset for 5 & 10 steps
+        offsetMulitiplier = (page * 10 - step);
         pageInfo = "&offset=" + offsetMulitiplier;
+
+        
+        // checks for 5 change in step
+        if (step <= 10)
+        {
+               
+            // splice limit and change to new limit
+            collectionUrl = collection.url.split('&limit=')[0];
+            collection.url = collectionUrl;
+                
+                
+            // update page pageInfo
+            pageInfo = "&offset=" + offsetMulitiplier + "&limit=" + step;
+            
+            
+        }
+        // checks for 50 & 100 step
+        else if (step == 50 || step == 100)
+        {
+
+            // splice limit and change to new limit
+            collectionUrl = collection.url.split('&limit=')[0];
+            collection.url = collectionUrl;
+
+            // check for first page 
+            if (page == 1)
+            {
+                // set multiplier to 0
+                offsetMulitiplier = 0;
+            }
+            // check for second page
+            else if (page == 2)
+            {   
+                // set multiplier to step
+                offsetMulitiplier = step;
+            
+            }
+            else
+            {
+                // check for 50 and set pages according
+                if (step == 50)
+                {
+                    offsetMulitiplier = page * step - 50;
+                }
+                // check for 100 and set pages according
+                else 
+                {
+                    offsetMulitiplier = page * step - 100;
+                }
+            }
+
+            // update page pageInfo
+            pageInfo = "&offset=" + offsetMulitiplier + "&limit=" + step;
+        }
+        
     }
     
+    // reset offset
     offsetMulitiplier = 0;
-    
 
     let jsonRes = await FetchObjects(collection.url + pageInfo);
     return jsonRes.features;
