@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardContent, CardActions, Skeleton, Chip, Stack} from "@mui/material";
+import { Card, CardContent, CardActions, Skeleton, Chip, Stack, CardActionArea} from "@mui/material";
 
 // icons
 import PreviewIcon from "@mui/icons-material/Preview";
@@ -101,23 +101,40 @@ export function FootprintCard(props){
     geoTiffViewer.openModal();
   };
 
+  const cardClick = () => {
+    window.postMessage(["zoomFootprint", props.feature], "*");
+  };
+
+  const cardHover = () => {
+    window.postMessage(["highlightFootprint", props.feature], "*");
+  };
+
+  const eraseHover = () => {
+    window.postMessage(["unhighlightFootprint"], "*");
+  };
+
+
+
+
   return(
     <Card sx={{ width: 250, margin: 1}}>
-      <CardContent sx={{padding: 1.2, paddingBottom: 0}}>
-        <div className="resultContainer" >
-          <div className="resultImgDiv">
-            <img className="resultImg" src={props.feature.assets.thumbnail.href} />
-          </div>
-          <div className="resultData">
-            <div className="resultSub">
-              <strong>ID:</strong>&nbsp;{props.feature.id}
+      <CardActionArea onMouseEnter={cardHover} onMouseLeave={eraseHover} onClick={cardClick}>
+        <CardContent sx={{padding: 1.2, paddingBottom: 0}}>
+          <div className="resultContainer" >
+            <div className="resultImgDiv">
+              <img className="resultImg" src={props.feature.assets.thumbnail.href} />
             </div>
-            <div className="resultSub">
-              <strong>Date:</strong>&nbsp;{props.feature.properties.datetime}
+            <div className="resultData">
+              <div className="resultSub">
+                <strong>ID:</strong>&nbsp;{props.feature.id}
+              </div>
+              <div className="resultSub">
+                <strong>Date:</strong>&nbsp;{props.feature.properties.datetime}
+              </div>
             </div>
           </div>
-        </div>
-      </CardContent>
+        </CardContent>
+      </CardActionArea>
       <CardActions>
         <div className="resultLinks">
           <Stack direction="row" spacing={1}>
