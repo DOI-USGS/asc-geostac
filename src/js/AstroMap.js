@@ -51,6 +51,7 @@ export default L.Map.AstroMap = L.Map.extend({
     this._footprintControl = null;
     this._geoLayers = [];
     this._htmllegend = null;
+    this._hovHighlight = null;
 
     // Set by layer collection or baselayerchange event
     this._currentLayer = null;
@@ -142,6 +143,19 @@ export default L.Map.AstroMap = L.Map.extend({
         const collectionId = event.data[1];
         this.setVisibleCollections(collectionId);
       }
+      else if (event.data[0] === "zoomFootprint") {
+        const feature = event.data[1];
+        this.zoomFootprint(feature);
+      }
+      else if (event.data[0] === "highlightFootprint") {
+        const feature = event.data[1];
+        this.highlightFootprint(feature);
+      }
+      else if (event.data[0] === "unhighlightFootprint") {
+        if (this._hovHighlight) {
+          this._hovHighlight.remove();
+        }
+      }
     }
   },
 
@@ -180,6 +194,25 @@ export default L.Map.AstroMap = L.Map.extend({
       clonedFeatures.push(...[westCopy, feature, eastCopy]);
     }
     return clonedFeatures;
+  },
+
+  zoomFootprint: function (feature) {
+    let zoomTarget = L.geoJSON(feature);
+    this.fitBounds(zoomTarget.getBounds());
+  },
+
+  highlightFootprint: function(feature){
+    
+    if(this._hovHighlight) {
+      this._hovHighlight.remove();
+    }
+
+    // Add Wrap?
+
+    // Add feature to (this) map
+    this._hovHighlight = L.geoJSON(feature, {
+      style: { fillColor: "#FFFFFF", color: "#FFFFFF" }
+    }).addTo(this);
   },
 
   setVisibleCollections: function(collectionId){
