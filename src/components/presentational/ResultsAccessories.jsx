@@ -63,6 +63,35 @@ export function NoFootprints(){
   );
 }
 
+// determine the DatasetType in order to properly gather seach data for a given set
+function determineDatasetType(features) {
+  // If no features or the first feature doesn't have properties, return 'unknown'
+  if(!features || !features.properties) return 'unknown';
+
+  // Extract keys of the first feature's properties
+  const propertyKeys = Object.keys(features.properties);
+
+  // Find the key that ends with "id"
+  const idKey = propertyKeys.find(key => key.endsWith("id"));
+  console.log(idKey);
+  if(!idKey) return 'unknown'; // If no id found
+
+  if(features.stac_extensions) return "stac";
+  // Based on the key determine the type
+  switch(idKey) {
+      case "productid":
+          return "hirise";
+      case "pdsvolid":
+          return "hirise"
+      case "craterid":
+          return "crater";
+      case "objectid":
+          return "globalGeoMap"
+      default:
+          return 'unknown';
+  }
+}
+
 
 // Shown when collections are available but no footprints were returned for current filter.
 export function FilterTooStrict(){
@@ -82,8 +111,6 @@ export function FilterTooStrict(){
     </div>
   );
 }
-
-
 // A small card with an images and a few key data points
 // shown as the result for a footprint.
 export function FootprintCard(props){
@@ -97,59 +124,67 @@ export function FootprintCard(props){
    // Metadata Popup
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
 
-  
+  //determine feature type
+  const featureType = determineDatasetType(props.feature);
+  console.log("Dataset type is:", featureType);    //debugging 
+  console.log(props.feature);                      //debugging
 
+  //check for feature type in order to gather correct meta data
+  switch(featureType) {
+    case "stac":
+      // set Thumbnail link
+      ThumbnailLink = props.feature.assets.thumbnail.href;
+      BrowserLink = 'https://stac.astrogeology.usgs.gov/browser-dev/#/api/collections/' + props.feature.collection + '/items/' + props.feature.id;
 
-  // Check for pyGeo API vs raster API
- 
-  // Check if "assets" is available before accessing it
-  if (props.feature.assets && props.feature.assets.thumbnail && props.feature.assets.thumbnail.href) 
-  {
-    // set Thumbnail link
-    ThumbnailLink = props.feature.assets.thumbnail.href;
+      // display meta data for STAC api
+      showMetadata = (value) => () => {
+        geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
+        geoTiffViewer.changeMetaData(
+          value.collection,
+          value.id,
+          value.properties.datetime,
+          value.assets
+        );
+        geoTiffViewer.openModal();
+      }; 
+      break;
+    case "hirise":
+      // Switch the id and date and link
+      props.feature.id = props.feature.properties.productid;
+      props.feature.properties.datetime = props.feature.properties.createdate;
+      modifiedProductId = props.feature.id.replace(/_RED|_COLOR/g, '');
+      ThumbnailLink = 'https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_012600_012699/' + modifiedProductId + '/' + props.feature.id + '.thumb.jpg';
+      BrowserLink = props.feature.properties.produrl;
 
-    BrowserLink = 'https://stac.astrogeology.usgs.gov/browser-dev/#/api/collections/' + props.feature.collection + '/items/' + props.feature.id;
-    
-    // display meta data for STAC api
-     showMetadata = (value) => () => {
-      geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
+      //display different modal for PyGeo API
+      showMetadata = (value) => () => {
+      geoTiffViewer.displayGeoTiff(ThumbnailLink);
       geoTiffViewer.changeMetaData(
-        value.collection,
-        value.id,
+        value.properties.datasetid,
+        value.properties.productid,
         value.properties.datetime,
-        value.assets
+        value.links
       );
       geoTiffViewer.openModal();
-    }; 
+    };
+    break;
+    default:
+        //display different modal for PyGeo API
+      showMetadata = (value) => () => {
+        geoTiffViewer.displayGeoTiff(ThumbnailLink);
+        geoTiffViewer.changeMetaData(
+          value.properties.datasetid,
+          value.properties.productid,
+          value.properties.datetime,
+          value.links
+        );
+    }
+    break;
 
-    
-  } 
-  else 
-  {
-
-    // Switch the id and date and link
-    props.feature.id = props.feature.properties.productid;
-
-    props.feature.properties.datetime = props.feature.properties.createdate;
-
-    modifiedProductId = props.feature.id.replace(/_RED|_COLOR/g, '');
-
-    ThumbnailLink = 'https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_012600_012699/' + modifiedProductId + '/' + props.feature.id + '.thumb.jpg';
-
-    BrowserLink = props.feature.properties.produrl;
-
-    //display different modal for PyGeo API
-    showMetadata = (value) => () => {
-    geoTiffViewer.displayGeoTiff(ThumbnailLink);
-    geoTiffViewer.changeMetaData(
-      value.properties.datasetid,
-      value.properties.productid,
-      value.properties.datetime,
-      value.links
-    );
-    geoTiffViewer.openModal();
-  };
   }
+
+  
+
   
 
 
