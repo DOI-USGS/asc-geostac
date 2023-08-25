@@ -156,6 +156,12 @@ export default L.Map.AstroMap = L.Map.extend({
     // Clone Features to west and east. For each feature...
     for(const feature of myFeatures) {
 
+      // Check if feature or feature.geometry is null or undefined
+      if(!feature || !feature.geometry){
+        console.warn("Invalid feature or missing geometry: ", feature);
+        continue;
+      }
+
       // Clone it
       let westCopy = structuredClone(feature);
       let eastCopy = structuredClone(feature);
