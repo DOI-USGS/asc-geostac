@@ -83,10 +83,6 @@ function determineDatasetType(features) {
           return "hirise";
       case "pdsvolid":
           return "hirise"
-      case "craterid":
-          return "crater";
-      case "objectid":
-          return "globalGeoMap"
       default:
           return 'unknown';
   }
@@ -120,6 +116,9 @@ export function FootprintCard(props){
   let modifiedProductId = '';
   let BrowserLink = '';
   let showMetadata;
+
+  let metadataFlag = false;
+  let browserFlag = false;
   
    // Metadata Popup
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
@@ -136,6 +135,11 @@ export function FootprintCard(props){
       ThumbnailLink = props.feature.assets.thumbnail.href;
       BrowserLink = 'https://stac.astrogeology.usgs.gov/browser-dev/#/api/collections/' + props.feature.collection + '/items/' + props.feature.id;
 
+      // set booleans
+      metadataFlag = true;
+      browserFlag = true;
+
+
       // display meta data for STAC api
       showMetadata = (value) => () => {
         geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
@@ -150,15 +154,15 @@ export function FootprintCard(props){
       break;
     case "hirise":
       // Switch the id and date and link
-      props.feature.id = props.feature.properties.productid;
-      props.feature.properties.datetime = props.feature.properties.createdate;
-      modifiedProductId = props.feature.id.replace(/_RED|_COLOR/g, '');
-      ThumbnailLink = 'https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_012600_012699/' + modifiedProductId + '/' + props.feature.id + '.thumb.jpg';
-      BrowserLink = props.feature.properties.produrl;
+     // props.feature.id = props.feature.properties.productid;
+      //props.feature.properties.datetime = props.feature.properties.createdate;
+      //modifiedProductId = props.feature.id.replace(/_RED|_COLOR/g, '');
+      //ThumbnailLink = 'https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_012600_012699/' + modifiedProductId + '/' + props.feature.id + '.thumb.jpg';
+      //BrowserLink = props.feature.properties.produrl;
 
       //display different modal for PyGeo API
       showMetadata = (value) => () => {
-      geoTiffViewer.displayGeoTiff(ThumbnailLink);
+      //geoTiffViewer.displayGeoTiff(ThumbnailLink);
       geoTiffViewer.changeMetaData(
         value.properties.datasetid,
         value.properties.productid,
@@ -225,6 +229,7 @@ export function FootprintCard(props){
       <CardActions>
         <div className="resultLinks">
           <Stack direction="row" spacing={1}>
+          {metadataFlag && (
             <Chip
               label="Metadata"
               icon={<PreviewIcon />}
@@ -233,6 +238,8 @@ export function FootprintCard(props){
               variant="outlined"
               clickable
             />
+            )}
+          {browserFlag && (
             <Chip
               label="Browser"
               icon={<LaunchIcon />}
@@ -243,6 +250,7 @@ export function FootprintCard(props){
               variant="outlined"
               clickable
             />
+            )}
           </Stack>
         </div>
       </CardActions>
