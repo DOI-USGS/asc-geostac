@@ -120,7 +120,7 @@ export function FootprintCard(props){
   let stacAPIFlag = false;
   let pyGeoAPIFlag = false;
  
-  console.log(props);
+  
    // Metadata Popup
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
 
