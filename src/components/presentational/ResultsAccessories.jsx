@@ -243,7 +243,19 @@ export function FootprintCard(props){
                 <strong>ID:</strong>&nbsp;{props.feature.id}
               </div>
               <div className="resultSub">
-                <strong>centerlat:</strong>{props.feature.properties.centerlat}
+              {props.feature?.properties &&
+                Object.entries(props.feature.properties).map(([key, value]) => {
+                    // Checking if the value is an object or array, and not rendering it if it is
+                    if (typeof value === 'object' && value !== null) {
+                        return null;
+                    }
+                    return (
+                        <div key={key}>
+                            <strong>{key}:</strong> {value}
+                        </div>
+                    );
+                })
+            }
               </div>
             </div>
           </div>
