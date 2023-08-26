@@ -119,9 +119,6 @@ export default function FootprintResults(props) {
         
         let isInPyAPI = collection.hasOwnProperty("itemType");
 
-        let queryUrl = collection.links.find(link => link.rel === "queryables").href;
-
-        console.log(queryUrl);
         
         // check for pygeo api
         if (isInPyAPI)
