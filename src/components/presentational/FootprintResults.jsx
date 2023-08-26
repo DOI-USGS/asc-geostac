@@ -203,7 +203,9 @@ export default function FootprintResults(props) {
   for(const key in featureCollections){
     if(featureCollections[key].numberReturned > 0) noFootprintsReturned = false;
   }
-
+  if(numFeatures > matched) {
+    setNumFeatures(matched);
+  }
   return (
     <div id="footprintResults" className="scroll-parent">
       {hasFootprints &&
