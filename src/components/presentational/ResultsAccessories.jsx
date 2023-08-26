@@ -120,7 +120,7 @@ export function FootprintCard(props){
   let stacAPIFlag = false;
   let pyGeoAPIFlag = false;
  
-  
+  console.log(props);
    // Metadata Popup
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
 
@@ -241,6 +241,9 @@ export function FootprintCard(props){
             <div className="resultData">
               <div className="resultSub">
                 <strong>ID:</strong>&nbsp;{props.feature.id}
+              </div>
+              <div className="resultSub">
+                <strong>centerlat:</strong>{props.feature.properties.centerlat}
               </div>
             </div>
           </div>
