@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // Keyword Filter
 import TextField from "@mui/material/TextField";
 // Date Range
@@ -18,6 +18,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 
 import { Collapse, Divider } from "@mui/material";
+import ListItemText from "@mui/material/ListItemText";
 
 /**
  * Controls css styling for this component using js to css
@@ -144,6 +145,23 @@ export default function SearchAndFilterInput(props) {
     props.setFilterString(myFilterString);
   }
 
+  // testing 
+  const options = [
+    { value: 'option1', label: 'Option 1' },
+    { value: 'option2', label: 'Option 2' },
+    { value: 'option3', label: 'Option 3' },
+    { value: 'option4', label: 'Option 4' },
+    { value: 'option5', label: 'Option 5' },
+  ];
+
+
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  
+  const handleOptionChange = event => {
+    setSelectedOptions(event.target.value);
+  };
+
+  
   // Sorting
   const handleSortChange = (event) => {
     setSortVal(event.target.value);
@@ -268,6 +286,30 @@ export default function SearchAndFilterInput(props) {
             />
           </span>
         </div>
+        <div className="panelSection panelBar">
+  <span>
+    <FormControl sx={{ minWidth: 150 }}>
+      <InputLabel id="selectQueryLabel" size="small">
+        Select Query
+      </InputLabel>
+      <Select
+        labelId="selectQueryLabel"
+        label="Select Query"
+        multiple
+        value={selectedOptions}
+        onChange={handleOptionChange}
+        renderValue={(selected) => selected.join(', ')}
+      >
+        {options.map((option) => (
+          <MenuItem key={option.value} value={option.value}>
+            <Checkbox checked={selectedOptions.includes(option.value)} />
+            <ListItemText primary={option.label} />
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  </span>
+</div>
 
         <Divider/>
 
