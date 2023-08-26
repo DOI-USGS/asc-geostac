@@ -132,18 +132,33 @@ export async function FetchFootprints(collection, page, step){
     return jsonRes.features;
 }
 
-export async function FetchStepRemainder(featureCollection, myStep){
+export async function FetchStepRemainder(featureCollection, myStep) {
+    if (!featureCollection || !featureCollection.features) {
+        console.error('Invalid featureCollection:', featureCollection);
+        return [];
+    }
+
     let myPage = Math.ceil(featureCollection.features.length / myStep);
     let skip = featureCollection.features.length % myStep;
     let newFeatures = [];
+    let fullResponse;
 
     if (skip !== 0) {
-      newFeatures = await FetchFootprints(featureCollection, myPage, myStep);
+        fullResponse = await FetchFootprints(featureCollection, myPage, myStep);
 
-      // If any features are returned, add the remainder needed to the current collection
-      if (newFeatures.length > 0) {
-        return newFeatures.slice(skip, newFeatures.length);
-      }
+        if (!fullResponse || !fullResponse.features) {
+            console.error('Invalid fullResponse:', fullResponse);
+            return [];
+        }
+
+        newFeatures = fullResponse.features;
+
+        // Handle edge case where you may have requested more features than  still available
+        if (newFeatures.length < myStep) {
+            return newFeatures;
+        } else {
+            return newFeatures.slice(skip, newFeatures.length);
+        }
     }
     return newFeatures;
-  }
+}
