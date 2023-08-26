@@ -73,7 +73,7 @@ function determineDatasetType(features) {
 
   // Find the key that ends with "id"
   const idKey = propertyKeys.find(key => key.endsWith("id"));
-  console.log(idKey);
+  //console.log(idKey);
   if(!idKey) return 'unknown'; // If no id found
 
   if(features.stac_extensions) return "stac";
@@ -117,16 +117,17 @@ export function FootprintCard(props){
   let BrowserLink = '';
   let showMetadata;
 
-  let metadataFlag = false;
-  let browserFlag = false;
+  let stacAPIFlag = false;
+  let pyGeoAPIFlag = false;
+ 
   
    // Metadata Popup
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
 
   //determine feature type
   const featureType = determineDatasetType(props.feature);
-  console.log("Dataset type is:", featureType);    //debugging 
-  console.log(props.feature);                      //debugging
+  //console.log("Dataset type is:", featureType);    //debugging 
+  //console.log(props.feature);                      //debugging
 
   //check for feature type in order to gather correct meta data
   switch(featureType) {
@@ -135,9 +136,8 @@ export function FootprintCard(props){
       ThumbnailLink = props.feature.assets.thumbnail.href;
       BrowserLink = 'https://stac.astrogeology.usgs.gov/browser-dev/#/api/collections/' + props.feature.collection + '/items/' + props.feature.id;
 
-      // set booleans
-      metadataFlag = true;
-      browserFlag = true;
+      // set boolean
+      stacAPIFlag = true;
 
 
       // display meta data for STAC api
@@ -159,6 +159,9 @@ export function FootprintCard(props){
       //modifiedProductId = props.feature.id.replace(/_RED|_COLOR/g, '');
       //ThumbnailLink = 'https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_012600_012699/' + modifiedProductId + '/' + props.feature.id + '.thumb.jpg';
       //BrowserLink = props.feature.properties.produrl;
+      
+      // set boolean
+      pyGeoAPIFlag = true;
 
       //display different modal for PyGeo API
       showMetadata = (value) => () => {
@@ -173,9 +176,10 @@ export function FootprintCard(props){
     };
     break;
     default:
+      pyGeoAPIFlag = true;
         //display different modal for PyGeo API
       showMetadata = (value) => () => {
-        geoTiffViewer.displayGeoTiff(ThumbnailLink);
+        //geoTiffViewer.displayGeoTiff(ThumbnailLink);
         geoTiffViewer.changeMetaData(
           value.properties.datasetid,
           value.properties.productid,
@@ -209,6 +213,8 @@ export function FootprintCard(props){
 
   return(
     <Card sx={{ width: 250, margin: 1}}>
+      {/* This checks for the stac API */}
+      {stacAPIFlag && (
       <CardActionArea onMouseEnter={cardHover} onMouseLeave={eraseHover} onClick={cardClick}>
         <CardContent sx={{padding: 1.2, paddingBottom: 0}}>
           <div className="resultContainer" >
@@ -226,10 +232,26 @@ export function FootprintCard(props){
           </div>
         </CardContent>
       </CardActionArea>
+      )}
+      {/* This checks for the PyGeo API */}
+      {pyGeoAPIFlag && (
+      <CardActionArea onMouseEnter={cardHover} onMouseLeave={eraseHover} onClick={cardClick}>
+        <CardContent sx={{padding: 1.2, paddingBottom: 0}}>
+          <div className="pyGeoResultContainer" >
+            <div className="resultData">
+              <div className="resultSub">
+                <strong>ID:</strong>&nbsp;{props.feature.id}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </CardActionArea>
+      )}
+      {/* This checks for the stac API */}
+      {stacAPIFlag && (
       <CardActions>
         <div className="resultLinks">
           <Stack direction="row" spacing={1}>
-          {metadataFlag && (
             <Chip
               label="Metadata"
               icon={<PreviewIcon />}
@@ -238,8 +260,6 @@ export function FootprintCard(props){
               variant="outlined"
               clickable
             />
-            )}
-          {browserFlag && (
             <Chip
               label="Browser"
               icon={<LaunchIcon />}
@@ -250,10 +270,10 @@ export function FootprintCard(props){
               variant="outlined"
               clickable
             />
-            )}
           </Stack>
         </div>
       </CardActions>
+      )}
     </Card>
   );
 }
