@@ -55,6 +55,7 @@ export default function Sidebar(props) {
           <SearchAndFilterInput
             setFilterString={setFilterString}
             targetName={props.target.name}
+            target={props.target}
           />
           <FootprintResults 
             target={props.target} 

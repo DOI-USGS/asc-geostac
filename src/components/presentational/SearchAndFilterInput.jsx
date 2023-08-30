@@ -144,15 +144,52 @@ export default function SearchAndFilterInput(props) {
 
     props.setFilterString(myFilterString);
   }
+  
+  const [queryableTitles, setQueryableTitles] = useState([]); // New state for queryable titles
 
-  // testing 
-  const options = [
-    { value: 'option1', label: 'Option 1' },
-    { value: 'option2', label: 'Option 2' },
-    { value: 'option3', label: 'Option 3' },
-    { value: 'option4', label: 'Option 4' },
-    { value: 'option5', label: 'Option 5' },
-  ];
+ 
+
+  // filter the PyGeo API queryables
+  for (const collection of props.target.collections) {
+
+    let isInPyAPI = collection.hasOwnProperty("itemType");
+    
+    if (isInPyAPI)
+    {
+      let QueryableDirectoryLink = collection.links.find(link => link.rel === "queryables").href;
+      let QueryableURL = 'https://astrogeology.usgs.gov/pygeoapi/' + QueryableDirectoryLink;
+      
+      fetch(QueryableURL)
+      .then(response => response.json())
+      .then(data => {
+        let queryableTitlesArray = [];
+        // Extract the "properties" property from the JSON response
+        let Queryables = data.properties;
+        
+        // loop over titles
+        for (const property in Queryables) {
+          if (Queryables.hasOwnProperty(property) && Queryables[property].hasOwnProperty("title")) {
+            
+            queryableTitlesArray.push(data.properties[property].title);
+            
+          }
+        }
+
+       
+        setQueryableTitles(queryableTitlesArray); // Set the state with the queryable titles
+      
+      
+      })
+      .catch(error => {
+      console.error("Error fetching data:", error);
+      });
+
+      
+    }
+    
+    
+  }
+  
 
 
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -300,11 +337,11 @@ export default function SearchAndFilterInput(props) {
         onChange={handleOptionChange}
         renderValue={(selected) => selected.join(', ')}
       >
-        {options.map((option) => (
-          <MenuItem key={option.value} value={option.value}>
-            <Checkbox checked={selectedOptions.includes(option.value)} />
-            <ListItemText primary={option.label} />
-          </MenuItem>
+        {queryableTitles.map((title) => (
+                <MenuItem key={title} value={title}>
+                  <Checkbox checked={selectedOptions.includes(title)} />
+                  <ListItemText primary={title} />
+                </MenuItem>
         ))}
       </Select>
     </FormControl>
