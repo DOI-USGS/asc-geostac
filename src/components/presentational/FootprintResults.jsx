@@ -32,6 +32,12 @@ export default function FootprintResults(props) {
   const [oldTargetName, setOldTargetName] = React.useState("");
   const [oldFilterString, setOldFilterString] = React.useState("");
 
+  /*const [selectedOptionsWithValues, setSelectedOptionsWithValues] = React.useState([]);
+
+    // Function to update selected options and values
+    const updateSelectedOptions = (selectedOptions) => {
+      setSelectedOptionsWithValues(selectedOptions);
+    }; */
 
   const addFeatures = (newFeatures, key) => {
     let myFeatureCollections = featureCollections;
@@ -61,6 +67,14 @@ export default function FootprintResults(props) {
 
     setCollectionId(newCollectionId);
     setMatched(featureCollections[newCollectionId].numberMatched);
+
+    // Extract the selected collection title
+    const selectedCollection = props.target.collections.find(collection => collection.id === newCollectionId);
+    const selectedCollectionTitle = selectedCollection ? selectedCollection.title : '';
+
+    // Call the callback function to pass the selected title to the Sidebar
+    props.updateSelectedTitle(selectedCollectionTitle);
+
 
     // Send to Leaflet
     window.postMessage(["setVisibleCollections", newCollectionId], "*");

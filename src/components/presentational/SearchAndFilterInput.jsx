@@ -144,58 +144,88 @@ export default function SearchAndFilterInput(props) {
 
     props.setFilterString(myFilterString);
   }
-  
-  const [queryableTitles, setQueryableTitles] = useState([]); // New state for queryable titles
 
+  // initialize pyGeoAPI flag
+  let pyGeoAPIFlag = false;
+
+  // New state for queryable titles
+  const [queryableTitles, setQueryableTitles] = useState([]); 
  
+  // all collections
+  const collection = props.target.collections;
+ 
+  // retrieves all PyGEO collections
+  const isInPyAPI = collection.filter(data => data.hasOwnProperty('itemType'));
+  //console.log(isInPyAPI);
 
-  // filter the PyGeo API queryables
-  for (const collection of props.target.collections) {
+  // finds and assigns the selected collection from the PYGEO api
+  const selectedCollection = isInPyAPI.find(data => data.title === props.selectedTitle);
 
-    let isInPyAPI = collection.hasOwnProperty("itemType");
+  //console.log(selectedCollection);
+
+  // retrieves all pyGEO titles
+  const collectionTitles = isInPyAPI.map(data => data.title);
+
     
-    if (isInPyAPI)
-    {
-      let QueryableDirectoryLink = collection.links.find(link => link.rel === "queryables").href;
-      let QueryableURL = 'https://astrogeology.usgs.gov/pygeoapi/' + QueryableDirectoryLink;
-      
-      fetch(QueryableURL)
-      .then(response => response.json())
-      .then(data => {
-        let queryableTitlesArray = [];
-        // Extract the "properties" property from the JSON response
-        let Queryables = data.properties;
+    
+  // checks if correct title selected 
+  if (collectionTitles.includes(props.selectedTitle))
+  {
+    //set pyGeoAPI flag
+    pyGeoAPIFlag = true;
+
+    // set the selected link
+    let QueryableDirectoryLink = selectedCollection.links.find(link => link.rel === "queryables").href;
+
+    // creates URL to get the properties
+    let QueryableURL = 'https://astrogeology.usgs.gov/pygeoapi/' + QueryableDirectoryLink;
+
+    // fetches URL to get the properties
+    fetch(QueryableURL)
+    .then(response => response.json())
+    .then(data => {
+
+      let queryableTitlesArray = [];
+
+      // Extract the "properties" property from the JSON response
+      let Queryables = data.properties;
         
-        // loop over titles
-        for (const property in Queryables) {
-          if (Queryables.hasOwnProperty(property) && Queryables[property].hasOwnProperty("title")) {
+      // loop over titles
+      for (const property in Queryables) {
+        if (Queryables.hasOwnProperty(property) && Queryables[property].hasOwnProperty("title")) {
             
-            queryableTitlesArray.push(data.properties[property].title);
+          queryableTitlesArray.push(data.properties[property].title);
             
-          }
         }
+     }
 
-       
-        setQueryableTitles(queryableTitlesArray); // Set the state with the queryable titles
+      // Set the state with the queryable titles
+      setQueryableTitles(queryableTitlesArray);
       
       
-      })
-      .catch(error => {
-      console.error("Error fetching data:", error);
-      });
-
-      
+    }, [])
+    .catch(error => {
+    console.error("Error fetching data:", error);
+    });
     }
+      
     
-    
-  }
   
-
 
   const [selectedOptions, setSelectedOptions] = useState([]);
   
   const handleOptionChange = event => {
-    setSelectedOptions(event.target.value);
+    const selectedValues = event.target.value;
+    setSelectedOptions(selectedValues);
+
+    /*// Create an array of objects with selected option and value
+    const selectedOptionsWithValues = selectedValues.map((option) => ({
+      option,
+        value: queryableTitles.find((title) => title.title === option)?.value, 
+      }));
+
+  // Pass the selected options and values to FootprintResults
+    props.updateSelectedOptions(selectedOptionsWithValues); */
   };
 
   
@@ -323,31 +353,33 @@ export default function SearchAndFilterInput(props) {
             />
           </span>
         </div>
+        
+        {pyGeoAPIFlag && (
         <div className="panelSection panelBar">
-  <span>
-    <FormControl sx={{ minWidth: 150 }}>
-      <InputLabel id="selectQueryLabel" size="small">
-        Select Query
-      </InputLabel>
-      <Select
-        labelId="selectQueryLabel"
-        label="Select Query"
-        multiple
-        value={selectedOptions}
-        onChange={handleOptionChange}
-        renderValue={(selected) => selected.join(', ')}
-      >
-        {queryableTitles.map((title) => (
-                <MenuItem key={title} value={title}>
-                  <Checkbox checked={selectedOptions.includes(title)} />
-                  <ListItemText primary={title} />
-                </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  </span>
-</div>
-
+          <span>
+            <FormControl sx={{ minWidth: 150 }}>
+              <InputLabel id="selectQueryLabel" size="small">
+                Select Query
+              </InputLabel>
+              <Select
+                labelId="selectQueryLabel"
+                label="Select Query"
+                multiple
+                value={selectedOptions}
+                onChange={handleOptionChange}
+                renderValue={(selected) => selected.join(', ')}
+              >
+                {queryableTitles.map((title) => (
+                        <MenuItem key={title} value={title}>
+                          <Checkbox checked={selectedOptions.includes(title)} />
+                          <ListItemText primary={title} />
+                        </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </span>
+        </div>
+        )}
         <Divider/>
 
         <div className="panelSection">

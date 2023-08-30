@@ -120,7 +120,8 @@ export function FootprintCard(props){
   let stacAPIFlag = false;
   let pyGeoAPIFlag = false;
  
-  
+  const { selectedOptionsWithValues } = props;
+
    // Metadata Popup
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
 
@@ -243,6 +244,14 @@ export function FootprintCard(props){
                 <strong>ID:</strong>&nbsp;{props.feature.id}
               </div>
               <div className="resultSub">
+            {/*}
+              <ul>
+              {selectedOptionsWithValues.map((optionWithValues, index) => (
+                <li key={index}>
+                   <strong>Option:</strong> {optionWithValues.option}, <strong>Value:</strong> {optionWithValues.value}
+               </li>
+              ))}
+              </ul> */}
               {props.feature?.properties &&
                 Object.entries(props.feature.properties).map(([key, value]) => {
                     // Checking if the value is an object or array, and not rendering it if it is
@@ -255,7 +264,7 @@ export function FootprintCard(props){
                         </div>
                     );
                 })
-            }
+            } 
               </div>
             </div>
           </div>
