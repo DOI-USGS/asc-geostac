@@ -43,6 +43,14 @@ export default function Sidebar(props) {
     setShowSidePanel(!showSidePanel);
   };
 
+  // State to hold the selected title
+  const [selectedTitle, setSelectedTitle] = React.useState("");
+
+  // Callback function to update selected title
+  const updateSelectedTitle = (newTitle) => {
+    setSelectedTitle(newTitle);
+  };
+
   return (
     <>
       <div id="right-bar" className="scroll-parent">
@@ -55,12 +63,15 @@ export default function Sidebar(props) {
           <SearchAndFilterInput
             setFilterString={setFilterString}
             targetName={props.target.name}
+            target={props.target}
+            selectedTitle={selectedTitle} 
           />
-          <FootprintResults 
+          <FootprintResults
             target={props.target} 
             filterString={filterString}
             queryAddress={props.queryAddress}
             setQueryAddress={props.setQueryAddress}
+            updateSelectedTitle={updateSelectedTitle} 
           />
         </Collapse>
       </div>
