@@ -85,6 +85,8 @@ export default function SearchAndFilterInput(props) {
   const [dateFromVal, setDateFromVal] = React.useState(null);     // From Date
   const [dateToVal, setDateToVal] = React.useState(null);         // To Date
 
+  //const for callback
+  const {UpdateQueryableTitles} = props;
   const handleExpandFilterClick = () => {
     setExpandFilter(!expandFilter);
   }
@@ -218,14 +220,14 @@ export default function SearchAndFilterInput(props) {
     const selectedValues = event.target.value;
     setSelectedOptions(selectedValues);
 
-    /*// Create an array of objects with selected option and value
+    // Create an array of objects with selected option and value
     const selectedOptionsWithValues = selectedValues.map((option) => ({
       option,
         value: queryableTitles.find((title) => title.title === option)?.value, 
       }));
 
   // Pass the selected options and values to FootprintResults
-    props.updateSelectedOptions(selectedOptionsWithValues); */
+    UpdateQueryableTitles(selectedOptionsWithValues); 
   };
 
   

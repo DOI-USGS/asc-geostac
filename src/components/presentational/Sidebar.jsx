@@ -51,6 +51,11 @@ export default function Sidebar(props) {
     setSelectedTitle(newTitle);
   };
 
+  //Callback to update selected queryables
+  const UpdateQueryableTitles = (selectedQueryables) => {
+    console.log("Selected Queryables: ", selectedQueryables);
+  }
+
   return (
     <>
       <div id="right-bar" className="scroll-parent">
@@ -65,6 +70,7 @@ export default function Sidebar(props) {
             targetName={props.target.name}
             target={props.target}
             selectedTitle={selectedTitle} 
+            UpdateQueryableTitles = {UpdateQueryableTitles}
           />
           <FootprintResults
             target={props.target} 
