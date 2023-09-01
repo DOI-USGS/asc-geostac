@@ -32,13 +32,6 @@ export default function FootprintResults(props) {
   const [oldTargetName, setOldTargetName] = React.useState("");
   const [oldFilterString, setOldFilterString] = React.useState("");
 
-  /*const [selectedOptionsWithValues, setSelectedOptionsWithValues] = React.useState([]);
-
-    // Function to update selected options and values
-    const updateSelectedOptions = (selectedOptions) => {
-      setSelectedOptionsWithValues(selectedOptions);
-    }; */
-
   const addFeatures = (newFeatures, key) => {
     let myFeatureCollections = featureCollections;
     myFeatureCollections[key].features.push(...newFeatures);
@@ -221,7 +214,7 @@ export default function FootprintResults(props) {
   if(numFeatures > matched) {
     setNumFeatures(matched);
   }
-  
+
   return (
     <div id="footprintResults" className="scroll-parent">
       {hasFootprints &&

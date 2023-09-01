@@ -158,12 +158,9 @@ export default function SearchAndFilterInput(props) {
  
   // retrieves all PyGEO collections
   const isInPyAPI = collection.filter(data => data.hasOwnProperty('itemType'));
-  //console.log(isInPyAPI);
 
   // finds and assigns the selected collection from the PYGEO api
   const selectedCollection = isInPyAPI.find(data => data.title === props.selectedTitle);
-
-  //console.log(selectedCollection);
 
   // retrieves all pyGEO titles
   const collectionTitles = isInPyAPI.map(data => data.title);

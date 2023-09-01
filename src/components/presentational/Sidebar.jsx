@@ -56,10 +56,8 @@ export default function Sidebar(props) {
 
   // Callback to update selected queryables
   const UpdateQueryableTitles = (selectedQueryables) => {
-
     updatedQueryableTitles = selectedQueryables;
     setUpdatedQueryableTitles(selectedQueryables)
-    console.log("Selected Queryables: ", selectedQueryables);
   }
   return (
     <>

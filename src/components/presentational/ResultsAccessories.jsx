@@ -73,16 +73,13 @@ function determineDatasetType(features) {
 
   // Find the key that ends with "id"
   const idKey = propertyKeys.find(key => key.endsWith("id"));
-  //console.log(idKey);
+
   if(!idKey) return 'unknown'; // If no id found
 
   if(features.stac_extensions) return "stac";
-  // Based on the key determine the type
+
+  // Based on the key determine the type(in case we need to specify in the future)
   switch(idKey) {
-      case "productid":
-          return "hirise";
-      case "pdsvolid":
-          return "hirise"
       default:
           return 'unknown';
   }
@@ -113,22 +110,17 @@ export function FootprintCard(props){
 
   //initialize variables 
   let ThumbnailLink = '';
-  let modifiedProductId = '';
   let BrowserLink = '';
   let showMetadata;
 
   let stacAPIFlag = false;
   let pyGeoAPIFlag = false;
  
-  const { selectedOptionsWithValues } = props;
-
    // Metadata Popup
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
 
   //determine feature type
   const featureType = determineDatasetType(props.feature);
-  //console.log("Dataset type is:", featureType);    //debugging 
-  //console.log(props.feature);                      //debugging
 
   //check for feature type in order to gather correct meta data
   switch(featureType) {
@@ -139,7 +131,6 @@ export function FootprintCard(props){
 
       // set boolean
       stacAPIFlag = true;
-
 
       // display meta data for STAC api
       showMetadata = (value) => () => {
@@ -152,30 +143,9 @@ export function FootprintCard(props){
         );
         geoTiffViewer.openModal();
       }; 
-      break;
-    case "hirise":
-      // Switch the id and date and link
-     // props.feature.id = props.feature.properties.productid;
-      //props.feature.properties.datetime = props.feature.properties.createdate;
-      //modifiedProductId = props.feature.id.replace(/_RED|_COLOR/g, '');
-      //ThumbnailLink = 'https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_012600_012699/' + modifiedProductId + '/' + props.feature.id + '.thumb.jpg';
-      //BrowserLink = props.feature.properties.produrl;
-      
-      // set boolean
-      pyGeoAPIFlag = true;
 
-      //display different modal for PyGeo API
-      showMetadata = (value) => () => {
-      //geoTiffViewer.displayGeoTiff(ThumbnailLink);
-      geoTiffViewer.changeMetaData(
-        value.properties.datasetid,
-        value.properties.productid,
-        value.properties.datetime,
-        value.links
-      );
-      geoTiffViewer.openModal();
-    };
-    break;
+      break;
+
     default:
       pyGeoAPIFlag = true;
         //display different modal for PyGeo API
@@ -187,15 +157,11 @@ export function FootprintCard(props){
           value.properties.datetime,
           value.links
         );
-    }
+    };
+
     break;
 
-  }
-
-  
-
-  
-
+  };
 
   const cardClick = () => {
     window.postMessage(["zoomFootprint", props.feature], "*");
@@ -247,14 +213,6 @@ export function FootprintCard(props){
                 <strong>ID:</strong>&nbsp;{props.feature.id}
               </div>
               <div className="resultSub">
-            {/*}
-              <ul>
-              {selectedOptionsWithValues.map((optionWithValues, index) => (
-                <li key={index}>
-                   <strong>Option:</strong> {optionWithValues.option}, <strong>Value:</strong> {optionWithValues.value}
-               </li>
-              ))}
-              </ul> */}
               {props.feature?.properties &&
                 Object.entries(props.feature.properties).map(([key, value]) => {
                     // Check if the key exists in the selected queryables
