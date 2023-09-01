@@ -209,8 +209,11 @@ export function FootprintCard(props){
     window.postMessage(["unhighlightFootprint"], "*");
   };
 
-
-
+  // get each option and put it within an array
+  let queryableSelection = [];
+  if(props.selectedQueryables) {
+    queryableSelection = props.selectedQueryables.map(data => data.option);
+  }
 
   return(
     <Card sx={{ width: 250, margin: 1}}>
@@ -254,6 +257,10 @@ export function FootprintCard(props){
               </ul> */}
               {props.feature?.properties &&
                 Object.entries(props.feature.properties).map(([key, value]) => {
+                    // Check if the key exists in the selected queryables
+                    if(!queryableSelection.includes(key)){
+                      return null
+                    }
                     // Checking if the value is an object or array, and not rendering it if it is
                     if (typeof value === 'object' && value !== null) {
                         return null;

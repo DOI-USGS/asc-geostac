@@ -221,6 +221,7 @@ export default function FootprintResults(props) {
   if(numFeatures > matched) {
     setNumFeatures(matched);
   }
+  
   return (
     <div id="footprintResults" className="scroll-parent">
       {hasFootprints &&
@@ -249,7 +250,11 @@ export default function FootprintResults(props) {
           <div id="resultsList">
             <List sx={{maxWidth: 265, paddingTop: 0}}>
               {featureCollections[collectionId].features.map(feature => (
-                <FootprintCard feature={feature} key={feature.id}/>
+                <FootprintCard
+                 feature={feature}
+                  key={feature.id}
+                  selectedQueryables = {props.selectedQueryables}
+                  />
               ))}
             </List>
           </div>

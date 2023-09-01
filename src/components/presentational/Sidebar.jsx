@@ -51,11 +51,16 @@ export default function Sidebar(props) {
     setSelectedTitle(newTitle);
   };
 
-  //Callback to update selected queryables
+  // State to hold the seleced queryables
+  let [updatedQueryableTitles, setUpdatedQueryableTitles] = React.useState("");
+
+  // Callback to update selected queryables
   const UpdateQueryableTitles = (selectedQueryables) => {
+
+    updatedQueryableTitles = selectedQueryables;
+    setUpdatedQueryableTitles(selectedQueryables)
     console.log("Selected Queryables: ", selectedQueryables);
   }
-
   return (
     <>
       <div id="right-bar" className="scroll-parent">
@@ -78,6 +83,7 @@ export default function Sidebar(props) {
             queryAddress={props.queryAddress}
             setQueryAddress={props.setQueryAddress}
             updateSelectedTitle={updateSelectedTitle} 
+            selectedQueryables = {updatedQueryableTitles}
           />
         </Collapse>
       </div>
