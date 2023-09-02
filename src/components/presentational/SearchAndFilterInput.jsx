@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // Keyword Filter
 import TextField from "@mui/material/TextField";
 // Date Range
@@ -18,6 +18,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 
 import { Collapse, Divider } from "@mui/material";
+import ListItemText from "@mui/material/ListItemText";
 
 /**
  * Controls css styling for this component using js to css
@@ -84,6 +85,8 @@ export default function SearchAndFilterInput(props) {
   const [dateFromVal, setDateFromVal] = React.useState(null);     // From Date
   const [dateToVal, setDateToVal] = React.useState(null);         // To Date
 
+  //const for callback
+  const {UpdateQueryableTitles} = props;
   const handleExpandFilterClick = () => {
     setExpandFilter(!expandFilter);
   }
@@ -144,6 +147,87 @@ export default function SearchAndFilterInput(props) {
     props.setFilterString(myFilterString);
   }
 
+  // initialize pyGeoAPI flag
+  let pyGeoAPIFlag = false;
+
+  // New state for queryable titles
+  const [queryableTitles, setQueryableTitles] = useState([]); 
+ 
+  // all collections
+  const collection = props.target.collections;
+ 
+  // retrieves all PyGEO collections
+  const isInPyAPI = collection.filter(data => data.hasOwnProperty('itemType'));
+
+  // finds and assigns the selected collection from the PYGEO api
+  const selectedCollection = isInPyAPI.find(data => data.title === props.selectedTitle);
+
+  // retrieves all pyGEO titles
+  const collectionTitles = isInPyAPI.map(data => data.title);
+
+    
+    
+  // checks if correct title selected 
+  if (collectionTitles.includes(props.selectedTitle))
+  {
+    //set pyGeoAPI flag
+    pyGeoAPIFlag = true;
+
+    // set the selected link
+    let QueryableDirectoryLink = selectedCollection.links.find(link => link.rel === "queryables").href;
+
+    // creates URL to get the properties
+    let QueryableURL = 'https://astrogeology.usgs.gov/pygeoapi/' + QueryableDirectoryLink;
+
+    // fetches URL to get the properties
+    fetch(QueryableURL)
+    .then(response => response.json())
+    .then(data => {
+
+      let queryableTitlesArray = [];
+
+      // Extract the "properties" property from the JSON response
+      let Queryables = data.properties;
+        
+      // loop over titles
+      for (const property in Queryables) {
+        if (Queryables.hasOwnProperty(property) && Queryables[property].hasOwnProperty("title")) {
+            
+          queryableTitlesArray.push(data.properties[property].title);
+            
+        }
+     }
+
+      // Set the state with the queryable titles
+      setQueryableTitles(queryableTitlesArray);
+      
+      
+    }, [])
+    .catch(error => {
+    console.error("Error fetching data:", error);
+    });
+    }
+      
+    
+  
+
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  
+  const handleOptionChange = event => {
+    const selectedValues = event.target.value;
+    setSelectedOptions(selectedValues);
+
+    // Create an array of objects with selected option and value
+    const selectedOptionsWithValues = selectedValues.map((option) => ({
+      option,
+        value: queryableTitles.find((title) => title.title === option)?.value, 
+      }));
+
+  // Pass the selected options and values to FootprintResults
+    UpdateQueryableTitles(selectedOptionsWithValues); 
+  };
+
+  
   // Sorting
   const handleSortChange = (event) => {
     setSortVal(event.target.value);
@@ -268,7 +352,33 @@ export default function SearchAndFilterInput(props) {
             />
           </span>
         </div>
-
+        
+        {pyGeoAPIFlag && (
+        <div className="panelSection panelBar">
+          <span>
+            <FormControl sx={{ minWidth: 150 }}>
+              <InputLabel id="selectQueryLabel" size="small">
+                Select Query
+              </InputLabel>
+              <Select
+                labelId="selectQueryLabel"
+                label="Select Query"
+                multiple
+                value={selectedOptions}
+                onChange={handleOptionChange}
+                renderValue={(selected) => selected.join(', ')}
+              >
+                {queryableTitles.map((title) => (
+                        <MenuItem key={title} value={title}>
+                          <Checkbox checked={selectedOptions.includes(title)} />
+                          <ListItemText primary={title} />
+                        </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </span>
+        </div>
+        )}
         <Divider/>
 
         <div className="panelSection">

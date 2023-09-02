@@ -63,6 +63,28 @@ export function NoFootprints(){
   );
 }
 
+// determine the DatasetType in order to properly gather seach data for a given set
+function determineDatasetType(features) {
+  // If no features or the first feature doesn't have properties, return 'unknown'
+  if(!features || !features.properties) return 'unknown';
+
+  // Extract keys of the first feature's properties
+  const propertyKeys = Object.keys(features.properties);
+
+  // Find the key that ends with "id"
+  const idKey = propertyKeys.find(key => key.endsWith("id"));
+
+  if(!idKey) return 'unknown'; // If no id found
+
+  if(features.stac_extensions) return "stac";
+
+  // Based on the key determine the type(in case we need to specify in the future)
+  switch(idKey) {
+      default:
+          return 'unknown';
+  }
+}
+
 
 // Shown when collections are available but no footprints were returned for current filter.
 export function FilterTooStrict(){
@@ -82,76 +104,64 @@ export function FilterTooStrict(){
     </div>
   );
 }
-
-
 // A small card with an images and a few key data points
 // shown as the result for a footprint.
 export function FootprintCard(props){
 
   //initialize variables 
   let ThumbnailLink = '';
-  let modifiedProductId = '';
   let BrowserLink = '';
   let showMetadata;
-  
+
+  let stacAPIFlag = false;
+  let pyGeoAPIFlag = false;
+ 
    // Metadata Popup
   const geoTiffViewer = new GeoTiffViewer("GeoTiffAsset");
 
-  
+  //determine feature type
+  const featureType = determineDatasetType(props.feature);
 
+  //check for feature type in order to gather correct meta data
+  switch(featureType) {
+    case "stac":
+      // set Thumbnail link
+      ThumbnailLink = props.feature.assets.thumbnail.href;
+      BrowserLink = 'https://stac.astrogeology.usgs.gov/browser-dev/#/api/collections/' + props.feature.collection + '/items/' + props.feature.id;
 
-  // Check for pyGeo API vs raster API
- 
-  // Check if "assets" is available before accessing it
-  if (props.feature.assets && props.feature.assets.thumbnail && props.feature.assets.thumbnail.href) 
-  {
-    // set Thumbnail link
-    ThumbnailLink = props.feature.assets.thumbnail.href;
+      // set boolean
+      stacAPIFlag = true;
 
-    BrowserLink = 'https://stac.astrogeology.usgs.gov/browser-dev/#/api/collections/' + props.feature.collection + '/items/' + props.feature.id;
-    
-    // display meta data for STAC api
-     showMetadata = (value) => () => {
-      geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
-      geoTiffViewer.changeMetaData(
-        value.collection,
-        value.id,
-        value.properties.datetime,
-        value.assets
-      );
-      geoTiffViewer.openModal();
-    }; 
+      // display meta data for STAC api
+      showMetadata = (value) => () => {
+        geoTiffViewer.displayGeoTiff(value.assets.thumbnail.href);
+        geoTiffViewer.changeMetaData(
+          value.collection,
+          value.id,
+          value.properties.datetime,
+          value.assets
+        );
+        geoTiffViewer.openModal();
+      }; 
 
-    
-  } 
-  else 
-  {
+      break;
 
-    // Switch the id and date and link
-    props.feature.id = props.feature.properties.productid;
+    default:
+      pyGeoAPIFlag = true;
+        //display different modal for PyGeo API
+      showMetadata = (value) => () => {
+        //geoTiffViewer.displayGeoTiff(ThumbnailLink);
+        geoTiffViewer.changeMetaData(
+          value.properties.datasetid,
+          value.properties.productid,
+          value.properties.datetime,
+          value.links
+        );
+    };
 
-    props.feature.properties.datetime = props.feature.properties.createdate;
+    break;
 
-    modifiedProductId = props.feature.id.replace(/_RED|_COLOR/g, '');
-
-    ThumbnailLink = 'https://hirise.lpl.arizona.edu/PDS/EXTRAS/RDR/ESP/ORB_012600_012699/' + modifiedProductId + '/' + props.feature.id + '.thumb.jpg';
-
-    BrowserLink = props.feature.properties.produrl;
-
-    //display different modal for PyGeo API
-    showMetadata = (value) => () => {
-    geoTiffViewer.displayGeoTiff(ThumbnailLink);
-    geoTiffViewer.changeMetaData(
-      value.properties.datasetid,
-      value.properties.productid,
-      value.properties.datetime,
-      value.links
-    );
-    geoTiffViewer.openModal();
   };
-  }
-  
-
 
   const cardClick = () => {
     window.postMessage(["zoomFootprint", props.feature], "*");
@@ -165,11 +175,16 @@ export function FootprintCard(props){
     window.postMessage(["unhighlightFootprint"], "*");
   };
 
-
-
+  // get each option and put it within an array
+  let queryableSelection = [];
+  if(props.selectedQueryables) {
+    queryableSelection = props.selectedQueryables.map(data => data.option);
+  }
 
   return(
     <Card sx={{ width: 250, margin: 1}}>
+      {/* This checks for the stac API */}
+      {stacAPIFlag && (
       <CardActionArea onMouseEnter={cardHover} onMouseLeave={eraseHover} onClick={cardClick}>
         <CardContent sx={{padding: 1.2, paddingBottom: 0}}>
           <div className="resultContainer" >
@@ -187,6 +202,42 @@ export function FootprintCard(props){
           </div>
         </CardContent>
       </CardActionArea>
+      )}
+      {/* This checks for the PyGeo API */}
+      {pyGeoAPIFlag && (
+      <CardActionArea onMouseEnter={cardHover} onMouseLeave={eraseHover} onClick={cardClick}>
+        <CardContent sx={{padding: 1.2, paddingBottom: 0}}>
+          <div className="pyGeoResultContainer" >
+            <div className="resultData">
+              <div className="resultSub">
+                <strong>ID:</strong>&nbsp;{props.feature.id}
+              </div>
+              <div className="resultSub">
+              {props.feature?.properties &&
+                Object.entries(props.feature.properties).map(([key, value]) => {
+                    // Check if the key exists in the selected queryables
+                    if(!queryableSelection.includes(key)){
+                      return null
+                    }
+                    // Checking if the value is an object or array, and not rendering it if it is
+                    if (typeof value === 'object' && value !== null) {
+                        return null;
+                    }
+                    return (
+                        <div key={key}>
+                            <strong>{key}:</strong> {value}
+                        </div>
+                    );
+                })
+            } 
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </CardActionArea>
+      )}
+      {/* This checks for the stac API */}
+      {stacAPIFlag && (
       <CardActions>
         <div className="resultLinks">
           <Stack direction="row" spacing={1}>
@@ -211,6 +262,7 @@ export function FootprintCard(props){
           </Stack>
         </div>
       </CardActions>
+      )}
     </Card>
   );
 }

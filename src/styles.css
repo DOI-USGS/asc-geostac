@@ -338,6 +338,11 @@ Controls the CSS for projection buttons when there is no available projection
     / 20% 80%;
 }
 
+.pyGeoResultContainer {
+  width: 230px;
+  
+}
+
 .resultSub {
   font-family: Roboto, Arial, Helvetica, sans-serif;
   font-size: small;

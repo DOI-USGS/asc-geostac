@@ -32,7 +32,6 @@ export default function FootprintResults(props) {
   const [oldTargetName, setOldTargetName] = React.useState("");
   const [oldFilterString, setOldFilterString] = React.useState("");
 
-
   const addFeatures = (newFeatures, key) => {
     let myFeatureCollections = featureCollections;
     myFeatureCollections[key].features.push(...newFeatures);
@@ -61,6 +60,14 @@ export default function FootprintResults(props) {
 
     setCollectionId(newCollectionId);
     setMatched(featureCollections[newCollectionId].numberMatched);
+
+    // Extract the selected collection title
+    const selectedCollection = props.target.collections.find(collection => collection.id === newCollectionId);
+    const selectedCollectionTitle = selectedCollection ? selectedCollection.title : '';
+
+    // Call the callback function to pass the selected title to the Sidebar
+    props.updateSelectedTitle(selectedCollectionTitle);
+
 
     // Send to Leaflet
     window.postMessage(["setVisibleCollections", newCollectionId], "*");
@@ -118,6 +125,7 @@ export default function FootprintResults(props) {
         let isInStacAPI = collection.hasOwnProperty("stac_version");
         
         let isInPyAPI = collection.hasOwnProperty("itemType");
+
         
         // check for pygeo api
         if (isInPyAPI)
@@ -203,6 +211,9 @@ export default function FootprintResults(props) {
   for(const key in featureCollections){
     if(featureCollections[key].numberReturned > 0) noFootprintsReturned = false;
   }
+  if(numFeatures > matched) {
+    setNumFeatures(matched);
+  }
 
   return (
     <div id="footprintResults" className="scroll-parent">
@@ -232,7 +243,11 @@ export default function FootprintResults(props) {
           <div id="resultsList">
             <List sx={{maxWidth: 265, paddingTop: 0}}>
               {featureCollections[collectionId].features.map(feature => (
-                <FootprintCard feature={feature} key={feature.id}/>
+                <FootprintCard
+                 feature={feature}
+                  key={feature.id}
+                  selectedQueryables = {props.selectedQueryables}
+                  />
               ))}
             </List>
           </div>
