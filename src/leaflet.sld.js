@@ -359,8 +359,6 @@ L.SLDStyler = L.Class.extend({
    },
    symbolize_with_icons: function(geoJSON, map){
       let feature = null;
-      console.log(geoJSON.id);
-      console.log(geoJSON);
 
       for (let i = 0; i < geoJSON.features.length; i++){
           feature = geoJSON.features[i]
