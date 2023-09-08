@@ -497,10 +497,6 @@ L.SLDStyler = L.Class.extend({
       svgElement.innerHTML = ' <g> <path inkscape:connector-curvature="0" id="path3055" d="M 0.43864824,0.43865001 7.3370882,9.83709" style="fill:none;stroke:#000000;stroke-width:0.87730002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" /> <path inkscape:connector-curvature="0" id="path3057" d="M 7.3370882,0.43865001 0.43864824,9.83709" style="fill:none;stroke:#000000;stroke-width:0.87730002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" / </g>';
       var svgElementBounds = [ [ point.y - 0.01, point.x + 0.01 ], [ point.y , point.x ] ];
       L.svgOverlay(svgElement, svgElementBounds).addTo(map);
-      map.flyTo([point.y - 0.01, point.x + 0.01], 20)
-   },
-   test: function(){
-      console.log("hey");
    }
 });
 
