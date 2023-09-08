@@ -2,7 +2,7 @@ import L from "leaflet";
 import "proj4leaflet";
 import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
-import SLDText from "./geologic_features.sld";
+import SLDText from "../geologic_features.sld";
 
 /**
  * @class AstroMap
