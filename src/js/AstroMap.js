@@ -307,7 +307,32 @@ export default L.Map.AstroMap = L.Map.extend({
           // Wrap features
           let wrappedFeatures = this.cloneWestEast(featureCollections[i].features);
 
-          // Add features to a geoJSON layer, as _geoLayers[i]
+          // sldText should be composed of text from geologic_features.sld
+          // instead of hardcoding text like this
+          let sldText = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\
+          <StyledLayerDescriptor version="1.1.0" xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd" xmlns="http://www.opengis.net/sld" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:se="http://www.opengis.net/se">\
+            <NamedLayer>\
+              <se:Name>GeoStyler Demo</se:Name>\
+              <UserStyle>\
+                <se:Name>GeoStyler Demo</se:Name>\
+                <se:Title>GeoStyler Demo</se:Title>\
+                <se:FeatureTypeStyle>\
+                  <se:Rule>\
+                    <se:Name>Rule 1</se:Name>\
+                    <se:PolygonSymbolizer>\
+                      <se:Stroke>\
+                        <se:SvgParameter name="stroke">#ff0000</se:SvgParameter>\
+                        <se:SvgParameter name="stroke-width">5</se:SvgParameter>\
+                      </se:Stroke>\
+                    </se:PolygonSymbolizer>\
+                  </se:Rule>\
+                </se:FeatureTypeStyle>\
+              </UserStyle>\
+            </NamedLayer>\
+          </StyledLayerDescriptor>';
+
+          const SLDStyler = new L.SLDStyler(sldText);
+
           this._geoLayers[i] = L.geoJSON(wrappedFeatures, {
             id: featureCollections[i].id,
             style: myStyle
@@ -315,10 +340,10 @@ export default L.Map.AstroMap = L.Map.extend({
 
           this._geoLayers[i].on({click: this.handleClick});  // Add click listener
           
-
           // Add layers to map if they should be visible
           if(featureCollections[i].id === visibleCollectionId) { 
             this._geoLayers[i].addTo(this);
+            SLDStyler.symbolize_with_icons(featureCollections[i], this);
           }
 
           this._footprintCollection[title] = this._geoLayers[i];
