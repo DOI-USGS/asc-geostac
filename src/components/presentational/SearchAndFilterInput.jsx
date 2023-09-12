@@ -368,8 +368,8 @@ export default function SearchAndFilterInput(props) {
         {pyGeoAPIFlag && (
         <div className="panelSection panelBar">
           <span>
-            <FormControl sx={{ minWidth: 150 }}>
-              <InputLabel id="selectQueryLabel" size="small">
+            <FormControl sx={{ minWidth: 150 , minHeight: 40}}>
+              <InputLabel id="selectQueryLabel" size="small" style={{paddingTop: '0.2rem'}}>
                 Select Query
               </InputLabel>
               <Select
@@ -379,6 +379,7 @@ export default function SearchAndFilterInput(props) {
                 value={selectedOptions}
                 onChange={handleOptionChange}
                 renderValue={(selected) => selected.join(', ')}
+                style={{height: 43}}
               >
                 {queryableTitles.map((title) => (
                         <MenuItem key={title} value={title}>
