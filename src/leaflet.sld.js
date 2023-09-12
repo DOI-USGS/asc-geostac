@@ -412,14 +412,6 @@ L.SLDStyler = L.Class.extend({
 
          this.add_symbol(mid_point, map);
       }
-
-      point_1 = new Point(geometry.coordinates[0][0][0], geometry.coordinates[0][0][1])
-      point_2 = new Point(geometry.coordinates[0][geometry.coordinates[0].length - 1][0], geometry.coordinates[0][geometry.coordinates[0].length - 1][1])
-      line_segment = new LineSegment(point_1, point_2);
-
-      mid_point = line_segment.get_line_mid_point()
-
-      this.add_symbol(mid_point, map);
    },
    create_arr_of_line_segments: function(geometry){
       let line_segment = null;
@@ -492,9 +484,16 @@ L.SLDStyler = L.Class.extend({
    add_symbol: function(point, map){
       var svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svgElement.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+      svgElement.id = "active";
       svgElement.innerHTML = ' <g> <path inkscape:connector-curvature="0" id="path3055" d="M 0.43864824,0.43865001 7.3370882,9.83709" style="fill:none;stroke:#000000;stroke-width:0.87730002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" /> <path inkscape:connector-curvature="0" id="path3057" d="M 7.3370882,0.43865001 0.43864824,9.83709" style="fill:none;stroke:#000000;stroke-width:0.87730002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" / </g>';
       var svgElementBounds = [ [ point.y - 0.01, point.x + 0.01 ], [ point.y , point.x ] ];
       L.svgOverlay(svgElement, svgElementBounds).addTo(map);
+
+   },
+   remove_symbols: function(){
+      console.log("removing");
+      let element = document.getElementById("active");
+      element.remove();
    }
 });
 
