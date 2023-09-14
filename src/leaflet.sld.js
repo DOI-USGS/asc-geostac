@@ -26,6 +26,9 @@ class LineSegment{
    }
 }
 
+var svg_ids = [];
+var index = 0;
+
 // default Path style applied if nothing matches
 var defaultStyle = {
    stroke: true,
@@ -357,17 +360,17 @@ L.SLDStyler = L.Class.extend({
    getPointToLayerFunction: function(indexOrName) {
       return this.pointToLayerFunction.bind(this, indexOrName);
    },
-   symbolize_with_icons: function(geoJSON, map){
-      let feature = null;
+   symbolize_with_icons: function(geolayer, map){
+      let layer = null;
 
-      for (let i = 0; i < geoJSON.features.length; i++){
-          feature = geoJSON.features[i]
+      for (var i in geolayer._layers){
+          layer = geolayer._layers[i]
 
-          if(feature.geometry != null){
-            if (feature.geometry.type == "LineString"){
-            this.symbolize_line(feature.geometry, map);
-        } else if ((feature.geometry.type == "Polygon")){
-            this.symbolize_polygon(feature.geometry, map);
+          if(layer.feature.geometry.type != null){
+            if (layer.feature.geometry.type == "LineString"){
+            this.symbolize_line(layer.feature.geometry, map);
+        } else if ((layer.feature.geometry.type == "Polygon")){
+            this.symbolize_polygon(layer.feature.geometry, map);
         }}
 
       }
@@ -481,19 +484,26 @@ L.SLDStyler = L.Class.extend({
 
       return line_segment;
    },
-   add_symbol: function(point, map){
-      var svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      svgElement.setAttribute('xmlns', "http://www.w3.org/2000/svg");
-      svgElement.id = "active";
-      svgElement.innerHTML = ' <g> <path inkscape:connector-curvature="0" id="path3055" d="M 0.43864824,0.43865001 7.3370882,9.83709" style="fill:none;stroke:#000000;stroke-width:0.87730002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" /> <path inkscape:connector-curvature="0" id="path3057" d="M 7.3370882,0.43865001 0.43864824,9.83709" style="fill:none;stroke:#000000;stroke-width:0.87730002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" / </g>';
-      var svgElementBounds = [ [ point.y - 0.01, point.x + 0.01 ], [ point.y , point.x ] ];
-      L.svgOverlay(svgElement, svgElementBounds).addTo(map);
+   add_symbol: function(point, map, symbol){
+      var svgElementBounds = null;
+      var svgElement = null;
+      
+      symbol = '<g> <path inkscape:connector-curvature="0" id="path3055" d="M 0.43864824,0.43865001 7.3370882,9.83709" style="fill:none;stroke:#000000;stroke-width:0.87730002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" /> <path inkscape:connector-curvature="0" id="path3057" d="M 7.3370882,0.43865001 0.43864824,9.83709" style="fill:none;stroke:#000000;stroke-width:0.87730002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" / </g>';
 
+      svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgElement.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+      svgElement.innerHTML = symbol;
+      svgElementBounds = [ [ point.y - 0.01, point.x + 0.01 ], [ point.y , point.x ] ];
+      
+      L.svgOverlay(svgElement, svgElementBounds).addTo(map);
    },
    remove_symbols: function(){
-      console.log("removing");
-      let element = document.getElementById("active");
-      element.remove();
+      let element = null
+      for (var i in svg_ids)
+      {
+         element = document.getElementById(i);
+         element.remove();
+      }
    }
 });
 
