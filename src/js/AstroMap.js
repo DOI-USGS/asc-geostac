@@ -57,6 +57,9 @@ export default L.Map.AstroMap = L.Map.extend({
     // Set by layer collection or baselayerchange event
     this._currentLayer = null;
 
+    this.SLDStyler = new L.SLDStyler(SLDText);
+
+
     // Store layers at map creation so we only need to create layers once.
     let cylLayerInfo = this.parseJSON("cylindrical");
     if (Object.entries(cylLayerInfo["base"]).length == 0) {
@@ -222,8 +225,10 @@ export default L.Map.AstroMap = L.Map.extend({
         // Add layers to map if they should be visible
         if(this._geoLayers[i].options.id === collectionId) { 
           this._geoLayers[i].addTo(this);
+          this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
         } else {
           this._geoLayers[i].removeFrom(this);
+          this.SLDStyler.remove_symbols();
         }
       }
     }
@@ -266,7 +271,6 @@ export default L.Map.AstroMap = L.Map.extend({
     // Will we need more than 6 colors for more than 6 different collections?
     let colors =      [ "#17A398", "#EE6C4D", "#662C91", "#F3DE2C", "#33312E", "#0267C1" ];
     let lightcolors = [ "#3DE3D5", "#F49C86", "#9958CC", "#F7E96F", "#DDDDDD", "#2A9BFD" ];
-
     // Old, removes separate control
     // if(this._footprintControl) {
     //   this._footprintControl.remove();
@@ -308,8 +312,6 @@ export default L.Map.AstroMap = L.Map.extend({
           // Wrap features
           let wrappedFeatures = this.cloneWestEast(featureCollections[i].features);
 
-          const SLDStyler = new L.SLDStyler(SLDText);
-
           this._geoLayers[i] = L.geoJSON(wrappedFeatures, {
             id: featureCollections[i].id,
             style: myStyle
@@ -320,7 +322,6 @@ export default L.Map.AstroMap = L.Map.extend({
           // Add layers to map if they should be visible
           if(featureCollections[i].id === visibleCollectionId) { 
             this._geoLayers[i].addTo(this);
-            SLDStyler.symbolize_with_icons(featureCollections[i], this);
           }
 
           this._footprintCollection[title] = this._geoLayers[i];
