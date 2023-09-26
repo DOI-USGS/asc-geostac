@@ -307,14 +307,14 @@ export default L.Map.AstroMap = L.Map.extend({
         if(featureCollections[i].features.length > 0) {
 
           // Set colors if available
-          let myStyle = i < colors.length ? {fillColor: colors[i], color: lightcolors[i]} : {};
+          //let myStyle = i < colors.length ? {fillColor: colors[i], color: lightcolors[i]} : {};
           
           // Wrap features
           let wrappedFeatures = this.cloneWestEast(featureCollections[i].features);
 
           this._geoLayers[i] = L.geoJSON(wrappedFeatures, {
             id: featureCollections[i].id,
-            style: myStyle
+            style: this.SLDStyler.getStyleFunction()
           })
 
           this._geoLayers[i].on({click: this.handleClick});  // Add click listener
