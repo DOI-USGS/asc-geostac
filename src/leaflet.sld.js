@@ -360,8 +360,28 @@ L.SLDStyler = L.Class.extend({
 
    find_symbol: function() {
 
-      
-      
+      const svgFileList = require.context(
+         './images/FGDC_svgs/', true, /\.svg$/
+      ); // Load all files in listed folder and all sub directories
+
+      console.log(svgFileList); // Testing: Print to console
+
+      const svgFileKeys = svgFileList.keys();  // Set varaible to 'key' containing all file paths and names
+
+      for( let index = 0; index < svgFileKeys.length; index++ ) // Loop through all file names listed in key
+      {
+         var svgFileName = svgFileKeys[ index ]; // Set variable name to file path at current index
+
+         if( svgFileName.split(/[\\/]/).pop() == '25.82.svg') // Isolate file name from the file's path and compare to search criteria
+         {
+            var svgFile = svgFileKeys[ index ]; // Set file variable to path of matching file
+            console.log(svgFile); // Testing: Print to console
+         }
+         // Add else statement to handle situations where a file isn't located
+      }
+
+      // Figure out how to grab the contents of the located file. 
+         // Issue: browser security features generally prevent local file access
    },
 
    symbolize_with_icons: function(geolayer, map){
