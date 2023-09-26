@@ -26,9 +26,6 @@ class LineSegment{
    }
 }
 
-var svg_ids = [];
-var index = 0;
-
 // default Path style applied if nothing matches
 var defaultStyle = {
    stroke: true,
@@ -360,22 +357,32 @@ L.SLDStyler = L.Class.extend({
    getPointToLayerFunction: function(indexOrName) {
       return this.pointToLayerFunction.bind(this, indexOrName);
    },
+
+   find_symbol: function() {
+
+      
+      
+   },
+
    symbolize_with_icons: function(geolayer, map){
       let layer = null;
+      let symbol = null;
 
       for (var i in geolayer._layers){
           layer = geolayer._layers[i]
 
           if(layer.feature.geometry.type != null){
+            // symbol = find_symbol();
+
             if (layer.feature.geometry.type == "LineString"){
-            this.symbolize_line(layer.feature.geometry, map);
+            this.symbolize_line(layer.feature.geometry, map, symbol);
         } else if ((layer.feature.geometry.type == "Polygon")){
-            this.symbolize_polygon(layer.feature.geometry, map);
+            this.symbolize_polygon(layer.feature.geometry, map, symbol);
         }}
 
       }
   },
-   symbolize_line: function(geometry, map){
+   symbolize_line: function(geometry, map, symbol){
    let total_line_length = 0;
    let point_arr = [];
    let mid_point_distance = 0;
@@ -395,7 +402,7 @@ L.SLDStyler = L.Class.extend({
    mid_point = this.get_mid_point( line_segment.start_point, line_segment.end_point, 
                                   g, line_segment.get_segment_distance());
 
-   this.add_symbol(mid_point, map);
+   this.add_symbol(mid_point, map, symbol);
    },
    symbolize_polygon: function(geometry, map){
 
@@ -493,17 +500,17 @@ L.SLDStyler = L.Class.extend({
       svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svgElement.setAttribute('xmlns', "http://www.w3.org/2000/svg");
       svgElement.innerHTML = symbol;
-      svgElementBounds = [ [ point.y - 0.01, point.x + 0.01 ], [ point.y , point.x ] ];
+      svgElementBounds = [ [ point.y - 0.05, point.x + 0.05 ], [ point.y , point.x ] ];
       
       L.svgOverlay(svgElement, svgElementBounds).addTo(map);
    },
    remove_symbols: function(){
       let element = null
-      for (var i in svg_ids)
-      {
-         element = document.getElementById(i);
-         element.remove();
-      }
+      // for (var i in svg_ids)
+      // {
+      //    element = document.getElementById(i);
+      //    element.remove();
+      // }
    }
 });
 
