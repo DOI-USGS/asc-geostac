@@ -331,7 +331,6 @@ export default L.Map.AstroMap = L.Map.extend({
 
           // Add collections to the Overlay control
           L.LayerCollection.layerControl.addOverlay(this._footprintCollection[title], title);
-
         }
         else if(this._geoLayers[i]) {
           delete this._footprintCollection[title]; // Delete layers with no Footprints
