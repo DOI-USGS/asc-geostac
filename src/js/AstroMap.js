@@ -2,7 +2,8 @@ import L from "leaflet";
 import "proj4leaflet";
 import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
-import SLDText from "../geologic_features.sld";
+import SLDText from "../slds/Global_Contacts.sld";
+
 
 /**
  * @class AstroMap
@@ -239,6 +240,7 @@ export default L.Map.AstroMap = L.Map.extend({
       if(this._geoLayers[i] && this._geoLayers[i].options.id === collectionId){
         let wrappedFeatures = this.cloneWestEast(myFeatures);
         this._geoLayers[i].addData(wrappedFeatures);
+        this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
       }
     }
   },
@@ -322,6 +324,7 @@ export default L.Map.AstroMap = L.Map.extend({
           // Add layers to map if they should be visible
           if(featureCollections[i].id === visibleCollectionId) { 
             this._geoLayers[i].addTo(this);
+            this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
           }
 
           this._footprintCollection[title] = this._geoLayers[i];
