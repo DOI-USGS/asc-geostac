@@ -229,7 +229,6 @@ export default L.Map.AstroMap = L.Map.extend({
           this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
         } else {
           this._geoLayers[i].removeFrom(this);
-          this.SLDStyler.remove_symbols();
         }
       }
     }
@@ -240,6 +239,7 @@ export default L.Map.AstroMap = L.Map.extend({
       if(this._geoLayers[i] && this._geoLayers[i].options.id === collectionId){
         let wrappedFeatures = this.cloneWestEast(myFeatures);
         this._geoLayers[i].addData(wrappedFeatures);
+
         this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
       }
     }

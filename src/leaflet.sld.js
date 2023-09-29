@@ -125,6 +125,7 @@ L.SLDStyler = L.Class.extend({
       }
    },
    initialize: function(sldStringOrXml, options) {
+      this.symbols = [];
       L.Util.setOptions(this, options);
       if (sldStringOrXml !== undefined) {
          this.featureTypeStylesNameMap = {};
@@ -522,15 +523,14 @@ L.SLDStyler = L.Class.extend({
       svgElement.innerHTML = symbol;
       svgElementBounds = [ [ point.y - 0.05, point.x + 0.05 ], [ point.y , point.x ] ];
       
-      L.svgOverlay(svgElement, svgElementBounds).addTo(map);
+      const addedSymbol = L.svgOverlay(svgElement, svgElementBounds).addTo(map);
+      this.symbols.push(addedSymbol);
    },
-   remove_symbols: function(){
-      let element = null
-      // for (var i in svg_ids)
-      // {
-      //    element = document.getElementById(i);
-      //    element.remove();
-      // }
+   remove_symbols: function(map){
+      for (var i = 0; i < this.symbols.length; i++) {
+         this.symbols[i].removeFrom(map);
+      }
+      this.symbols = [];
    }
 });
 
