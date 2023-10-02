@@ -23,7 +23,7 @@ import SLDText from "../slds/Global_Contacts.sld";
  * @param {String} mapDiv - ID of the div for the map.
  *
  * @param {String} target - Name of target to display layers for.
- * 
+ *
  * @param {Object} myJsonMaps - Json fetched from AstroWebMaps
  *
  * @param {Object} options - Options for the map.
@@ -35,7 +35,7 @@ export default L.Map.AstroMap = L.Map.extend({
     maxZoom: 8,
     attributionControl: false,
     zoomControl: false,
-    worldCopyJump: true // Jumps back to the other side of the map if the 
+    worldCopyJump: true // Jumps back to the other side of the map if the
                         // user scrolls too far, as if the map is wrapping.
   },
 
@@ -139,12 +139,12 @@ export default L.Map.AstroMap = L.Map.extend({
         const receivedCollections = event.data[2];
         this.refreshFeatures(visibleCollectionId, receivedCollections);
       }
-      else if (event.data[0] === "addFeaturesToCollection") { 
+      else if (event.data[0] === "addFeaturesToCollection") {
         const collectionId = event.data[1];
         const myFeatures = event.data[2];
         this.addFeaturesToCollection(collectionId, myFeatures);
       }
-      else if (event.data[0] === "setVisibleCollections") { 
+      else if (event.data[0] === "setVisibleCollections") {
         const collectionId = event.data[1];
         this.setVisibleCollections(collectionId);
       }
@@ -184,7 +184,7 @@ export default L.Map.AstroMap = L.Map.extend({
       // Clone it
       let westCopy = structuredClone(feature);
       let eastCopy = structuredClone(feature);
-      
+
       // Shift clones to the west and east 360 degrees, for a wrapping effect
       // Note: Only supports polygons and multipolygons... Do we have other geometry types?
       if(feature.geometry.type === "Polygon"){
@@ -195,7 +195,7 @@ export default L.Map.AstroMap = L.Map.extend({
         westCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]-360, c[1]]);
         eastCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]+360, c[1]]);
       }
-      
+
       clonedFeatures.push(...[westCopy, feature, eastCopy]);
     }
     return clonedFeatures;
@@ -207,7 +207,7 @@ export default L.Map.AstroMap = L.Map.extend({
   },
 
   highlightFootprint: function(feature){
-    
+
     if(this._hovHighlight) {
       this._hovHighlight.remove();
     }
@@ -224,7 +224,7 @@ export default L.Map.AstroMap = L.Map.extend({
     for(let i = 0; i < this._geoLayers.length; i++) {
       if(this._geoLayers[i]){
         // Add layers to map if they should be visible
-        if(this._geoLayers[i].options.id === collectionId) { 
+        if(this._geoLayers[i].options.id === collectionId) {
           this._geoLayers[i].addTo(this);
           this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
         } else {
@@ -239,7 +239,7 @@ export default L.Map.AstroMap = L.Map.extend({
       if(this._geoLayers[i] && this._geoLayers[i].options.id === collectionId){
         let wrappedFeatures = this.cloneWestEast(myFeatures);
         this._geoLayers[i].addData(wrappedFeatures);
-
+        this.SLDStyler.remove_symbols(this);
         this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
       }
     }
@@ -250,7 +250,7 @@ export default L.Map.AstroMap = L.Map.extend({
     console.log(e)
     if(!e) {
       let url_to_stac_item = e.layer.feature.links[0].href;
-      console.log (url_to_stac_item);  
+      console.log (url_to_stac_item);
    }
     // fetch(url_to_stac_item).then(res => res.json()).then(async feature => {
     //   const thumbnail = await L.stacLayer(feature, {displayPreview: true});
@@ -294,7 +294,7 @@ export default L.Map.AstroMap = L.Map.extend({
     }
 
     if (featureCollections != []) {
-      
+
       // Init _geoLayers, at the length of one layer per collection
       this._geoLayers = new Array(featureCollections.length);
 
@@ -310,7 +310,7 @@ export default L.Map.AstroMap = L.Map.extend({
 
           // Set colors if available
           //let myStyle = i < colors.length ? {fillColor: colors[i], color: lightcolors[i]} : {};
-          
+
           // Wrap features
           let wrappedFeatures = this.cloneWestEast(featureCollections[i].features);
 
@@ -320,9 +320,9 @@ export default L.Map.AstroMap = L.Map.extend({
           })
 
           this._geoLayers[i].on({click: this.handleClick});  // Add click listener
-          
+
           // Add layers to map if they should be visible
-          if(featureCollections[i].id === visibleCollectionId) { 
+          if(featureCollections[i].id === visibleCollectionId) {
             this._geoLayers[i].addTo(this);
             this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
           }
