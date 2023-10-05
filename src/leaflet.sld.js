@@ -531,6 +531,7 @@ L.SLDStyler = L.Class.extend({
    create_svg(symbol)
    {
       var svgElement = null;
+      
       svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svgElement.setAttribute('xmlns', "http://www.w3.org/2000/svg");
       svgElement.innerHTML = symbol;
