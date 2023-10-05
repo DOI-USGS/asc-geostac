@@ -516,7 +516,7 @@ L.SLDStyler = L.Class.extend({
 
       svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svgElement.setAttribute('xmlns', "http://www.w3.org/2000/svg");
-      svgElement.innerHTML = this.find_symbol('strike_slip_fault_arrows_r.svg');
+      svgElement.innerHTML = symbol;
       svgElementBounds = [ [ point.y - 0.05, point.x + 0.05 ], [ point.y , point.x ] ];
       
       const addedSymbol = L.svgOverlay(svgElement, svgElementBounds).addTo(map);
@@ -527,6 +527,15 @@ L.SLDStyler = L.Class.extend({
          this.symbols[i].removeFrom(map);
       }
       this.symbols = [];
+   },
+   create_svg(symbol)
+   {
+      var svgElement = null;
+      svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgElement.setAttribute('xmlns', "http://www.w3.org/2000/svg");
+      svgElement.innerHTML = symbol;
+
+      return svgElement;
    }
 });
 
