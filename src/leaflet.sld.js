@@ -359,30 +359,28 @@ L.SLDStyler = L.Class.extend({
       return this.pointToLayerFunction.bind(this, indexOrName);
    },
 
-   find_symbol: function() {
+   find_symbol: function( svgRequest ) {
+      // Declare variable to hold svg contents
+      var svgText;
 
-      const svgFileList = require.context(
-         './images/FGDC_svgs/', true, /\.svg$/
-      ); // Load all files in listed folder and all sub directories
-
-      console.log(svgFileList); // Testing: Print to console
-
-      const svgFileKeys = svgFileList.keys();  // Set varaible to 'key' containing all file paths and names
-
-      for( let index = 0; index < svgFileKeys.length; index++ ) // Loop through all file names listed in key
-      {
-         var svgFileName = svgFileKeys[ index ]; // Set variable name to file path at current index
-
-         if( svgFileName.split(/[\\/]/).pop() == '25.82.svg') // Isolate file name from the file's path and compare to search criteria
+      // Dynamically load modules of svgs in plaintext
+      const svgFiles = require.context(
+         '!url-loader?encoding=ascii!./images/FGDC_svgs/', true, /\.svg$/
+      );
+      
+      // Loop through loaded files
+      svgFiles.keys().forEach( (svgKey) => {
+      
+         // Check if key matches requested svg name
+         if( svgKey.split("/").pop() == svgRequest )
          {
-            var svgFile = svgFileKeys[ index ]; // Set file variable to path of matching file
-            console.log(svgFile); // Testing: Print to console
+            // Assign value of svg module
+            svgText = svgFiles(svgKey);
          }
-         // Add else statement to handle situations where a file isn't located
-      }
+      })
 
-      // Figure out how to grab the contents of the located file. 
-         // Issue: browser security features generally prevent local file access
+      // Return contents of svg
+      return svgText.default;
    },
 
    symbolize_with_icons: function(geolayer, map){
@@ -515,12 +513,10 @@ L.SLDStyler = L.Class.extend({
    add_symbol: function(point, map, symbol){
       var svgElementBounds = null;
       var svgElement = null;
-      
-      symbol = '<g> <path inkscape:connector-curvature="0" id="path3055" d="M 0.43864824,0.43865001 7.3370882,9.83709" style="fill:none;stroke:#000000;stroke-width:0.87730002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" /> <path inkscape:connector-curvature="0" id="path3057" d="M 7.3370882,0.43865001 0.43864824,9.83709" style="fill:none;stroke:#000000;stroke-width:0.87730002;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:10;stroke-opacity:1" / </g>';
 
       svgElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svgElement.setAttribute('xmlns', "http://www.w3.org/2000/svg");
-      svgElement.innerHTML = symbol;
+      svgElement.innerHTML = this.find_symbol('strike_slip_fault_arrows_r.svg');
       svgElementBounds = [ [ point.y - 0.05, point.x + 0.05 ], [ point.y , point.x ] ];
       
       const addedSymbol = L.svgOverlay(svgElement, svgElementBounds).addTo(map);
