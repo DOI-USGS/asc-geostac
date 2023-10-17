@@ -19,8 +19,6 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 
 import { Collapse, Divider } from "@mui/material";
 import ListItemText from "@mui/material/ListItemText";
- //help box
-import HelpBox from "./HelpBox.jsx";
 
 /**
  * Controls css styling for this component using js to css
@@ -86,9 +84,6 @@ export default function SearchAndFilterInput(props) {
   const [areaTextVal, setAreaTextVal] = React.useState("");       // Area (received by window message from AstroDrawFilterControl)
   const [dateFromVal, setDateFromVal] = React.useState(null);     // From Date
   const [dateToVal, setDateToVal] = React.useState(null);         // To Date
-
-  // help box
-  const [showHelpBox, setShowHelpBox] = React.useState(false);
 
   //const for callback
   const {UpdateQueryableTitles} = props;
@@ -304,15 +299,6 @@ export default function SearchAndFilterInput(props) {
 
   }, [props.targetName]);
 
-  //help box
-  const handleOpenHelpBox = () => {
-    setShowHelpBox(true);
-  };
-
-  const handleCloseHelpBox = () => {
-    setShowHelpBox(false);
-  }
-
   /* Control IDs for reference:
   sortBySelect
   sortAscCheckBox
@@ -455,8 +441,6 @@ export default function SearchAndFilterInput(props) {
           </Collapse>
         </div>
       </Collapse>
-      <button onClick={handleOpenHelpBox} style={{marginTop: "20px"}}>Help</button>
-      <HelpBox isOpen={showHelpBox} onClose={handleCloseHelpBox} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import GeoStacWhiteIcon from "../../images/logos/geostac-logo-white.svg";
+import HelpBox from "./HelpBox.jsx";
 
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -11,7 +12,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-
+ 
 export default function Menubar(props) {
   const [showAbout, setShowAbout] = React.useState(false);
 
@@ -22,6 +23,16 @@ export default function Menubar(props) {
   const handleCloseAbout = () => {
     setShowAbout(false);
   };
+
+   const handleOpenHelpBox = () => {
+    setShowHelpBox(true);
+  };
+
+  const handleCloseHelpBox = () => {
+    setShowHelpBox(false);
+  }
+
+  const [showHelpBox, setShowHelpBox] = React.useState(false);
 
   return (
     <div id="menu-bar">
@@ -47,6 +58,13 @@ export default function Menubar(props) {
           <span className="menu-item-text">Help</span>
         </div>
       </a>
+
+      <div className="menu-item"onClick={handleOpenHelpBox}>
+        <span className="menu-item-text">Interactions</span>
+        </div>
+        
+      <HelpBox isOpen={showHelpBox} onClose={handleCloseHelpBox} />
+
       <div className="menu-item" onClick={props.handleOpenCloseHeader}>
         {props.showHeaderFooter ? (
           <>

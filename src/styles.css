@@ -508,6 +508,7 @@ Help Box Inside Search and Filter
 }
 
 .helpBoxContent, .subPopup {
+  color: #000;
   width: 300px;
   padding: 20px;
   background-color: #fff;
