@@ -239,10 +239,6 @@ export default L.Map.AstroMap = L.Map.extend({
       if(this._geoLayers[i] && this._geoLayers[i].options.id === collectionId){
         let wrappedFeatures = this.cloneWestEast(myFeatures);
         this._geoLayers[i].addData(wrappedFeatures);
-<<<<<<< HEAD
-        this.SLDStyler.remove_symbols(this);
-=======
->>>>>>> 6b999bd8 (changed sld file)
         this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
       }
     }
@@ -311,15 +307,33 @@ export default L.Map.AstroMap = L.Map.extend({
         // [old] and it shows up as the layer title when added to the separate Leaflet control
         if(featureCollections[i].features.length > 0) {
 
-          // Set colors if available
-          //let myStyle = i < colors.length ? {fillColor: colors[i], color: lightcolors[i]} : {};
+          let found_stylesheet = false;
+          let sld_file = null;
+          // set style if available
+          for (let j = 0; j < featureCollections[i].links.length; j++) {
+            if (featureCollections[i].links[j].rel == "stylesheet") {
+              found_stylesheet = true;
+              sld_file = fetch(featureCollections[i].links[j].href);
+              this.SLDStyler = new L.SLDStyler(sld_file);
+            }
+          }
+
+          let myStyle = null;
+
+          if (found_stylesheet) {
+            myStyle = this.SLDStyler.getStyleFunction();
+          }
+          else{
+            // Set colors if available
+            myStyle = i < colors.length ? {fillColor: colors[i], color: lightcolors[i]} : {};
+          }
 
           // Wrap features
           let wrappedFeatures = this.cloneWestEast(featureCollections[i].features);
 
           this._geoLayers[i] = L.geoJSON(wrappedFeatures, {
             id: featureCollections[i].id,
-            style: this.SLDStyler.getStyleFunction()
+            style: myStyle
           })
 
           this._geoLayers[i].on({click: this.handleClick});  // Add click listener
@@ -331,7 +345,6 @@ export default L.Map.AstroMap = L.Map.extend({
           }
 
           this._footprintCollection[title] = this._geoLayers[i];
-
           // Add collections to the Overlay control
           L.LayerCollection.layerControl.addOverlay(this._footprintCollection[title], title);
         }
