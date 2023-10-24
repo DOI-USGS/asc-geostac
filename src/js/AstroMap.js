@@ -302,7 +302,7 @@ export default L.Map.AstroMap = L.Map.extend({
 
         let title = featureCollections[i].title;
 
-        let sld_file =  featureCollections[i].styleSheets;
+        let sld_text = featureCollections[i].styleSheets;
         // set style if available
 
         let myStyle = null;
@@ -312,15 +312,8 @@ export default L.Map.AstroMap = L.Map.extend({
         // [old] and it shows up as the layer title when added to the separate Leaflet control
         if(featureCollections[i].features.length > 0) {
 
-
-
-          if (sld_file) {
-            let sldtext = fetch(sld_file);
-            let res = sldtext.res
-
-            console.log("good style wow");
-            this.SLDStyler = new L.SLDStyler(sldtext);
-
+          if (sld_text != null) {
+            this.SLDStyler = new L.SLDStyler(sld_text);
             myStyle = this.SLDStyler.getStyleFunction();
 
           }

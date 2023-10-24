@@ -169,15 +169,39 @@ export default function FootprintResults(props) {
         }
       }
 
+      async function fetchSLD(sld_url) {
+        try {
+           const response = await fetch(sld_url)
+           if(!response.ok) {
+             throw new Error('SLD response not ok ' + response.statusText);
+             }
+            const SLD_DATA = await response.text();
+            //const parser = new DOMParser();
+            //const sld_file = parser.parseFromString(SLD_DATA, text/xml);
+           return SLD_DATA
+               } catch (error) {
+                  console.error('SLD unable to be fetched', error);
+               }
+     }
+
+
       (async () => {
         let collections = await FetchObjects(collectionUrls);
+
 
         // Add extra properties to each collection
         for(const key in collections){
           collections[key].id = key;
           collections[key].title = props.target.collections.find(collection => collection.id === key).title;
           collections[key].url = collectionUrls[key];
-          collections[key].styleSheets = styleSheetUrls[key];
+
+          let sldtext = null;
+
+          if (styleSheetUrls[key]) {
+            sldtext = await fetchSLD(styleSheetUrls[key]);
+            collections[key].styleSheets = sldtext;
+          }
+
         }
 
         // Updates collectionId if switching to a new set of collections (new target)
