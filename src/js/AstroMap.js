@@ -2,9 +2,6 @@ import L from "leaflet";
 import "proj4leaflet";
 import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
-import FecthData from "./FetchData";
-import { data } from "autoprefixer";
-
 
 /**
  * @class AstroMap
@@ -269,21 +266,7 @@ export default L.Map.AstroMap = L.Map.extend({
    */
   refreshFeatures: function(visibleCollectionId, collectionsObj) {
 
-    // Will we need more than 6 colors for more than 6 different collections?
-    let colors =      [ "#17A398", "#EE6C4D", "#662C91", "#F3DE2C", "#33312E", "#0267C1" ];
-    let lightcolors = [ "#3DE3D5", "#F49C86", "#9958CC", "#F7E96F", "#DDDDDD", "#2A9BFD" ];
-    // Old, removes separate control
-    // if(this._footprintControl) {
-    //   this._footprintControl.remove();
-    // }
-
-    // removes layers previously loaded
-    for(let i = 0; i < this._geoLayers.length; i++){
-      if(this._geoLayers[i]) {
-        L.LayerCollection.layerControl.removeLayer(this._geoLayers[i]);
-        this._geoLayers[i].clearLayers();
-      }
-    }
+    this.removePreviousLayers(this._geoLayers, L);
 
     // initialize featureCollection as an array
     // (convert obj passed from FootprintResults.jsx)
@@ -299,41 +282,32 @@ export default L.Map.AstroMap = L.Map.extend({
 
       // For each Collection (and each geoLayer)
       for (let i = 0; i < featureCollections.length; i++) {
+        
+        let curr_collection = featureCollections[i];
+        let title = curr_collection.title;
+        let sld_text = curr_collection.styleSheets;
+        let features_in_curr_collection = curr_collection.features.length;
+        let sld_style = null;
+        let wrappedFeatures = null;
 
-        let title = featureCollections[i].title;
-
-        let sld_text = featureCollections[i].styleSheets;
-        // set style if available
-
-        let myStyle = null;
 
         // Add each _geoLayer that has footprints to the FootprintCollection object.
         // The collection title is used as the property name
         // [old] and it shows up as the layer title when added to the separate Leaflet control
-        if(featureCollections[i].features.length > 0) {
+        if(features_in_curr_collection > 0) {
 
-          if (sld_text != null) {
-            this.SLDStyler = new L.SLDStyler(sld_text);
-            myStyle = this.SLDStyler.getStyleFunction();
-
-          }
-          else{
-            // Set colors if available
-            myStyle = i < colors.length ? {fillColor: colors[i], color: lightcolors[i]} : {};
-          }
-
-          // Wrap features
-          let wrappedFeatures = this.cloneWestEast(featureCollections[i].features);
+          sld_style = this.setStyle(sld_text, this.SLDStyler, i);
+          wrappedFeatures = this.cloneWestEast(curr_collection.features);
 
           this._geoLayers[i] = L.geoJSON(wrappedFeatures, {
-            id: featureCollections[i].id,
-            style: myStyle
+            id: curr_collection.id,
+            style: sld_style
           })
 
           this._geoLayers[i].on({click: this.handleClick});  // Add click listener
 
           // Add layers to map if they should be visible
-          if(featureCollections[i].id === visibleCollectionId) {
+          if(curr_collection.id === visibleCollectionId) {
             this._geoLayers[i].addTo(this);
             this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
           }
@@ -347,11 +321,40 @@ export default L.Map.AstroMap = L.Map.extend({
         }
       }
 
+
+
       // Add collections to a separate control
       // this._footprintControl = L.control                          // 1. Make a leaflet control
       // .layers(null, this._footprintCollection, {collapsed: true}) // 2. Add the footprint collections to the control as layers
       // .addTo(this)                                                // 3. Add the control to leaflet.
                                                                      // Now the user can show/hide layers (and see their titles)
+    }
+  },
+
+  setStyle: function(sld_style, SLDStyler, index){
+
+    let colors =      [ "#17A398", "#EE6C4D", "#662C91", "#F3DE2C", "#33312E", "#0267C1" ];
+    let lightcolors = [ "#3DE3D5", "#F49C86", "#9958CC", "#F7E96F", "#DDDDDD", "#2A9BFD" ];
+    let defaultStyle = null;
+    
+    if (sld_style != null) {
+      SLDStyler = new L.SLDStyler(sld_style);
+      return SLDStyler.getStyleFunction();
+    }
+
+    defaultStyle = index < colors.length ? {fillColor: colors[index], color: lightcolors[index]} : {};;
+    return defaultStyle;
+  },
+
+    // removes layers previously loaded
+  removePreviousLayers: function(geoLayers, L) {
+    // removes layers previously loaded
+    let collection_amount = geoLayers.length;
+    for(let i = 0; i < collection_amount; i++){
+    if(geoLayers[i]) {
+      L.LayerCollection.layerControl.removeLayer(geoLayers[i]);
+      geoLayers[i].clearLayers();
+      }
     }
   },
 
