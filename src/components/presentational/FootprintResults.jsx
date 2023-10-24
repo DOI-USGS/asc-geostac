@@ -119,6 +119,8 @@ export default function FootprintResults(props) {
       }
 
       let collectionUrls = {};
+      let styleSheetUrls = [];
+
       for (const collection of props.target.collections) {
         
         
@@ -133,15 +135,37 @@ export default function FootprintResults(props) {
           // change filter for the pygeo api
           myFilter = "&limit=" + step;
         }
+        let styleSheet;
+        const foundStyleSheet = collection.links.find(link=> link.rel == "stylesheet");
+
+        if(foundStyleSheet) {
+          styleSheet = foundStyleSheet.href;
+          styleSheetUrls[collection.id] = styleSheet;
+          console.log("Found Style Sheet");
+        }
 
         if(isInStacAPI || isInPyAPI) {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
           collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
+
+          let style_url = null;
+          for (let index = 0; index < collection.links.length; index++) {
+            if (collection.links[index].rel === "stylesheet") {
+              style_url = collection.links[index].href
+            }
+          }
+          collectionUrls[collection.id + ": stylesheet"] = style_url;
+
+          // if (collection.links.find(link => link.rel === "stylesheet").href != undefined) {
+          //   let styleUrl = collection.links.find(link => link.rel === "stylesheet").href;
+          //   collectionUrls[collection.id].style = styleUrl;
+          // }
+
+          // }
         }
         else {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
           collectionUrls[collection.id] = itemsUrl + pageInfo;
-          
         }
       }
 
@@ -153,6 +177,7 @@ export default function FootprintResults(props) {
           collections[key].id = key;
           collections[key].title = props.target.collections.find(collection => collection.id === key).title;
           collections[key].url = collectionUrls[key];
+          collections[key].styleSheets = styleSheetUrls[key];
         }
 
         // Updates collectionId if switching to a new set of collections (new target)

@@ -2,7 +2,8 @@ import L from "leaflet";
 import "proj4leaflet";
 import AstroProj from "./AstroProj";
 import LayerCollection from "./LayerCollection";
-import SLDText from "../slds/Global_Geology.sld";
+import FecthData from "./FetchData";
+import { data } from "autoprefixer";
 
 
 /**
@@ -58,8 +59,7 @@ export default L.Map.AstroMap = L.Map.extend({
     // Set by layer collection or baselayerchange event
     this._currentLayer = null;
 
-    this.SLDStyler = new L.SLDStyler(SLDText);
-
+    this.SLDStyler = new L.SLDStyler();
 
     // Store layers at map creation so we only need to create layers once.
     let cylLayerInfo = this.parseJSON("cylindrical");
@@ -302,26 +302,27 @@ export default L.Map.AstroMap = L.Map.extend({
 
         let title = featureCollections[i].title;
 
+        let sld_file =  featureCollections[i].styleSheets;
+        // set style if available
+
+        let myStyle = null;
+
         // Add each _geoLayer that has footprints to the FootprintCollection object.
         // The collection title is used as the property name
         // [old] and it shows up as the layer title when added to the separate Leaflet control
         if(featureCollections[i].features.length > 0) {
 
-          let found_stylesheet = false;
-          let sld_file = null;
-          // set style if available
-          for (let j = 0; j < featureCollections[i].links.length; j++) {
-            if (featureCollections[i].links[j].rel == "stylesheet") {
-              found_stylesheet = true;
-              sld_file = fetch(featureCollections[i].links[j].href);
-              this.SLDStyler = new L.SLDStyler(sld_file);
-            }
-          }
 
-          let myStyle = null;
 
-          if (found_stylesheet) {
+          if (sld_file) {
+            let sldtext = fetch(sld_file);
+            let res = sldtext.res
+
+            console.log("good style wow");
+            this.SLDStyler = new L.SLDStyler(sldtext);
+
             myStyle = this.SLDStyler.getStyleFunction();
+
           }
           else{
             // Set colors if available

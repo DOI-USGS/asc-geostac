@@ -122,7 +122,7 @@ export default async function Initialize(){
                         // view the collection as GEOJSON
                         let target_name = pycollection.id.split('/')[0];
                         if (target.name == target_name.toUpperCase()) {
-                            pycollection.links[9].href = "https://astrogeology.usgs.gov/pygeoapi" + pycollection.links[9].href;
+                            pycollection.links.find(link => link.rel === "items").href = "https://astrogeology.usgs.gov/pygeoapi" + pycollection.links.find(link => link.rel === "items").href;
                             // Add a specification to the title in order to show what kind of data the user is requesting
                             pycollection.title = pycollection.title.concat(" (Vector)");
                             myCollections.push(pycollection);
