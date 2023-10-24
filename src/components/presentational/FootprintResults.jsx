@@ -141,7 +141,6 @@ export default function FootprintResults(props) {
         if(foundStyleSheet) {
           styleSheet = foundStyleSheet.href;
           styleSheetUrls[collection.id] = styleSheet;
-          console.log("Found Style Sheet");
         }
 
         if(isInStacAPI || isInPyAPI) {
