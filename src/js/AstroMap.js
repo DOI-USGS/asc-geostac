@@ -290,13 +290,12 @@ export default L.Map.AstroMap = L.Map.extend({
         let sld_style = null;
         let wrappedFeatures = null;
 
-
         // Add each _geoLayer that has footprints to the FootprintCollection object.
         // The collection title is used as the property name
         // [old] and it shows up as the layer title when added to the separate Leaflet control
         if(features_in_curr_collection > 0) {
 
-          sld_style = this.setStyle(sld_text, this.SLDStyler, i);
+          sld_style = this.getStyle(sld_text, this.SLDStyler, i);
           wrappedFeatures = this.cloneWestEast(curr_collection.features);
 
           this._geoLayers[i] = L.geoJSON(wrappedFeatures, {
@@ -331,7 +330,14 @@ export default L.Map.AstroMap = L.Map.extend({
     }
   },
 
-  setStyle: function(sld_style, SLDStyler, index){
+  /**
+   * @function AstroMap.prototype.getStyle
+   * @description gets the style for SLD.styler
+   * @param {string} sld_style - sld text
+   * @param {object} SLDStyler - styling tool for geoJSON objects
+   * @param {int} index - index to get different default styles
+   */
+  getStyle: function(sld_style, SLDStyler, index){
 
     let colors =      [ "#17A398", "#EE6C4D", "#662C91", "#F3DE2C", "#33312E", "#0267C1" ];
     let lightcolors = [ "#3DE3D5", "#F49C86", "#9958CC", "#F7E96F", "#DDDDDD", "#2A9BFD" ];
@@ -346,7 +352,11 @@ export default L.Map.AstroMap = L.Map.extend({
     return defaultStyle;
   },
 
-    // removes layers previously loaded
+  /**
+   * @function AstroMap.prototype.removePreviousLayers
+   * @description removes previous layers off of leaflet map
+   *
+   */
   removePreviousLayers: function(geoLayers, L) {
     // removes layers previously loaded
     let collection_amount = geoLayers.length;
