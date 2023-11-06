@@ -29,8 +29,8 @@ class LineSegment{
 // default Path style applied if nothing matches
 var defaultStyle = {
    stroke: true,
-   color: "#03f",
-   weight: 5,
+   color: "#000",
+   weight: 1,
    opacity: 1,
    fillOpacity: 1,
    fillColor: '#03f',
@@ -269,25 +269,30 @@ L.SLDStyler = L.Class.extend({
    isFilterMatch: function(filter, properties) {
       if (filter) {
          var operator = filter.operator == null || filter.operator == 'and' ? 'every' : 'some';
+         if(filter.comparisions.length <= 0){
+            return false;
+         }
          return filter.comparisions[operator](function(comp) {
+            var property = properties[comp.property.toLowerCase()];
             if (comp.operator == '==') {
-               return properties[comp.property] == comp.literal;
+               return property == comp.literal;
             } else if (comp.operator == '!=') {
-               return properties[comp.property] != comp.literal;
+               return property != comp.literal;
             } else if (comp.operator == '<') {
-               return properties[comp.property] < comp.literal;
+               return property < comp.literal;
             } else if (comp.operator == '>') {
-               return properties[comp.property] > comp.literal;
+               return property > comp.literal;
             } else if (comp.operator == '<=') {
-               return properties[comp.property] <= comp.literal;
+               return property <= comp.literal;
             } else if (comp.operator == '>=') {
-               return properties[comp.property] >= comp.literal;
+               return property >= comp.literal;
             } else {
                console.error('Unknown comparision operator', comp.operator);
             }
          });
-      } else
+      } else{
          return true;
+      }
    },
    matchFn: function (featureTypeStyle, feature) {
       var matchingRule = null;
