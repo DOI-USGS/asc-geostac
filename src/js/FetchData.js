@@ -1,7 +1,7 @@
 
 /**
- * 
- * @returns 
+ *
+ * @returns
  */
 export default async function Initialize(){
 
@@ -10,10 +10,10 @@ export default async function Initialize(){
         "https://astrowebmaps.wr.usgs.gov/webmapatlas/Layers/maps.json";
 
     // STAC API, has footprint data for select planetary bodies
-    const stacApiCollections = 
+    const stacApiCollections =
         "https://stac.astrogeology.usgs.gov/api/collections";
 
-    const vectorApiCollections = 
+    const vectorApiCollections =
         "https://astrogeology.usgs.gov/pygeoapi/collections";
 
     // Async tracking
@@ -66,7 +66,7 @@ export default async function Initialize(){
 
     // Combine data from Astro Web Maps and STAC API into one new object
     function organizeData(astroWebMaps, stacApiCollections, vectorApiCollections) {
-        
+
         // Initialize Objects
         let mapList = { "systems" : [] };
         let stacList = [];
@@ -112,17 +112,22 @@ export default async function Initialize(){
                 if (hasFootprints) {
                     for (const collection of stacApiCollections.collections){
                         if (target.name == collection.summaries["ssys:targets"][0].toUpperCase()) {
+                            // Add a specification to the title in order to show what kind of data the user is requesting
+                            collection.title = collection.title.concat(" (Raster)")
                             myCollections.push(collection);
                         }
                     }
+
                     for (const pycollection of vectorApiCollections.collections){
                         // view the collection as GEOJSON
                         let target_name = pycollection.id.split('/')[0];
                         if (target.name == target_name.toUpperCase()) {
-                            pycollection.links[9].href = "https://astrogeology.usgs.gov/pygeoapi" + pycollection.links[9].href;
-                            myCollections.push(pycollection); 
-                        } 
-                    } 
+                            pycollection.links.find(link => link.rel === "items").href = "https://astrogeology.usgs.gov/pygeoapi" + pycollection.links.find(link => link.rel === "items").href;
+                            // Add a specification to the title in order to show what kind of data the user is requesting
+                            pycollection.title = pycollection.title.concat(" (Vector)");
+                            myCollections.push(pycollection);
+                        }
+                    }
                 }
 
                 // Add a body data entry
@@ -211,7 +216,7 @@ export default async function Initialize(){
         return mapList;
     }
 
-    // Fetch and organize data from 
+    // Fetch and organize data from
     async function getStacAndAstroWebMapsData() {
         // Start fetching from AWM and STAC API concurrently
         ensureFetched(astroWebMaps);

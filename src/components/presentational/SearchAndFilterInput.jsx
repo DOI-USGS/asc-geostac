@@ -71,11 +71,11 @@ export default function SearchAndFilterInput(props) {
   // Allows showing/hiding of fields
   const [expandFilter, setExpandFilter] = React.useState(false);
   const [expandDate, setExpandDate] = React.useState(false);
-  
+
   // Sort By
   const [sortVal, setSortVal] = React.useState("");                    // Sort By What?
   const [sortAscCheckVal, setSortAscCheckVal] = React.useState(true); // Sort Ascending or Descending
-  
+
   // Filter by X checkboxes
   const [areaCheckVal, setAreaCheckVal] = React.useState(false);       // Area
   const [dateCheckVal, setDateCheckVal] = React.useState(false);       // Date
@@ -93,10 +93,10 @@ export default function SearchAndFilterInput(props) {
 
   const buildQueryString = () => {
     let myFilterString = "?";
-    
+
     // Date
     if (dateCheckVal) {
-      
+
       let d = new Date();
       const lowestYear = 1970;
       const highestYear = d.getFullYear();
@@ -151,11 +151,11 @@ export default function SearchAndFilterInput(props) {
   let pyGeoAPIFlag = false;
 
   // New state for queryable titles
-  const [queryableTitles, setQueryableTitles] = useState([]); 
- 
+  const [queryableTitles, setQueryableTitles] = useState([]);
+
   // all collections
   const collection = props.target.collections;
- 
+
   // retrieves all PyGEO collections
   const isInPyAPI = collection.filter(data => data.hasOwnProperty('itemType'));
 
@@ -165,9 +165,9 @@ export default function SearchAndFilterInput(props) {
   // retrieves all pyGEO titles
   const collectionTitles = isInPyAPI.map(data => data.title);
 
-    
-    
-  // checks if correct title selected 
+
+
+  // checks if correct title selected
   if (collectionTitles.includes(props.selectedTitle))
   {
     //set pyGeoAPI flag
@@ -188,31 +188,31 @@ export default function SearchAndFilterInput(props) {
 
       // Extract the "properties" property from the JSON response
       let Queryables = data.properties;
-        
+
       // loop over titles
       for (const property in Queryables) {
         if (Queryables.hasOwnProperty(property) && Queryables[property].hasOwnProperty("title")) {
-            
+
           queryableTitlesArray.push(data.properties[property].title);
-            
+
         }
      }
 
       // Set the state with the queryable titles
       setQueryableTitles(queryableTitlesArray);
-      
-      
+
+
     }, [])
     .catch(error => {
     console.error("Error fetching data:", error);
     });
     }
-      
-    
-  
+
+
+
 
   const [selectedOptions, setSelectedOptions] = useState([]);
-  
+
   const handleOptionChange = event => {
     const selectedValues = event.target.value;
     setSelectedOptions(selectedValues);
@@ -220,14 +220,14 @@ export default function SearchAndFilterInput(props) {
     // Create an array of objects with selected option and value
     const selectedOptionsWithValues = selectedValues.map((option) => ({
       option,
-        value: queryableTitles.find((title) => title.title === option)?.value, 
+        value: queryableTitles.find((title) => title.title === option)?.value,
       }));
 
   // Pass the selected options and values to FootprintResults
-    UpdateQueryableTitles(selectedOptionsWithValues); 
+    UpdateQueryableTitles(selectedOptionsWithValues);
   };
 
-  
+
   // Sorting
   const handleSortChange = (event) => {
     setSortVal(event.target.value);
@@ -283,11 +283,11 @@ export default function SearchAndFilterInput(props) {
 
   // If target is changed, reset filter values;
   useEffect(() => {
-    
+
   // Sort By
   setSortVal("");
   setSortAscCheckVal(true);
-  
+
   // Filter by X checkboxes
   setAreaCheckVal(false);
   setDateCheckVal(false);
@@ -298,8 +298,6 @@ export default function SearchAndFilterInput(props) {
   setDateToVal(null);  // To Date
 
   }, [props.targetName]);
-
-  
 
   /* Control IDs for reference:
   sortBySelect
@@ -352,12 +350,12 @@ export default function SearchAndFilterInput(props) {
             />
           </span>
         </div>
-        
+
         {pyGeoAPIFlag && (
         <div className="panelSection panelBar">
           <span>
-            <FormControl sx={{ minWidth: 150 }}>
-              <InputLabel id="selectQueryLabel" size="small">
+            <FormControl sx={{ minWidth: 150 , minHeight: 40}}>
+              <InputLabel id="selectQueryLabel" size="small" style={{paddingTop: '0.2rem'}}>
                 Select Query
               </InputLabel>
               <Select
@@ -367,6 +365,7 @@ export default function SearchAndFilterInput(props) {
                 value={selectedOptions}
                 onChange={handleOptionChange}
                 renderValue={(selected) => selected.join(', ')}
+                style={{height: 43}}
               >
                 {queryableTitles.map((title) => (
                         <MenuItem key={title} value={title}>

@@ -119,6 +119,8 @@ export default function FootprintResults(props) {
       }
 
       let collectionUrls = {};
+      let styleSheetUrls = [];
+
       for (const collection of props.target.collections) {
         
         
@@ -133,26 +135,72 @@ export default function FootprintResults(props) {
           // change filter for the pygeo api
           myFilter = "&limit=" + step;
         }
+        let styleSheet;
+        const foundStyleSheet = collection.links.find(link=> link.rel == "stylesheet");
+
+        if(foundStyleSheet) {
+          styleSheet = foundStyleSheet.href;
+          styleSheetUrls[collection.id] = styleSheet;
+        }
 
         if(isInStacAPI || isInPyAPI) {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
           collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
+
+          let style_url = null;
+          for (let index = 0; index < collection.links.length; index++) {
+            if (collection.links[index].rel === "stylesheet") {
+              style_url = collection.links[index].href
+            }
+          }
+          collectionUrls[collection.id + ": stylesheet"] = style_url;
+
+          // if (collection.links.find(link => link.rel === "stylesheet").href != undefined) {
+          //   let styleUrl = collection.links.find(link => link.rel === "stylesheet").href;
+          //   collectionUrls[collection.id].style = styleUrl;
+          // }
+
+          // }
         }
         else {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
           collectionUrls[collection.id] = itemsUrl + pageInfo;
-          
         }
       }
 
+      async function fetchSLD(sld_url) {
+        try {
+           const response = await fetch(sld_url)
+           if(!response.ok) {
+             throw new Error('SLD response not ok ' + response.statusText);
+             }
+            const SLD_DATA = await response.text();
+            //const parser = new DOMParser();
+            //const sld_file = parser.parseFromString(SLD_DATA, text/xml);
+           return SLD_DATA
+               } catch (error) {
+                  console.error('SLD unable to be fetched', error);
+               }
+     }
+
+
       (async () => {
         let collections = await FetchObjects(collectionUrls);
+
 
         // Add extra properties to each collection
         for(const key in collections){
           collections[key].id = key;
           collections[key].title = props.target.collections.find(collection => collection.id === key).title;
           collections[key].url = collectionUrls[key];
+
+          let sldtext = null;
+
+          if (styleSheetUrls[key]) {
+            sldtext = await fetchSLD(styleSheetUrls[key]);
+            collections[key].styleSheets = sldtext;
+          }
+
         }
 
         // Updates collectionId if switching to a new set of collections (new target)

@@ -146,12 +146,12 @@ export async function FetchStepRemainder(featureCollection, myStep) {
     if (skip !== 0) {
         fullResponse = await FetchFootprints(featureCollection, myPage, myStep);
 
-        if (!fullResponse || !fullResponse.features) {
+        if (!fullResponse) {
             console.error('Invalid fullResponse:', fullResponse);
             return [];
         }
 
-        newFeatures = fullResponse.features;
+        newFeatures = fullResponse;
 
         // Handle edge case where you may have requested more features than  still available
         if (newFeatures.length < myStep) {
