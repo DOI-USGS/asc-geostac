@@ -126,11 +126,11 @@ export default function FootprintResults(props) {
         
         let isInStacAPI = collection.hasOwnProperty("stac_version");
         
-        let isInPyAPI = collection.hasOwnProperty("itemType");
+        let isFeature = collection.itemType == "feature";
 
         
         // check for pygeo api
-        if (isInPyAPI)
+        if (isFeature)
         {
           // change filter for the pygeo api
           myFilter = "&limit=" + step;
@@ -143,7 +143,7 @@ export default function FootprintResults(props) {
           styleSheetUrls[collection.id] = styleSheet;
         }
 
-        if(isInStacAPI || isInPyAPI) {
+        if(isInStacAPI || isFeature) {
           let itemsUrl = collection.links.find(link => link.rel === "items").href;
           collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
 
