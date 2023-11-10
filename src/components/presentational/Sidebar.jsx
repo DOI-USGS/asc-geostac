@@ -80,8 +80,9 @@ export default function Sidebar(props) {
             filterString={filterString}
             queryAddress={props.queryAddress}
             setQueryAddress={props.setQueryAddress}
-            updateSelectedTitle={updateSelectedTitle} 
+            updateSelectedTitle={updateSelectedTitle}
             selectedQueryables = {updatedQueryableTitles}
+            UpdateQueryableTitles = {UpdateQueryableTitles}
           />
         </Collapse>
       </div>

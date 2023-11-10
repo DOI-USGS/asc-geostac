@@ -227,6 +227,10 @@ export default function SearchAndFilterInput(props) {
     UpdateQueryableTitles(selectedOptionsWithValues);
   };
 
+  //queryables
+  const handleQueryableRemove = (event) => {
+    UpdateQueryableTitles(event);
+  };
 
   // Sorting
   const handleSortChange = (event) => {
@@ -296,6 +300,8 @@ export default function SearchAndFilterInput(props) {
   setAreaTextVal("");    // Area (received by window message from AstroMap)
   setDateFromVal(null); // From Date
   setDateToVal(null);  // To Date
+  handleQueryableRemove(null); // properties selection
+  
 
   }, [props.targetName]);
 

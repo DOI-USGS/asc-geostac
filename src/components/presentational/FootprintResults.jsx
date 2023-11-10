@@ -68,6 +68,8 @@ export default function FootprintResults(props) {
     // Call the callback function to pass the selected title to the Sidebar
     props.updateSelectedTitle(selectedCollectionTitle);
 
+    props.UpdateQueryableTitles(null);
+
 
     // Send to Leaflet
     window.postMessage(["setVisibleCollections", newCollectionId], "*");
@@ -203,6 +205,7 @@ export default function FootprintResults(props) {
 
         }
 
+
         // Updates collectionId if switching to a new set of collections (new target)
         let myId = collectionId;
         if (!collections[myId]) {
@@ -216,6 +219,7 @@ export default function FootprintResults(props) {
         setNumFeatures(collections[myId].features.length);
         setHasFootprints(Object.keys(collections).length > 0);
         setIsLoading(false);
+
 
        
 
