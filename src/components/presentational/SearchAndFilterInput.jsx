@@ -356,7 +356,7 @@ export default function SearchAndFilterInput(props) {
           <span>
             <FormControl sx={{ minWidth: 150 , minHeight: 40}}>
               <InputLabel id="selectQueryLabel" size="small" style={{paddingTop: '0.2rem'}}>
-                Select Query
+                Show Properties
               </InputLabel>
               <Select
                 labelId="selectQueryLabel"
