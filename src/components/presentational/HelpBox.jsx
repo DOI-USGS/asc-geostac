@@ -6,7 +6,7 @@ function RasterVsVectorBox() {
             <h3>Raster vs Vector</h3>
             <h4>Raster</h4>
             <p>
-            The collections with the (Rastor) tag are Analysis Ready Data (ARD) holding obtained using the SpatioTemporal
+            The collections with the (Raster) tag are Analysis Ready Data (ARD) holding obtained using the SpatioTemporal
             Asset Catalogs (STAC) API. These features include image footprints and their corresponding assets. More
             information can be found about this API using the "Help" button.
             </p>
