@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 function RasterVsVectorBox() {
     return (
@@ -50,6 +50,22 @@ export default function HelpBox({ isOpen, onClose }) {
     if(!isOpen) return null;
 
     const [showSubPopup, setShowSubPopup] = useState(null);
+    const popupRef = useRef();
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (event.target === popupRef.current) {
+                onClose();
+            }
+        }
+
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isOpen, onClose]);
 
     const handleRasterVsVectorClick = () => {
         setShowSubPopup('rasterVsVector');
@@ -64,7 +80,7 @@ export default function HelpBox({ isOpen, onClose }) {
     };
 
     return (
-        <div id="helpBoxBackground">
+        <div id="helpBoxBackground" ref={popupRef}>
             <div className="helpBoxContent">
                 <h2>Help Menu</h2>
                 <button className="helpButton" onClick={handleRasterVsVectorClick}>Raster vs Vector</button>
