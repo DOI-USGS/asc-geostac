@@ -123,6 +123,7 @@ export async function FetchFootprints(collection, page, step){
             pageInfo = "&offset=" + offsetMulitiplier + "&limit=" + step;
         }
         
+        
     }
     
     // reset offset
