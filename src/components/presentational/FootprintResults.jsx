@@ -61,12 +61,8 @@ export default function FootprintResults(props) {
     setCollectionId(newCollectionId);
     setMatched(featureCollections[newCollectionId].numberMatched);
 
-    // Extract the selected collection title
-    const selectedCollection = props.target.collections.find(collection => collection.id === newCollectionId);
-    const selectedCollectionTitle = selectedCollection ? selectedCollection.title : '';
-
     // Call the callback function to pass the selected title to the Sidebar
-    props.updateSelectedTitle(selectedCollectionTitle);
+    props.updateAvailableQueriables(props.target.collections.find(col => col.id === newCollectionId).querTitles);
 
     props.UpdateQueryableTitles(null);
 
