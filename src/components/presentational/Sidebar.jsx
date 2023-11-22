@@ -48,7 +48,6 @@ export default function Sidebar(props) {
 
   // Callback function to update selected title
   const updateAvailableQueriables = (queriables) => {
-    console.log(queriables);
     setAvailableQueriables(queriables);
   };
 

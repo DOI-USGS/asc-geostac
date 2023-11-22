@@ -173,8 +173,12 @@ export default L.Map.AstroMap = L.Map.extend({
     for(const feature of myFeatures) {
 
       // Check if feature or feature.geometry is null or undefined
-      if(!feature || !feature.geometry){
-        console.warn("Invalid feature or missing geometry: ", feature);
+      if(!feature){
+        console.log("Invalid/Null Feature", feature);
+        continue;
+      }
+      else if(!feature.geometry){
+        console.log("Feature with missing geometry", feature)
         continue;
       }
 
