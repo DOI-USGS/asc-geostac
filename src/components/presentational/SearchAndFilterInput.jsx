@@ -236,6 +236,11 @@ export default function SearchAndFilterInput(props) {
     return () => window.removeEventListener("message", onBoxDraw);
   }, []);
 
+  // If Available queriables are changed, reset the ones selected to none
+  useEffect(() => {
+    setSelectedOptions([]);
+  }, [props.availableQueriables]);
+
   // If target is changed, reset filter values;
   useEffect(() => {
 
