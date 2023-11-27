@@ -17,19 +17,21 @@ export async function FetchObjects(objInfo) {
 
     // For each url given
     for(const key in objInfo) {
-
         // Fetch JSON from url and read into object
-        fetchPromise[key] = fetch(
-            objInfo[key]
-        ).then((res)=>{
-            jsonPromise[key] = res.json().then((jsonData)=>{
-                jsonRes[key] = jsonData;
-            }).catch((err)=>{
+        // The stylesheet ones \/ get 404s so I'm discarding them for now
+        if (!key.includes(": stylesheet")){
+            fetchPromise[key] = fetch(
+                objInfo[key]
+            ).then((res) => {
+                jsonPromise[key] = res.json().then((jsonData) => {
+                    jsonRes[key] = jsonData;
+                }).catch((err) => {
+                    console.log(err);
+                });
+            }).catch((err) => {
                 console.log(err);
             });
-        }).catch((err) => {
-            console.log(err);
-        });
+        }
     }
 
     // Wait for each query to complete
@@ -50,86 +52,35 @@ export async function FetchObjects(objInfo) {
  * @param {string} queryString - The query to narrow the results returned from the collection.
  */
 export async function FetchFootprints(collection, page, step){
-    let collectionUrl;
-    let offsetMulitiplier;
+    const stacDefaultLimit = 10;
+    const pyDefaultLimit = 25;
+    let baseURL = collection.url;
     let pageInfo = "";
+
+    // get rid of default limit present in some pygeoapi urls
+    if(baseURL.slice(-9) == "&limit=10") {
+        baseURL = baseURL.slice(0, -9);
+    }
+
     if(collection.url.slice(-1) !== "?") {
         pageInfo += "&"
     }
-    pageInfo += "page=" + page;
-    if (step != 10){
-      pageInfo += "&limit=" + step;
-    }
 
-    // check for pyGeo API
-    if (!collection.url.includes('stac')) 
+    if (collection.url.includes('stac'))
     {
-
-        // set offset for 5 & 10 steps
-        offsetMulitiplier = (page * 10 - step);
-        pageInfo = "&offset=" + offsetMulitiplier;
-
-        
-        // checks for 5 change in step
-        if (step <= 10)
-        {
-               
-            // splice limit and change to new limit
-            collectionUrl = collection.url.split('&limit=')[0];
-            collection.url = collectionUrl;
-                
-                
-            // update page pageInfo
-            pageInfo = "&offset=" + offsetMulitiplier + "&limit=" + step;
-            
-            
+        pageInfo += "page=" + page;
+        if (step !== stacDefaultLimit) {
+            pageInfo += "&limit=" + step;
         }
-        // checks for 50 & 100 step
-        else if (step == 50 || step == 100)
-        {
-
-            // splice limit and change to new limit
-            collectionUrl = collection.url.split('&limit=')[0];
-            collection.url = collectionUrl;
-
-            // check for first page 
-            if (page == 1)
-            {
-                // set multiplier to 0
-                offsetMulitiplier = 0;
-            }
-            // check for second page
-            else if (page == 2)
-            {   
-                // set multiplier to step
-                offsetMulitiplier = step;
-            
-            }
-            else
-            {
-                // check for 50 and set pages according
-                if (step == 50)
-                {
-                    offsetMulitiplier = page * step - 50;
-                }
-                // check for 100 and set pages according
-                else 
-                {
-                    offsetMulitiplier = page * step - 100;
-                }
-            }
-
-            // update page pageInfo
-            pageInfo = "&offset=" + offsetMulitiplier + "&limit=" + step;
-        }
-        
-        
     }
-    
-    // reset offset
-    offsetMulitiplier = 0;
+    else {
+        pageInfo += "offset=" + step * (page - 1);
+        if (step !== pyDefaultLimit) {
+            pageInfo += "&limit=" + step;
+        }
+    }
 
-    let jsonRes = await FetchObjects(collection.url + pageInfo);
+    let jsonRes = await FetchObjects(baseURL + pageInfo);
     return jsonRes.features;
 }
 

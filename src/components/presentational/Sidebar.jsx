@@ -44,11 +44,11 @@ export default function Sidebar(props) {
   };
 
   // State to hold the selected title
-  const [selectedTitle, setSelectedTitle] = React.useState("");
+  const [availableQueriables, setAvailableQueriables] = React.useState("");
 
   // Callback function to update selected title
-  const updateSelectedTitle = (newTitle) => {
-    setSelectedTitle(newTitle);
+  const updateAvailableQueriables = (queriables) => {
+    setAvailableQueriables(queriables);
   };
 
   // State to hold the seleced queryables
@@ -72,7 +72,7 @@ export default function Sidebar(props) {
             setFilterString={setFilterString}
             targetName={props.target.name}
             target={props.target}
-            selectedTitle={selectedTitle} 
+            availableQueriables={availableQueriables} 
             UpdateQueryableTitles = {UpdateQueryableTitles}
           />
           <FootprintResults
@@ -80,7 +80,7 @@ export default function Sidebar(props) {
             filterString={filterString}
             queryAddress={props.queryAddress}
             setQueryAddress={props.setQueryAddress}
-            updateSelectedTitle={updateSelectedTitle}
+            updateAvailableQueriables={updateAvailableQueriables}
             selectedQueryables = {updatedQueryableTitles}
             UpdateQueryableTitles = {UpdateQueryableTitles}
           />
