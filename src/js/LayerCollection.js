@@ -62,6 +62,7 @@ export default L.LayerCollection = L.Class.extend({
    * @param  {List} layers - List of overlay information.
    */
   createOverlays: function(layers) {
+    
     for (let i = 0; i < layers.length; i++) {
       let layer = layers[i];
       let overlay = L.tileLayer.wms(
@@ -202,6 +203,7 @@ export default L.LayerCollection = L.Class.extend({
       "https://astrocloud.wr.usgs.gov/dataset/data/nomenclature/" +
       map.target().toUpperCase() +
       "/WFS";
+
 
     let defaultParameters = {
       service: "WFS",

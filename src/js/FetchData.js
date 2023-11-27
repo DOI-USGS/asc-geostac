@@ -1,7 +1,7 @@
 
 /**
- * 
- * @returns 
+ *
+ * @returns
  */
 export default async function Initialize(){
 
@@ -10,8 +10,11 @@ export default async function Initialize(){
         "https://astrowebmaps.wr.usgs.gov/webmapatlas/Layers/maps.json";
 
     // STAC API, has footprint data for select planetary bodies
-    const stacApiCollections = 
+    const stacApiCollections =
         "https://stac.astrogeology.usgs.gov/api/collections";
+
+    const vectorApiCollections =
+        "https://astrogeology.usgs.gov/pygeoapi/collections";
 
     // Async tracking
     let fetchStatus = {};
@@ -35,6 +38,11 @@ export default async function Initialize(){
     jsonPromise[stacApiCollections] = "Not Started";
     mapsJson[stacApiCollections] = [];
 
+    fetchStatus[vectorApiCollections] = "Not Started";
+    fetchPromise[vectorApiCollections] = "Not Started";
+    jsonPromise[vectorApiCollections] = "Not Started";
+    mapsJson[vectorApiCollections] = [];
+
     // Fetch JSON and read into object
     async function ensureFetched(targetUrl) {
         if(fetchStatus[targetUrl] === "Not Started")
@@ -57,8 +65,8 @@ export default async function Initialize(){
     }
 
     // Combine data from Astro Web Maps and STAC API into one new object
-    function organizeData(astroWebMaps, stacApiCollections) {
-        
+    async function organizeData(astroWebMaps, stacApiCollections, vectorApiCollections) {
+
         // Initialize Objects
         let mapList = { "systems" : [] };
         let stacList = [];
@@ -66,6 +74,8 @@ export default async function Initialize(){
         // Check for Planets that have STAC footprints from the STAC API
         for (let i = 0; i < stacApiCollections.collections.length; i++) {
             let stacTarget = stacApiCollections.collections[i].summaries["ssys:targets"][0].toLowerCase();
+
+            // pushes stacTarget onto the stacList if the target isn't already in the list
             if(!stacList.find(targetBody => targetBody == stacTarget)){
                 stacList.push(stacTarget.toLowerCase());
             }
@@ -82,11 +92,13 @@ export default async function Initialize(){
                     "bodies" : []
                 })
             }
-            
+
             // Index of System
             let sysIndex = mapList.systems.map(sys => sys.name).indexOf(target.system);
 
-            // ID the system
+            // ID the system. This seems to get the main planet of the system.
+            // https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/naif_ids.html
+            // "A planet is always considered to be the 99th satellite of its own barycenter"
             if (target.naif % 100 === 99){
                 mapList.systems[sysIndex].naif = target.naif;
             }
@@ -102,7 +114,47 @@ export default async function Initialize(){
                 if (hasFootprints) {
                     for (const collection of stacApiCollections.collections){
                         if (target.name == collection.summaries["ssys:targets"][0].toUpperCase()) {
+                            // Add a specification to the title in order to show what kind of data the user is requesting
+                            collection.dataType = "raster";
+                            collection.querTitles = [];
+                            collection.title = collection.title.concat(" (Raster)");
                             myCollections.push(collection);
+                        }
+                    }
+
+                    for (const pycollection of vectorApiCollections.collections){
+                        // view the collection as GEOJSON
+                        let target_name = pycollection.id.split('/')[0];
+                        if (target.name == target_name.toUpperCase()) {
+
+                            // Set links GeoSTAC needs later
+                            pycollection.links.find(link => link.rel === "items").href = "https://astrogeology.usgs.gov/pygeoapi" + pycollection.links.find(link => link.rel === "items").href;
+                            pycollection.itemsLink = "https://astrogeology.usgs.gov/pygeoapi" + pycollection.links.find(link => link.rel === "items").href;
+                            pycollection.queryablesLink = "https://astrogeology.usgs.gov/pygeoapi" + pycollection.links.find(link => link.rel === "queryables").href;
+                            
+                            // Fetch and await queriables
+                            fetchStatus[pycollection.queryablesLink] = "Not Started";
+                            fetchPromise[pycollection.queryablesLink] = "Not Started";
+                            jsonPromise[pycollection.queryablesLink] = "Not Started";
+                            mapsJson[pycollection.queryablesLink] = [];
+                            ensureFetched(pycollection.queryablesLink);
+                            await ensureFetched(pycollection.queryablesLink);
+
+                            // put queryable titles in array
+                            let querData = mapsJson[pycollection.queryablesLink];
+                            let querTitles = [];
+                            let querProps = querData.properties;
+                            for (const property in querProps) {
+                                if (querProps.hasOwnProperty(property) && querProps[property].hasOwnProperty("title")) {
+                                    querTitles.push(querData.properties[property].title);
+                                }
+                            }
+
+                            // Add a specification to the title in order to show what kind of data the user is requesting
+                            pycollection.dataType = "vector";
+                            pycollection.querTitles = querTitles;
+                            pycollection.title = pycollection.title.concat(" (Vector)");
+                            myCollections.push(pycollection);
                         }
                     }
                 }
@@ -189,21 +241,25 @@ export default async function Initialize(){
                 return valA - valB;
             })
         }
-        
+
         return mapList;
     }
 
-    // Fetch and organize data from 
+    // Fetch and organize data from
     async function getStacAndAstroWebMapsData() {
         // Start fetching from AWM and STAC API concurrently
         ensureFetched(astroWebMaps);
         ensureFetched(stacApiCollections);
+        ensureFetched(vectorApiCollections);
 
         // Wait for both to complete before moving on
         await ensureFetched(astroWebMaps);
         await ensureFetched(stacApiCollections);
+        await ensureFetched(vectorApiCollections);
 
-        return organizeData(mapsJson[astroWebMaps], mapsJson[stacApiCollections]);
+        let organizedData = await organizeData(mapsJson[astroWebMaps], mapsJson[stacApiCollections], mapsJson[vectorApiCollections]);
+
+        return organizedData;
     }
 
     aggregateMapList = await getStacAndAstroWebMapsData();

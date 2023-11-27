@@ -32,7 +32,6 @@ export default function FootprintResults(props) {
   const [oldTargetName, setOldTargetName] = React.useState("");
   const [oldFilterString, setOldFilterString] = React.useState("");
 
-
   const addFeatures = (newFeatures, key) => {
     let myFeatureCollections = featureCollections;
     myFeatureCollections[key].features.push(...newFeatures);
@@ -58,9 +57,15 @@ export default function FootprintResults(props) {
     let newCollectionId = value.props.value;
     
     addFeatures(await FetchStepRemainder(featureCollections[newCollectionId], step), newCollectionId);
-    
+
     setCollectionId(newCollectionId);
     setMatched(featureCollections[newCollectionId].numberMatched);
+
+    // Call the callback function to pass the selected title to the Sidebar
+    props.updateAvailableQueriables(props.target.collections.find(col => col.id === newCollectionId).querTitles);
+
+    props.UpdateQueryableTitles(null);
+
 
     // Send to Leaflet
     window.postMessage(["setVisibleCollections", newCollectionId], "*");
@@ -75,7 +80,7 @@ export default function FootprintResults(props) {
     let newPage = numFeatures/step + 1;
     let newFeatures = await FetchFootprints(featureCollections[collectionId], newPage, step);
     
-    // If any features are returned, add them to currecnt collection
+    // If any features are returned, add them to current collection
     if (newFeatures.length > 0) {
       addFeatures(newFeatures, collectionId);
     }
@@ -112,20 +117,90 @@ export default function FootprintResults(props) {
       }
 
       let collectionUrls = {};
+      let styleSheetUrls = [];
+
       for (const collection of props.target.collections) {
-        let itemsUrl = collection.links.find(link => link.rel === "items").href;
-        collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
+        
+        
+        let isInStacAPI = collection.hasOwnProperty("stac_version");
+        
+        let isFeature = collection.itemType == "feature";
+
+        
+        // check for pygeo api
+        if (isFeature)
+        {
+          // change filter for the pygeo api
+          myFilter = "&limit=" + step;
+        }
+        let styleSheet;
+        const foundStyleSheet = collection.links.find(link=> link.rel == "stylesheet");
+
+        if(foundStyleSheet) {
+          styleSheet = foundStyleSheet.href;
+          styleSheetUrls[collection.id] = styleSheet;
+        }
+
+        if(isInStacAPI || isFeature) {
+          let itemsUrl = collection.links.find(link => link.rel === "items").href;
+          collectionUrls[collection.id] = itemsUrl + myFilter + pageInfo;
+
+          let style_url = null;
+          for (let index = 0; index < collection.links.length; index++) {
+            if (collection.links[index].rel === "stylesheet") {
+              style_url = collection.links[index].href
+            }
+          }
+          collectionUrls[collection.id + ": stylesheet"] = style_url;
+
+          // if (collection.links.find(link => link.rel === "stylesheet").href != undefined) {
+          //   let styleUrl = collection.links.find(link => link.rel === "stylesheet").href;
+          //   collectionUrls[collection.id].style = styleUrl;
+          // }
+
+          // }
+        }
+        else {
+          let itemsUrl = collection.links.find(link => link.rel === "items").href;
+          collectionUrls[collection.id] = itemsUrl + pageInfo;
+        }
       }
+
+      async function fetchSLD(sld_url) {
+        try {
+           const response = await fetch(sld_url)
+           if(!response.ok) {
+             throw new Error('SLD response not ok ' + response.statusText);
+             }
+            const SLD_DATA = await response.text();
+            //const parser = new DOMParser();
+            //const sld_file = parser.parseFromString(SLD_DATA, text/xml);
+           return SLD_DATA
+               } catch (error) {
+                  console.error('SLD unable to be fetched', error);
+               }
+     }
+
 
       (async () => {
         let collections = await FetchObjects(collectionUrls);
+
 
         // Add extra properties to each collection
         for(const key in collections){
           collections[key].id = key;
           collections[key].title = props.target.collections.find(collection => collection.id === key).title;
           collections[key].url = collectionUrls[key];
+
+          let sldtext = null;
+
+          if (styleSheetUrls[key]) {
+            sldtext = await fetchSLD(styleSheetUrls[key]);
+            collections[key].styleSheets = sldtext;
+          }
+
         }
+
 
         // Updates collectionId if switching to a new set of collections (new target)
         let myId = collectionId;
@@ -140,6 +215,9 @@ export default function FootprintResults(props) {
         setNumFeatures(collections[myId].features.length);
         setHasFootprints(Object.keys(collections).length > 0);
         setIsLoading(false);
+
+
+       
 
         // Send to Leaflet
         window.postMessage(["setFeatureCollections", myId, collections], "*");
@@ -181,6 +259,9 @@ export default function FootprintResults(props) {
   for(const key in featureCollections){
     if(featureCollections[key].numberReturned > 0) noFootprintsReturned = false;
   }
+  if(numFeatures > matched) {
+    setNumFeatures(matched);
+  }
 
   return (
     <div id="footprintResults" className="scroll-parent">
@@ -210,7 +291,11 @@ export default function FootprintResults(props) {
           <div id="resultsList">
             <List sx={{maxWidth: 265, paddingTop: 0}}>
               {featureCollections[collectionId].features.map(feature => (
-                <FootprintCard feature={feature} key={feature.id}/>
+                <FootprintCard
+                 feature={feature}
+                  key={feature.id}
+                  selectedQueryables = {props.selectedQueryables}
+                  />
               ))}
             </List>
           </div>

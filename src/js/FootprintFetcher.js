@@ -17,19 +17,21 @@ export async function FetchObjects(objInfo) {
 
     // For each url given
     for(const key in objInfo) {
-
         // Fetch JSON from url and read into object
-        fetchPromise[key] = fetch(
-            objInfo[key]
-        ).then((res)=>{
-            jsonPromise[key] = res.json().then((jsonData)=>{
-                jsonRes[key] = jsonData;
-            }).catch((err)=>{
+        // The stylesheet ones \/ get 404s so I'm discarding them for now
+        if (!key.includes(": stylesheet")){
+            fetchPromise[key] = fetch(
+                objInfo[key]
+            ).then((res) => {
+                jsonPromise[key] = res.json().then((jsonData) => {
+                    jsonRes[key] = jsonData;
+                }).catch((err) => {
+                    console.log(err);
+                });
+            }).catch((err) => {
                 console.log(err);
             });
-        }).catch((err) => {
-            console.log(err);
-        });
+        }
     }
 
     // Wait for each query to complete
@@ -50,32 +52,65 @@ export async function FetchObjects(objInfo) {
  * @param {string} queryString - The query to narrow the results returned from the collection.
  */
 export async function FetchFootprints(collection, page, step){
-
+    const stacDefaultLimit = 10;
+    const pyDefaultLimit = 25;
+    let baseURL = collection.url;
     let pageInfo = "";
+
+    // get rid of default limit present in some pygeoapi urls
+    if(baseURL.slice(-9) == "&limit=10") {
+        baseURL = baseURL.slice(0, -9);
+    }
+
     if(collection.url.slice(-1) !== "?") {
         pageInfo += "&"
     }
-    pageInfo += "page=" + page;
-    if (step != 10){
-      pageInfo += "&limit=" + step;
+
+    if (collection.url.includes('stac'))
+    {
+        pageInfo += "page=" + page;
+        if (step !== stacDefaultLimit) {
+            pageInfo += "&limit=" + step;
+        }
+    }
+    else {
+        pageInfo += "offset=" + step * (page - 1);
+        if (step !== pyDefaultLimit) {
+            pageInfo += "&limit=" + step;
+        }
     }
 
-    let jsonRes = await FetchObjects(collection.url + pageInfo);
+    let jsonRes = await FetchObjects(baseURL + pageInfo);
     return jsonRes.features;
 }
 
-export async function FetchStepRemainder(featureCollection, myStep){
+export async function FetchStepRemainder(featureCollection, myStep) {
+    if (!featureCollection || !featureCollection.features) {
+        console.error('Invalid featureCollection:', featureCollection);
+        return [];
+    }
+
     let myPage = Math.ceil(featureCollection.features.length / myStep);
     let skip = featureCollection.features.length % myStep;
     let newFeatures = [];
+    let fullResponse;
 
     if (skip !== 0) {
-      newFeatures = await FetchFootprints(featureCollection, myPage, myStep);
+        fullResponse = await FetchFootprints(featureCollection, myPage, myStep);
 
-      // If any features are returned, add the remainder needed to the current collection
-      if (newFeatures.length > 0) {
-        return newFeatures.slice(skip, newFeatures.length);
-      }
+        if (!fullResponse) {
+            console.error('Invalid fullResponse:', fullResponse);
+            return [];
+        }
+
+        newFeatures = fullResponse;
+
+        // Handle edge case where you may have requested more features than  still available
+        if (newFeatures.length < myStep) {
+            return newFeatures;
+        } else {
+            return newFeatures.slice(skip, newFeatures.length);
+        }
     }
     return newFeatures;
-  }
+}

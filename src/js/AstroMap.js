@@ -21,7 +21,7 @@ import LayerCollection from "./LayerCollection";
  * @param {String} mapDiv - ID of the div for the map.
  *
  * @param {String} target - Name of target to display layers for.
- * 
+ *
  * @param {Object} myJsonMaps - Json fetched from AstroWebMaps
  *
  * @param {Object} options - Options for the map.
@@ -33,11 +33,12 @@ export default L.Map.AstroMap = L.Map.extend({
     maxZoom: 8,
     attributionControl: false,
     zoomControl: false,
-    worldCopyJump: true // Jumps back to the other side of the map if the 
+    worldCopyJump: true // Jumps back to the other side of the map if the
                         // user scrolls too far, as if the map is wrapping.
   },
 
   initialize: function(mapDiv, target, jsonMaps, options) {
+
     this._mapDiv = mapDiv;
     this._target = target;
     this._jsonMaps = jsonMaps;
@@ -54,6 +55,8 @@ export default L.Map.AstroMap = L.Map.extend({
 
     // Set by layer collection or baselayerchange event
     this._currentLayer = null;
+
+    this.SLDStyler = new L.SLDStyler();
 
     // Store layers at map creation so we only need to create layers once.
     let cylLayerInfo = this.parseJSON("cylindrical");
@@ -133,12 +136,12 @@ export default L.Map.AstroMap = L.Map.extend({
         const receivedCollections = event.data[2];
         this.refreshFeatures(visibleCollectionId, receivedCollections);
       }
-      else if (event.data[0] === "addFeaturesToCollection") { 
+      else if (event.data[0] === "addFeaturesToCollection") {
         const collectionId = event.data[1];
         const myFeatures = event.data[2];
         this.addFeaturesToCollection(collectionId, myFeatures);
       }
-      else if (event.data[0] === "setVisibleCollections") { 
+      else if (event.data[0] === "setVisibleCollections") {
         const collectionId = event.data[1];
         this.setVisibleCollections(collectionId);
       }
@@ -169,10 +172,20 @@ export default L.Map.AstroMap = L.Map.extend({
     // Clone Features to west and east. For each feature...
     for(const feature of myFeatures) {
 
+      // Check if feature or feature.geometry is null or undefined
+      if(!feature){
+        console.log("Invalid/Null Feature", feature);
+        continue;
+      }
+      else if(!feature.geometry){
+        console.log("Feature with missing geometry", feature)
+        continue;
+      }
+
       // Clone it
       let westCopy = structuredClone(feature);
       let eastCopy = structuredClone(feature);
-      
+
       // Shift clones to the west and east 360 degrees, for a wrapping effect
       // Note: Only supports polygons and multipolygons... Do we have other geometry types?
       if(feature.geometry.type === "Polygon"){
@@ -183,7 +196,7 @@ export default L.Map.AstroMap = L.Map.extend({
         westCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]-360, c[1]]);
         eastCopy.geometry.coordinates[0][0] = feature.geometry.coordinates[0][0].map(c => [c[0]+360, c[1]]);
       }
-      
+
       clonedFeatures.push(...[westCopy, feature, eastCopy]);
     }
     return clonedFeatures;
@@ -195,7 +208,7 @@ export default L.Map.AstroMap = L.Map.extend({
   },
 
   highlightFootprint: function(feature){
-    
+
     if(this._hovHighlight) {
       this._hovHighlight.remove();
     }
@@ -212,8 +225,9 @@ export default L.Map.AstroMap = L.Map.extend({
     for(let i = 0; i < this._geoLayers.length; i++) {
       if(this._geoLayers[i]){
         // Add layers to map if they should be visible
-        if(this._geoLayers[i].options.id === collectionId) { 
+        if(this._geoLayers[i].options.id === collectionId) {
           this._geoLayers[i].addTo(this);
+          this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
         } else {
           this._geoLayers[i].removeFrom(this);
         }
@@ -226,14 +240,18 @@ export default L.Map.AstroMap = L.Map.extend({
       if(this._geoLayers[i] && this._geoLayers[i].options.id === collectionId){
         let wrappedFeatures = this.cloneWestEast(myFeatures);
         this._geoLayers[i].addData(wrappedFeatures);
+        this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
       }
     }
   },
 
   // show thumbnail on map when clicked - use stac-layer for this?
   handleClick: function(e) {
-    const url_to_stac_item = e.layer.feature.links[0].href;
-    console.log (url_to_stac_item);
+    console.log(e)
+    if(!e) {
+      let url_to_stac_item = e.layer.feature.links[0].href;
+      console.log (url_to_stac_item);
+   }
     // fetch(url_to_stac_item).then(res => res.json()).then(async feature => {
     //   const thumbnail = await L.stacLayer(feature, {displayPreview: true});
     //   thumbnail.on("click", e => {
@@ -252,22 +270,7 @@ export default L.Map.AstroMap = L.Map.extend({
    */
   refreshFeatures: function(visibleCollectionId, collectionsObj) {
 
-    // Will we need more than 6 colors for more than 6 different collections?
-    let colors =      [ "#17A398", "#EE6C4D", "#662C91", "#F3DE2C", "#33312E", "#0267C1" ];
-    let lightcolors = [ "#3DE3D5", "#F49C86", "#9958CC", "#F7E96F", "#DDDDDD", "#2A9BFD" ];
-
-    // Old, removes separate control
-    // if(this._footprintControl) {
-    //   this._footprintControl.remove();
-    // }
-
-    // removes layers previously loaded
-    for(let i = 0; i < this._geoLayers.length; i++){
-      if(this._geoLayers[i]) {
-        L.LayerCollection.layerControl.removeLayer(this._geoLayers[i]);
-        this._geoLayers[i].clearLayers();
-      }
-    }
+    this.removePreviousLayers(this._geoLayers, L);
 
     // initialize featureCollection as an array
     // (convert obj passed from FootprintResults.jsx)
@@ -277,55 +280,95 @@ export default L.Map.AstroMap = L.Map.extend({
     }
 
     if (featureCollections != []) {
-      
+
       // Init _geoLayers, at the length of one layer per collection
       this._geoLayers = new Array(featureCollections.length);
 
       // For each Collection (and each geoLayer)
       for (let i = 0; i < featureCollections.length; i++) {
-
-        let title = featureCollections[i].title;
+        
+        let curr_collection = featureCollections[i];
+        let title = curr_collection.title;
+        let sld_text = curr_collection.styleSheets;
+        let features_in_curr_collection = curr_collection.features.length;
+        let sld_style = null;
+        let wrappedFeatures = null;
 
         // Add each _geoLayer that has footprints to the FootprintCollection object.
         // The collection title is used as the property name
         // [old] and it shows up as the layer title when added to the separate Leaflet control
-        if(featureCollections[i].features.length > 0) {
+        if(features_in_curr_collection > 0) {
 
-          // Set colors if available
-          let myStyle = i < colors.length ? {fillColor: colors[i], color: lightcolors[i]} : {};
+          sld_style = this.getStyle(sld_text, this.SLDStyler, i);
+          wrappedFeatures = this.cloneWestEast(curr_collection.features);
 
-          // Wrap features
-          let wrappedFeatures = this.cloneWestEast(featureCollections[i].features);
-
-          // Add features to a geoJSON layer, as _geoLayers[i]
           this._geoLayers[i] = L.geoJSON(wrappedFeatures, {
-            id: featureCollections[i].id,
-            style: myStyle
+            id: curr_collection.id,
+            style: sld_style
           })
 
           this._geoLayers[i].on({click: this.handleClick});  // Add click listener
-          
+
           // Add layers to map if they should be visible
-          if(featureCollections[i].id === visibleCollectionId) { 
+          if(curr_collection.id === visibleCollectionId) {
             this._geoLayers[i].addTo(this);
+            this.SLDStyler.symbolize_with_icons(this._geoLayers[i], this);
           }
 
           this._footprintCollection[title] = this._geoLayers[i];
-
           // Add collections to the Overlay control
           L.LayerCollection.layerControl.addOverlay(this._footprintCollection[title], title);
-
         }
         else if(this._geoLayers[i]) {
           delete this._footprintCollection[title]; // Delete layers with no Footprints
         }
       }
 
+
+
       // Add collections to a separate control
       // this._footprintControl = L.control                          // 1. Make a leaflet control
       // .layers(null, this._footprintCollection, {collapsed: true}) // 2. Add the footprint collections to the control as layers
       // .addTo(this)                                                // 3. Add the control to leaflet.
                                                                      // Now the user can show/hide layers (and see their titles)
+    }
+  },
+
+  /**
+   * @function AstroMap.prototype.getStyle
+   * @description gets the style for SLD.styler
+   * @param {string} sld_style - sld text
+   * @param {object} SLDStyler - styling tool for geoJSON objects
+   * @param {int} index - index to get different default styles
+   */
+  getStyle: function(sld_style, SLDStyler, index){
+
+    let colors =      [ "#17A398", "#EE6C4D", "#662C91", "#F3DE2C", "#33312E", "#0267C1" ];
+    let lightcolors = [ "#3DE3D5", "#F49C86", "#9958CC", "#F7E96F", "#DDDDDD", "#2A9BFD" ];
+    let defaultStyle = null;
+    
+    if (sld_style != null) {
+      SLDStyler = new L.SLDStyler(sld_style);
+      return SLDStyler.getStyleFunction();
+    }
+
+    defaultStyle = index < colors.length ? {fillColor: colors[index], color: lightcolors[index]} : {};;
+    return defaultStyle;
+  },
+
+  /**
+   * @function AstroMap.prototype.removePreviousLayers
+   * @description removes previous layers off of leaflet map
+   *
+   */
+  removePreviousLayers: function(geoLayers, L) {
+    // removes layers previously loaded
+    let collection_amount = geoLayers.length;
+    for(let i = 0; i < collection_amount; i++){
+    if(geoLayers[i]) {
+      L.LayerCollection.layerControl.removeLayer(geoLayers[i]);
+      geoLayers[i].clearLayers();
+      }
     }
   },
 

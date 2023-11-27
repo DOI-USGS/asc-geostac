@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // Keyword Filter
 import TextField from "@mui/material/TextField";
 // Date Range
@@ -18,6 +18,7 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 
 import { Collapse, Divider } from "@mui/material";
+import ListItemText from "@mui/material/ListItemText";
 
 /**
  * Controls css styling for this component using js to css
@@ -70,11 +71,11 @@ export default function SearchAndFilterInput(props) {
   // Allows showing/hiding of fields
   const [expandFilter, setExpandFilter] = React.useState(false);
   const [expandDate, setExpandDate] = React.useState(false);
-  
+
   // Sort By
   const [sortVal, setSortVal] = React.useState("");                    // Sort By What?
   const [sortAscCheckVal, setSortAscCheckVal] = React.useState(true); // Sort Ascending or Descending
-  
+
   // Filter by X checkboxes
   const [areaCheckVal, setAreaCheckVal] = React.useState(false);       // Area
   const [dateCheckVal, setDateCheckVal] = React.useState(false);       // Date
@@ -84,16 +85,18 @@ export default function SearchAndFilterInput(props) {
   const [dateFromVal, setDateFromVal] = React.useState(null);     // From Date
   const [dateToVal, setDateToVal] = React.useState(null);         // To Date
 
+  //const for callback
+  const {UpdateQueryableTitles} = props;
   const handleExpandFilterClick = () => {
     setExpandFilter(!expandFilter);
   }
 
   const buildQueryString = () => {
     let myFilterString = "?";
-    
+
     // Date
     if (dateCheckVal) {
-      
+
       let d = new Date();
       const lowestYear = 1970;
       const highestYear = d.getFullYear();
@@ -143,6 +146,42 @@ export default function SearchAndFilterInput(props) {
 
     props.setFilterString(myFilterString);
   }
+
+  // New state for queryable titles
+  const [queryableTitles, setQueryableTitles] = useState([]);
+
+  // all collections
+  const collection = props.target.collections;
+
+  // retrieves all PyGEO collections
+  const isInPyAPI = collection.filter(data => data.hasOwnProperty('itemType'));
+
+  // finds and assigns the selected collection from the PYGEO api
+  const selectedCollection = isInPyAPI.find(data => data.title === props.availableQueriables);
+
+  // retrieves all pyGEO titles
+  const collectionTitles = isInPyAPI.map(data => data.title);
+
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const handleOptionChange = event => {
+    const selectedValues = event.target.value;
+    setSelectedOptions(selectedValues);
+
+    // Create an array of objects with selected option and value
+    const selectedOptionsWithValues = selectedValues.map((option) => ({
+      option,
+        value: queryableTitles.find((title) => title.title === option)?.value,
+      }));
+
+  // Pass the selected options and values to FootprintResults
+    UpdateQueryableTitles(selectedOptionsWithValues);
+  };
+
+  //queryables
+  const handleQueryableRemove = (event) => {
+    UpdateQueryableTitles(event);
+  };
 
   // Sorting
   const handleSortChange = (event) => {
@@ -197,13 +236,18 @@ export default function SearchAndFilterInput(props) {
     return () => window.removeEventListener("message", onBoxDraw);
   }, []);
 
+  // If Available queriables are changed, reset the ones selected to none
+  useEffect(() => {
+    setSelectedOptions([]);
+  }, [props.availableQueriables]);
+
   // If target is changed, reset filter values;
   useEffect(() => {
-    
+
   // Sort By
   setSortVal("");
   setSortAscCheckVal(true);
-  
+
   // Filter by X checkboxes
   setAreaCheckVal(false);
   setDateCheckVal(false);
@@ -212,10 +256,10 @@ export default function SearchAndFilterInput(props) {
   setAreaTextVal("");    // Area (received by window message from AstroMap)
   setDateFromVal(null); // From Date
   setDateToVal(null);  // To Date
+  handleQueryableRemove(null); // properties selection
+  
 
   }, [props.targetName]);
-
-  
 
   /* Control IDs for reference:
   sortBySelect
@@ -238,7 +282,7 @@ export default function SearchAndFilterInput(props) {
       <Collapse in={expandFilter}>
         <div className="panelSection panelBar">
           <span>
-            <FormControl sx={{ minWidth: 150 }}>
+            <FormControl sx={{ minWidth: 180 }}>
               <InputLabel id="sortByLabel" size="small">
                 Sort By
               </InputLabel>
@@ -269,6 +313,36 @@ export default function SearchAndFilterInput(props) {
           </span>
         </div>
 
+        {props.availableQueriables.length > 0 && (
+        <>
+          <Divider/>
+          <div className="panelSection panelBar">
+            <span>
+              <FormControl sx={{ minWidth: 180 , minHeight: 40}}>
+                <InputLabel id="showPropertiesLabel" size="small" style={{paddingTop: '0.2rem'}}>
+                  Show Properties
+                </InputLabel>
+                <Select
+                  labelId="showPropertiesLabel"
+                  label="Show Properties"
+                  multiple
+                  value={selectedOptions}
+                  onChange={handleOptionChange}
+                  renderValue={(selected) => selected.join(', ')}
+                  style={{height: 43}}
+                >
+                  {props.availableQueriables.map((title) => (
+                          <MenuItem key={title} value={title}>
+                            <Checkbox checked={selectedOptions.includes(title)} />
+                            <ListItemText primary={title} />
+                          </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </span>
+          </div>
+        </>
+        )}
         <Divider/>
 
         <div className="panelSection">
